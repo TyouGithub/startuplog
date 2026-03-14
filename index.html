@@ -1705,14 +1705,14 @@ function meetingHTML(m) {
   const conclusionHtml = m.conclusion
     ? `<div class="msec-t">结论</div><div class="msec-p">${m.conclusion}</div>` : '';
   return `<div class="mcard">
-    <div style="display:flex;align-items:center;justify-content:space-between" onclick="toggleMeeting('${m.id}')">
-      <div>
+    <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 0;-webkit-tap-highlight-color:transparent" onclick="toggleMeeting('${m.id}')">
+      <div style="flex:1;min-width:0">
         <div class="mt">${m.title}</div>
         <div class="mtime">${m.date} · ${m.platform}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:6px">
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:10px">
         <span class="mdur">${m.duration}</span>
-        <span style="font-size:12px;color:var(--hint)" id="marrow-${m.id}">▼</span>
+        <span style="font-size:18px;color:var(--hint);line-height:1;transition:transform .2s" id="marrow-${m.id}">⌄</span>
       </div>
     </div>
     <div class="m-detail" id="mdetail-${m.id}">
@@ -1730,7 +1730,10 @@ function toggleMeeting(id) {
   const arrow = document.getElementById('marrow-' + id);
   if (!el) return;
   const open = el.classList.toggle('open');
-  if (arrow) arrow.textContent = open ? '▲' : '▼';
+  if (arrow) {
+    arrow.textContent = open ? '⌃' : '⌄';
+    arrow.style.color = open ? 'var(--blue)' : 'var(--hint)';
+  }
 }
 
 function delMeeting(id) {
