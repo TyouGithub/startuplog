@@ -3,6 +3,21 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<!-- 强制禁用浏览器缓存，每次都加载最新版本 -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script>
+// ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
+(function(){
+  var VER = '20260314-006';
+  var u = new URL(location.href);
+  if (u.searchParams.get('v') !== VER) {
+    u.searchParams.set('v', VER);
+    location.replace(u.toString());
+  }
+})();
+</script>
 <script>
 // ── 手机调试用：全局错误捕获，把报错显示在屏幕上 ──
 window.__errs = [];
@@ -659,9 +674,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 
   <div class="bnav">
     <div class="btab on" id="bt-home" onclick="goPage('home')"><span class="bi">🏠</span><span class="bl">首页</span></div>
-    <div class="btab" id="bt-meetings" onclick="goPage('meetings')"><span class="bi">📋</span><span class="bl">会议</span></div>
     <div class="btab" id="bt-tasks" onclick="goPage('tasks')"><span class="bi">✅</span><span class="bl">任务</span></div>
     <div class="btab" id="bt-products" onclick="goPage('products')"><span class="bi">🛒</span><span class="bl">选品库</span></div>
+    <div class="btab" id="bt-meetings" onclick="goPage('meetings')"><span class="bi">📋</span><span class="bl">会议</span></div>
     <div class="btab" id="bt-gameacc" onclick="goPage('gameacc')"><span class="bi">🎮</span><span class="bl">账号</span></div>
     <div class="btab" id="bt-profile" onclick="goPage('profile')"><span class="bi">👤</span><span class="bl">我的</span></div>
   </div>
@@ -978,10 +993,111 @@ const SB_KEY = 'sb_publishable_w6tzS-2wUL0xySdIMRZQyA_r08-4TPY';
 const SB_HDR = { 'Content-Type':'application/json', 'apikey': SB_KEY, 'Authorization':'Bearer '+SB_KEY };
 const DB_KEY = 'startuplog';
 
+// ══════════════════════════════════════════════
+//  Supabase Realtime WebSocket 实时订阅
+//  原理：通过 WS 长连接订阅 store 表变更，
+//  云端一有更新立刻推送，无需轮询等待
+// ══════════════════════════════════════════════
+let _rtWs = null, _rtHb = null, _rtRef = 0, _rtReconnTimer = null;
+
+function startRealtime() {
+  if (_rtWs && _rtWs.readyState <= 1) return; // 已连接或连接中
+  const wsUrl = SB_URL.replace('https://', 'wss://') + '/realtime/v1/websocket?apikey=' + SB_KEY + '&vsn=1.0.0';
+  try {
+    _rtWs = new WebSocket(wsUrl);
+  } catch(e) { _scheduleReconnect(); return; }
+
+  _rtWs.onopen = () => {
+    // 1. 加入 phoenix channel
+    _rtSend({ topic: 'phoenix', event: 'phx_join', payload: {}, ref: String(++_rtRef) });
+    // 2. 订阅 store 表的 UPDATE/INSERT 事件
+    _rtSend({
+      topic: 'realtime:public:store',
+      event: 'phx_join',
+      payload: {
+        config: { broadcast: { self: false }, presence: { key: '' },
+          postgres_changes: [{ event: '*', schema: 'public', table: 'store', filter: 'key=eq.' + DB_KEY }]
+        }
+      },
+      ref: String(++_rtRef)
+    });
+    // 3. 心跳，每 25s 发一次防止断连
+    if (_rtHb) clearInterval(_rtHb);
+    _rtHb = setInterval(() => {
+      _rtSend({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: String(++_rtRef) });
+    }, 25000);
+    document.getElementById('syncIcon').title = '实时同步已连接';
+  };
+
+  _rtWs.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+      // 收到数据库变更推送
+      if (msg.event === 'postgres_changes' || (msg.payload && msg.payload.data && msg.payload.data.type)) {
+        // 有变更，立即拉取最新数据
+        _onRealtimeChange();
+      }
+    } catch(err) {}
+  };
+
+  _rtWs.onclose = () => {
+    if (_rtHb) { clearInterval(_rtHb); _rtHb = null; }
+    document.getElementById('syncIcon').title = '实时同步已断开，重连中...';
+    _scheduleReconnect();
+  };
+
+  _rtWs.onerror = () => {
+    _rtWs && _rtWs.close();
+  };
+}
+
+function _rtSend(obj) {
+  if (_rtWs && _rtWs.readyState === 1) {
+    try { _rtWs.send(JSON.stringify(obj)); } catch(e) {}
+  }
+}
+
+function _scheduleReconnect() {
+  if (_rtReconnTimer) return;
+  _rtReconnTimer = setTimeout(() => {
+    _rtReconnTimer = null;
+    if (isOnline) startRealtime();
+  }, 5000); // 5s 后重连
+}
+
+// 收到 Realtime 推送后的处理：立即拉取最新数据并刷新界面
+async function _onRealtimeChange() {
+  if (isSyncing) return; // 本机正在推送中，跳过（自己触发的变更）
+  isSyncing = true;
+  try {
+    const result = await sbFetch();
+    if (!result || result === 'timeout') return;
+    const lastSeen = localStorage.getItem(LAST_SYNC_AT) || '';
+    const cloudAt  = normTs(result.updatedAt || '');
+    if (cloudAt !== lastSeen) {
+      mergeAndSetLocal(result.value);
+      localStorage.setItem(LAST_SYNC_AT, cloudAt);
+      renderAll();
+      setSyncBar('ok');
+      updateSyncTime();
+    }
+  } finally {
+    isSyncing = false;
+  }
+}
+
+// 网络恢复时重启实时连接
+window.addEventListener('online', () => {
+  isOnline = true;
+  document.getElementById('offlineTip').classList.remove('show');
+  if (pendingSync) forcePushAndPull();
+  startRealtime(); // 网络恢复，重建 WS
+});
+
 async function sbFetch() {
   try {
     const ctrl = new AbortController();
-    const tid = setTimeout(() => ctrl.abort(), 8000);
+    const tid = setTimeout(() => ctrl.abort(), 12000);
     const r = await fetch(
       `${SB_URL}/rest/v1/store?key=eq.${encodeURIComponent(DB_KEY)}&select=value,updated_at`,
       { headers: SB_HDR, cache: 'no-store', signal: ctrl.signal }
@@ -989,15 +1105,18 @@ async function sbFetch() {
     clearTimeout(tid);
     const j = await r.json();
     if (j && j[0]) return { value: j[0].value, updatedAt: j[0].updated_at };
-    return null;
-  } catch(e) { return null; }
+    return null; // 云端确实没有数据
+  } catch(e) {
+    // 超时或网络错误：返回特殊标记，与"云端无数据"区分
+    return 'timeout';
+  }
 }
 
 // 推送并返回服务端最新 updated_at，避免推送后二次 fetch
 async function sbPush(value) {
   try {
     const ctrl = new AbortController();
-    const tid = setTimeout(() => ctrl.abort(), 8000);
+    const tid = setTimeout(() => ctrl.abort(), 12000);
     const r = await fetch(`${SB_URL}/rest/v1/store`, {
       method: 'POST',
       headers: { ...SB_HDR, 'Prefer': 'resolution=merge-duplicates,return=representation' },
@@ -1023,7 +1142,6 @@ const SESSION_KEY  = 'sl_session';
 
 let syncTimer = null, isOnline = navigator.onLine, isSyncing = false, pendingSync = false;
 
-window.addEventListener('online',  () => { isOnline = true;  document.getElementById('offlineTip').classList.remove('show'); if(pendingSync) forcePushAndPull(); });
 window.addEventListener('offline', () => { isOnline = false; document.getElementById('offlineTip').classList.add('show'); });
 
 // ══════════════════════════════════════════════
@@ -1155,26 +1273,37 @@ async function forcePush() {
   const ret = await sbPush(getLocal());
   if (!ret) return false;
   if (typeof ret === 'string') {
-    // sbPush 直接返回了 updated_at 字符串
-    localStorage.setItem(LAST_SYNC_AT, ret);
+    // sbPush 直接返回了 updated_at 字符串，统一转为 ISO 格式存储
+    const ts = normTs(ret);
+    localStorage.setItem(LAST_SYNC_AT, ts);
   } else {
     // 兜底：ret===true，再 fetch 一次取时间戳
     const result = await sbFetch();
-    if (result) localStorage.setItem(LAST_SYNC_AT, result.updatedAt || '');
+    if (result && result !== 'timeout') localStorage.setItem(LAST_SYNC_AT, normTs(result.updatedAt || ''));
   }
   return true;
+}
+
+// 时间戳规格化：统一转成毫秒数字符串，避免 +00:00 vs Z 的字符串比对陷阱
+function normTs(ts) {
+  if (!ts) return '';
+  try { return String(new Date(ts).getTime()); } catch(e) { return ts; }
 }
 
 // 拉取：云端时间变了就更新本地
 async function pullIfNewer(silent = false) {
   const result = await sbFetch();
+  if (result === 'timeout') {
+    if (!silent) toast('⚠️ 网络较慢，稍后重试');
+    return false;
+  }
   if (!result) {
     await forcePush();
     if (!silent) toast('☁️ 数据已初始化到云端');
     return false;
   }
   const lastSeen = localStorage.getItem(LAST_SYNC_AT) || '';
-  const cloudAt  = result.updatedAt || '';
+  const cloudAt  = normTs(result.updatedAt || '');
   if (cloudAt !== lastSeen) {
     mergeAndSetLocal(result.value);
     localStorage.setItem(LAST_SYNC_AT, cloudAt);
@@ -1243,7 +1372,8 @@ async function syncNow() {
 
 function startAutoSync() {
   if (syncTimer) clearInterval(syncTimer);
-  syncTimer = setInterval(autoSync, 10000);
+  syncTimer = setInterval(autoSync, 30000); // 30s 兜底轮询（Realtime 是主通道）
+  startRealtime(); // 启动 WebSocket 实时推送
 }
 
 // ══════════════════════════════════════════════
@@ -1266,17 +1396,21 @@ async function enterApp(uid) {
   document.getElementById('app').style.display = 'block';
   initApp();
   startAutoSync();
-  // 后台静默同步，不阻塞页面显示（sbFetch 自带 8s 超时）
-  setSyncBar('syncing');
-  try {
-    const result = await sbFetch();
-    if (result) {
-      mergeAndSetLocal(result.value);
-      localStorage.setItem(LAST_SYNC_AT, result.updatedAt || '');
-      renderAll();
-    }
-  } catch(e) {}
-  setSyncBar('ok');
+  // 首次进入：立即拉取云端最新数据，加锁防并发
+  if (!isSyncing) {
+    isSyncing = true;
+    setSyncBar('syncing');
+    try {
+      const result = await sbFetch();
+      if (result && result !== 'timeout') {
+        mergeAndSetLocal(result.value);
+        localStorage.setItem(LAST_SYNC_AT, normTs(result.updatedAt || ''));
+        renderAll();
+      }
+    } catch(e) {}
+    finally { isSyncing = false; }
+    setSyncBar('ok');
+  }
 }
 
 function login() {
@@ -1295,7 +1429,7 @@ function login() {
       if (result && result.value && result.value.users && result.value.users[CU]) {
         if (pw === result.value.users[CU].pwd) {
           mergeAndSetLocal(result.value);
-          localStorage.setItem(LAST_SYNC_AT, result.updatedAt || '');
+          localStorage.setItem(LAST_SYNC_AT, normTs(result.updatedAt || ''));
           localStorage.setItem(SESSION_KEY, CU);
           document.getElementById('pwdIn').value = '';
           document.getElementById('lerr').textContent = '';
@@ -3001,12 +3135,12 @@ async function delIncome(id) {
 // ══════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
   const savedUser = localStorage.getItem(SESSION_KEY);
-  // 先尝试从云端拉取，确保密码和数据是最新的（sbFetch 自带 8s 超时兜底）
+  // 先尝试从云端拉取，确保密码和数据是最新的（sbFetch 自带 12s 超时兜底）
   try {
     const result = await sbFetch();
-    if (result) {
+    if (result && result !== 'timeout') {
       mergeAndSetLocal(result.value);
-      localStorage.setItem(LAST_SYNC_AT, result.updatedAt || '');
+      localStorage.setItem(LAST_SYNC_AT, normTs(result.updatedAt || ''));
     }
   } catch(e) {}
   // 云端请求结束后再隐藏加载屏，避免手机出现空白页
