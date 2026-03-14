@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-006';
+  var VER = '20260314-007';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -580,6 +580,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
       <button class="fbtn"    id="gaf-frozen"   onclick="filterGameAcc('frozen')">⚠️ 冻结</button>
       <button class="fbtn"    id="gaf-sold"     onclick="filterGameAcc('sold')">🔒 已出售</button>
       <button class="fbtn"    id="gaf-returned" onclick="filterGameAcc('returned')">❌ 被找回</button>
+      <button class="fbtn"    onclick="openPhoneBindDetail()" style="flex-shrink:0">📱 手机绑定详情</button>
     </div>
 
     <!-- 账号列表 -->
@@ -763,10 +764,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
         <button onclick="aiPolish('f-m-title','meeting-title')" class="ai-btn" id="ai-f-m-title">✨ AI 整理主题</button>
       </div>
       <div class="frow2">
-        <div class="frow" style="margin:0"><label>平台</label><input id="f-m-platform" placeholder="腾讯会议" value="腾讯会议"/></div>
-        <div class="frow" style="margin:0"><label>时间段</label><input id="f-m-dur" placeholder="09:00-10:30"/></div>
+        <div class="frow" style="margin:0"><label>平台</label>
+          <select id="f-m-platform">
+            <option value="腾讯会议">腾讯会议</option>
+            <option value="腾讯视频">腾讯视频</option>
+            <option value="微信">微信</option>
+            <option value="Zoom">Zoom</option>
+            <option value="飞书">飞书</option>
+            <option value="线下">线下面谈</option>
+            <option value="电话">电话</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="frow" style="margin:0"><label>日期</label><input id="f-m-date" type="date"/></div>
       </div>
-      <div class="frow"><label>日期</label><input id="f-m-date" type="date"/></div>
+      <div class="frow2">
+        <div class="frow" style="margin:0"><label>开始时间</label>
+          <select id="f-m-start" onchange="updateMeetingDur()">
+            <option value="">请选择</option>
+          </select>
+        </div>
+        <div class="frow" style="margin:0"><label>结束时间</label>
+          <select id="f-m-end" onchange="updateMeetingDur()">
+            <option value="">请选择</option>
+          </select>
+        </div>
+      </div>
+      <input type="hidden" id="f-m-dur"/>
       <div class="frow">
         <label>会议议题</label>
         <div id="topics-list" style="display:flex;flex-direction:column;gap:6px"></div>
@@ -784,12 +808,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
         <input id="f-i-title" placeholder="心得主题..."/>
         <button onclick="aiPolish('f-i-title','insight-title')" class="ai-btn" id="ai-f-i-title">✨ AI 整理标题</button>
       </div>
-      <div class="frow"><label>分类</label>
-        <select id="f-i-cat"><option>WorkBuddy使用</option><option>TEMU选品</option><option>亚马逊运营</option><option>产品方向</option><option>创业感悟</option></select>
-      </div>
       <div class="frow"><label>内容 *</label>
-        <textarea id="f-i-content" placeholder="记录你的思考..." style="min-height:110px"></textarea>
+        <textarea id="f-i-content" placeholder="记录你的思考，AI 将自动识别分类..." style="min-height:110px" oninput="scheduleInsightCatDetect()"></textarea>
         <button onclick="aiPolish('f-i-content','insight-content')" class="ai-btn" id="ai-f-i-content">✨ AI 智能整理内容</button>
+      </div>
+      <div class="frow">
+        <label>分类 <span style="font-size:10px;color:var(--blue);background:#eff6ff;border-radius:8px;padding:2px 7px;margin-left:4px">✨ AI 自动识别</span></label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <select id="f-i-cat" style="flex:1">
+            <option>WorkBuddy使用</option>
+            <option>TEMU选品</option>
+            <option>亚马逊运营</option>
+            <option>产品方向</option>
+            <option>创业感悟</option>
+            <option>市场分析</option>
+            <option>技术思考</option>
+          </select>
+          <span id="f-i-cat-detecting" style="font-size:11px;color:var(--hint);display:none;flex-shrink:0">识别中…</span>
+        </div>
       </div>
     </div>
 
@@ -984,9 +1020,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
   </div>
 </div>
 
+<!-- 手机号绑定详情弹窗 -->
+<div class="overlay" id="phoneBindModal" onclick="if(event.target===this)closePhoneBindModal()">
+  <div class="sheet" style="max-height:92vh;overflow-y:auto;padding-bottom:32px">
+    <div class="handle"></div>
+    <div class="stitle">📱 手机号绑定详情</div>
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:14px;line-height:1.6">
+      ⚠️ 每个手机号最多绑定 <b>5</b> 个游戏账号。以下展示各手机号的绑定使用情况。
+    </div>
+    <div id="phoneBindList"></div>
+    <span class="cancel-link" onclick="closePhoneBindModal()">关闭</span>
+  </div>
+</div>
+
 <script>
-// ══════════════════════════════════════════════
-//  Supabase 配置
 // ══════════════════════════════════════════════
 const SB_URL = 'https://kgyregrnrppqkdjhexzs.supabase.co';
 const SB_KEY = 'sb_publishable_w6tzS-2wUL0xySdIMRZQyA_r08-4TPY';
@@ -2245,8 +2292,9 @@ function editMeeting(id) {
   switchForm('meeting');
   document.getElementById('f-m-title').value      = m.title;
   document.getElementById('f-m-platform').value   = m.platform || '腾讯会议';
-  document.getElementById('f-m-dur').value        = m.duration || '';
   document.getElementById('f-m-date').value       = m.date || '';
+  // 回填时间段到开始/结束选择器
+  parseMeetingDurToSelects(m.duration || '');
   // conclusion 可能是旧的字符串格式或新的数组格式
   const conclusions = Array.isArray(m.conclusions) ? m.conclusions
     : (m.conclusion ? m.conclusion.split('\n').filter(Boolean) : []);
@@ -2627,9 +2675,14 @@ function switchForm(type) {
   });
   const tt = { task:'添加任务', product:'添加选品', meeting:'记录会议', insight:'记录心得', account:'添加账号' };
   setEl('modalTitle', tt[type] || '添加');
-  // 新建会议时初始化逐条输入列表
+  // 新建会议时初始化逐条输入列表、时间选择器
   if (type === 'meeting' && !document.getElementById('modal').dataset.editMeetingId) {
     _initMeetingLists([], []);
+    const ss = document.getElementById('f-m-start');
+    const es = document.getElementById('f-m-end');
+    if (ss) ss.value = '';
+    if (es) es.value = '';
+    document.getElementById('f-m-dur').value = '';
   }
 }
 
@@ -2637,6 +2690,12 @@ function clearForms() {
   document.querySelectorAll('.sheet input,.sheet textarea').forEach(e => { if(e.type!=='date'&&e.type!=='file') e.value=''; });
   document.getElementById('f-m-date').value = new Date().toISOString().split('T')[0];
   document.getElementById('f-m-platform').value = '腾讯会议';
+  // 清空时间选择器
+  const startSel = document.getElementById('f-m-start');
+  const endSel   = document.getElementById('f-m-end');
+  if (startSel) startSel.value = '';
+  if (endSel)   endSel.value   = '';
+  document.getElementById('f-m-dur').value = '';
   document.getElementById('f-t-due').value = '';
   pendingProdImgs = [];
   const preview = document.getElementById('f-p-img-preview');
@@ -3131,9 +3190,166 @@ async function delIncome(id) {
 }
 
 // ══════════════════════════════════════════════
+//  会议时间选择器初始化（15分钟粒度）
+// ══════════════════════════════════════════════
+function initMeetingTimeSelects() {
+  const slots = [];
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 15) {
+      slots.push(String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0'));
+    }
+  }
+  ['f-m-start','f-m-end'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    while (sel.options.length > 1) sel.remove(1);
+    slots.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t; opt.textContent = t;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+function updateMeetingDur() {
+  const s = document.getElementById('f-m-start').value;
+  const e = document.getElementById('f-m-end').value;
+  document.getElementById('f-m-dur').value = (s && e) ? `${s}-${e}` : (s || e || '');
+}
+
+// 解析时间段字符串回填两个 select（兼容旧格式 "09:00 - 10:30" 和 "09:00-10:30"）
+function parseMeetingDurToSelects(dur) {
+  if (!dur || dur === '-') return;
+  const m = dur.replace(/\s/g,'').match(/^(\d{2}:\d{2})-(\d{2}:\d{2})$/);
+  if (m) {
+    document.getElementById('f-m-start').value = m[1];
+    document.getElementById('f-m-end').value   = m[2];
+    updateMeetingDur();
+  }
+}
+
+// ══════════════════════════════════════════════
+//  心得分类 AI 自动识别（防抖 1.5s）
+// ══════════════════════════════════════════════
+let _insightDetectTimer = null;
+function scheduleInsightCatDetect() {
+  clearTimeout(_insightDetectTimer);
+  const content = document.getElementById('f-i-content').value.trim();
+  if (content.length < 20) return;
+  _insightDetectTimer = setTimeout(() => detectInsightCat(content), 1500);
+}
+
+async function detectInsightCat(content) {
+  const indicator = document.getElementById('f-i-cat-detecting');
+  if (indicator) indicator.style.display = 'inline';
+  try {
+    const cats = ['WorkBuddy使用','TEMU选品','亚马逊运营','产品方向','创业感悟','市场分析','技术思考'];
+    const result = await callDeepSeek(
+      `你是创业工作台的心得分类助手。根据心得内容，从以下分类中选择最合适的一个：${cats.join('、')}。只返回分类名称本身，不要其他任何文字。`,
+      content.slice(0, 300),
+      20
+    );
+    const matched = cats.find(c => result.trim().includes(c));
+    if (matched) {
+      document.getElementById('f-i-cat').value = matched;
+      toast('✨ AI 已自动识别分类：' + matched);
+    }
+  } catch(e) { /* 识别失败静默 */ }
+  finally {
+    if (indicator) indicator.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════
+//  手机号绑定详情
+// ══════════════════════════════════════════════
+function openPhoneBindDetail() {
+  renderPhoneBindList();
+  document.getElementById('phoneBindModal').classList.add('show');
+}
+function closePhoneBindModal() {
+  document.getElementById('phoneBindModal').classList.remove('show');
+}
+
+function renderPhoneBindList() {
+  const s = getLocal();
+  const acc = s.gameAccounts || [];
+  const el = document.getElementById('phoneBindList');
+  if (!el) return;
+
+  // 按手机号分组（过滤空手机号）
+  const phoneMap = {};
+  acc.forEach(a => {
+    const phone = (a.phone || '').trim();
+    if (!phone) return;
+    if (!phoneMap[phone]) phoneMap[phone] = [];
+    phoneMap[phone].push(a);
+  });
+
+  const phones = Object.keys(phoneMap).sort();
+  if (!phones.length) {
+    el.innerHTML = '<div style="color:var(--hint);text-align:center;padding:28px 0">暂无手机号数据</div>';
+    return;
+  }
+
+  const STATUS_STYLE = {
+    '正常':  { bg:'#dcfce7', color:'#15803d' },
+    '冻结':  { bg:'#fef3c7', color:'#b45309' },
+    '已出售':{ bg:'#f1f5f9', color:'#475569' },
+    '被找回':{ bg:'#fee2e2', color:'#dc2626' }
+  };
+
+  el.innerHTML = phones.map(phone => {
+    const list = phoneMap[phone];
+    const count = list.length;
+    const remaining = 5 - count;
+    const overLimit = count > 5;
+    const barColor = overLimit ? '#ef4444' : count >= 4 ? '#f59e0b' : '#22c55e';
+    const barPct = Math.min(count / 5 * 100, 100);
+    const statusCountMap = {};
+    list.forEach(a => { statusCountMap[a.status] = (statusCountMap[a.status]||0)+1; });
+    const accRows = list.map(a => {
+      const ss = STATUS_STYLE[a.status] || { bg:'#f1f5f9', color:'#64748b' };
+      const statusLabel = { '正常':'✅ 正常', '冻结':'⚠️ 冻结', '已出售':'🔒 已出售', '被找回':'❌ 被找回' }[a.status] || a.status;
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f5f7fa">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--text)">${a.name}</div>
+          <div style="font-size:11px;color:var(--hint);margin-top:1px">${a.game} · QQ:${a.qq||'-'}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <span style="background:${ss.bg};color:${ss.color};font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px">${statusLabel}</span>
+          <span style="font-size:12px;color:var(--hint)">¥${a.cost||0}</span>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid ${overLimit?'#fecaca':'var(--border)'}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-size:14px;font-weight:800;letter-spacing:.5px;color:var(--text);font-family:monospace">${phone}</div>
+          <div style="font-size:11px;color:var(--hint);margin-top:2px">
+            已绑定 <b style="color:${barColor}">${count}</b> 个 / 上限 5 个
+            ${!overLimit ? `· 还可绑定 <b style="color:${barColor}">${remaining}</b> 个` : ' · <b style="color:#ef4444">⚠️ 已超上限</b>'}
+          </div>
+        </div>
+        <div style="text-align:right;font-size:11px;color:var(--hint)">
+          ${Object.entries(statusCountMap).map(([st,n])=>`${st}×${n}`).join('<br>')}
+        </div>
+      </div>
+      <div style="background:#f0f4f8;border-radius:8px;height:6px;overflow:hidden;margin-bottom:10px">
+        <div style="height:100%;width:${barPct}%;background:${barColor};border-radius:8px;transition:width .5s"></div>
+      </div>
+      <div>${accRows}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════
 //  启动
 // ══════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
+  // 初始化会议时间选择器（15分钟粒度）
+  initMeetingTimeSelects();
+
   const savedUser = localStorage.getItem(SESSION_KEY);
   // 先尝试从云端拉取，确保密码和数据是最新的（sbFetch 自带 12s 超时兜底）
   try {
