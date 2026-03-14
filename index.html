@@ -950,8 +950,11 @@ function defaultData() {
 function getLocal() {
   try {
     const d = JSON.parse(localStorage.getItem(SYNC_KEY)) || defaultData();
-    // 兼容旧数据：补全 roadmap 字段
-    if (!d.roadmap) d.roadmap = defaultData().roadmap;
+    const def = defaultData();
+    // 兼容旧数据：补全缺失字段
+    if (!d.roadmap) d.roadmap = def.roadmap;
+    if (!d.gameAccounts || !d.gameAccounts.length) d.gameAccounts = def.gameAccounts;
+    if (!d.incomeRecords || !d.incomeRecords.length) d.incomeRecords = def.incomeRecords;
     return d;
   } catch(e) { return defaultData(); }
 }
@@ -2320,8 +2323,15 @@ function goPage(p) {
   if (pg) pg.classList.add('on');
   const bt = document.getElementById('bt-' + p); if (bt) bt.classList.add('on');
   curPage = p;
-  // 游戏账号页不显示主 FAB（有自己的新增按钮）
-  document.getElementById('fab').style.display = (p === 'profile' || p === 'gameacc' || !isAdmin()) ? 'none' : 'flex';
+  // 游戏账号页：FAB 显示并直接添加账号
+  const fab = document.getElementById('fab');
+  if (p === 'gameacc' && isAdmin()) {
+    fab.style.display = 'flex';
+    fab.onclick = openAddGameAcc;
+  } else {
+    fab.onclick = openModal;
+    fab.style.display = (p === 'profile' || !isAdmin()) ? 'none' : 'flex';
+  }
   applyReadOnly();
 }
 
