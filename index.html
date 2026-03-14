@@ -257,6 +257,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 .prod-img-item img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;transition:transform .15s}
 .prod-img-item img:active{transform:scale(.95)}
 .prod-img-del{position:absolute;top:-7px;right:-7px;width:20px;height:20px;background:#ef4444;border:none;border-radius:50%;color:#fff;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+
+/* ── AI整理按钮 ── */
+.ai-btn{display:block;width:100%;margin-top:7px;background:linear-gradient(135deg,#7c3aed,#1677ff);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.2px;transition:opacity .15s}
+.ai-btn:active{opacity:.8}
+.ai-btn:disabled{opacity:.5;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -338,32 +343,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
         <span id="bnrSoupText" style="font-style:italic">✨ 加载每日鸡汤中...</span>
       </div>
     </div>
-    <div class="sgrid">
-      <div class="scard" style="cursor:pointer" onclick="goPage('tasks');filterTask('todo')"><div class="snum" style="color:var(--blue)" id="sOpen">-</div><div class="slb">待完成任务</div></div>
-      <div class="scard" style="cursor:pointer" onclick="goPage('tasks');filterTask('done')"><div class="snum" style="color:var(--green)" id="sDone">-</div><div class="slb">已完成任务</div></div>
-      <div class="scard" style="cursor:pointer" onclick="goPage('products')"><div class="snum" style="color:var(--orange)" id="sProd">-</div><div class="slb">在售商品</div></div>
-      <div class="scard" style="cursor:pointer" onclick="goPage('products')"><div class="snum" style="color:var(--purple)" id="sProfit">-</div><div class="slb">月利润预估</div></div>
-    </div>
     <div class="card">
-      <div class="ch"><div class="ct">⚡ 最近动态</div>
-        <div style="display:flex;gap:8px">
-          <div class="cm" onclick="openAddAct()">+ 添加</div>
-          <div class="cm" id="syncStatus" style="font-size:11px"></div>
-        </div>
-      </div>
-      <div class="tl" id="actList"></div>
+      <div class="ch"><div class="ct">📋 最近会议</div><div class="cm" onclick="goPage('meetings')">全部 →</div></div>
+      <div id="homeMeetings"></div>
     </div>
     <div class="card">
       <div class="ch"><div class="ct">🔥 进行中任务</div><div class="cm" onclick="goPage('tasks')">全部 →</div></div>
       <div id="homeTasks"></div>
     </div>
     <div class="card">
-      <div class="ch"><div class="ct">💡 心得分享</div><div class="cm" onclick="goPage('insights')">全部 →</div></div>
+      <div class="ch"><div class="ct">💡 心得分享</div><div class="cm" onclick="goPage('profile')">查看全部 →</div></div>
       <div id="homeInsightsPublic"></div>
     </div>
     <div class="card">
-      <div class="ch"><div class="ct">📋 最近会议</div><div class="cm" onclick="openModal();switchForm('meeting')">+ 记录</div></div>
-      <div id="homeMeetings"></div>
+      <div class="ch"><div class="ct">⚡ 动态记录</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="cm" onclick="openAddAct()">+ 添加</div>
+          <div class="cm" id="syncStatus" style="font-size:11px"></div>
+        </div>
+      </div>
+      <div class="tl" id="actList"></div>
     </div>
   </div>
 
@@ -378,6 +377,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div class="card"><div id="taskList"></div></div>
   </div>
 
+  <!-- MEETINGS 独立页 -->
+  <div class="pg" id="pg-meetings">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:16px;font-weight:800;color:var(--text)">📋 会议记录</div>
+      <button class="fbtn" style="border-color:var(--blue);color:var(--blue)" onclick="openModal();switchForm('meeting')">＋ 新会议</button>
+    </div>
+    <div id="meetingList"></div>
+  </div>
+
   <!-- PRODUCTS -->
   <div class="pg" id="pg-products">
     <div class="fbar">
@@ -388,7 +396,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div id="prodList"></div>
   </div>
 
-  <!-- INSIGHTS -->
+  <!-- INSIGHTS (仅供profile内访问，不在主导航) -->
   <div class="pg" id="pg-insights">
     <div id="insightList"></div>
   </div>
@@ -431,9 +439,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     </div>
     <div class="card">
       <div class="ch">
-        <div class="ct">💡 心得分享</div>
+        <div class="ct">💡 全团队心得</div>
         <div class="cm" onclick="openModal();switchForm('insight')">+ 添加</div>
       </div>
+      <!-- 全员公开可读 -->
       <div id="profileInsightList"></div>
     </div>
     <div class="card">
@@ -466,8 +475,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 
   <div class="bnav">
     <div class="btab on" id="bt-home" onclick="goPage('home')"><span class="bi">🏠</span><span class="bl">首页</span></div>
+    <div class="btab" id="bt-meetings" onclick="goPage('meetings')"><span class="bi">📋</span><span class="bl">会议</span></div>
     <div class="btab" id="bt-products" onclick="goPage('products')"><span class="bi">🛒</span><span class="bl">选品库</span></div>
-    <div class="btab" id="bt-insights" onclick="goPage('insights')"><span class="bi">💡</span><span class="bl">心得</span></div>
     <div class="btab" id="bt-accounts" onclick="goPage('accounts')"><span class="bi">🔑</span><span class="bl">账号库</span></div>
     <div class="btab" id="bt-profile" onclick="goPage('profile')"><span class="bi">👤</span><span class="bl">我的</span></div>
   </div>
@@ -488,7 +497,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     </div>
 
     <div id="form-task">
-      <div class="frow"><label>任务名称 *</label><input id="f-t-title" placeholder="描述这个任务..."/></div>
+      <div class="frow"><label>任务名称 *</label>
+        <input id="f-t-title" placeholder="描述这个任务..."/>
+        <button onclick="aiPolish('f-t-title','task-title')" class="ai-btn" id="ai-f-t-title">✨ AI 整理标题</button>
+      </div>
       <div class="frow2">
         <div class="frow" style="margin:0"><label>分类</label>
           <select id="f-t-cat"><option>TEMU选品</option><option>亚马逊</option><option>WorkBuddy</option><option>产品运营</option><option>其他</option></select>
@@ -500,11 +512,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
       <div class="frow"><label>状态</label>
         <select id="f-t-status"><option value="todo">待处理</option><option value="doing">进行中</option><option value="done">已完成</option></select>
       </div>
-      <div class="frow"><label>备注</label><textarea id="f-t-note" placeholder="补充说明..."></textarea></div>
+      <div class="frow"><label>备注</label>
+        <textarea id="f-t-note" placeholder="补充说明..."></textarea>
+        <button onclick="aiPolish('f-t-note','task-note')" class="ai-btn" id="ai-f-t-note">✨ AI 整理备注</button>
+      </div>
     </div>
 
     <div id="form-product" style="display:none">
-      <div class="frow"><label>商品标题 *（建议含关键词）</label><input id="f-p-name" placeholder="如：羽毛球手胶 防滑吸汗 3条装"/></div>
+      <div class="frow"><label>商品标题 *（建议含关键词）</label>
+        <input id="f-p-name" placeholder="如：羽毛球手胶 防滑吸汗 3条装"/>
+        <button onclick="aiPolish('f-p-name','product-title')" class="ai-btn" id="ai-f-p-name">✨ AI 优化标题</button>
+      </div>
       <div class="frow2">
         <div class="frow" style="margin:0"><label>平台</label>
           <select id="f-p-platform"><option>TEMU</option><option>亚马逊</option><option>速卖通</option><option>其他</option></select>
@@ -533,26 +551,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
         <input type="file" id="f-p-img" accept="image/*" multiple style="font-size:13px" onchange="handleProdImgs(this)"/>
       </div>
       <div class="frow"><label>商品链接</label><input id="f-p-url" placeholder="https://..."/></div>
-      <div class="frow"><label>选品理由 / 竞品分析</label><textarea id="f-p-note" placeholder="为什么选这个品？差异化优势、竞品对比..."></textarea></div>
+      <div class="frow"><label>选品理由 / 竞品分析</label>
+        <textarea id="f-p-note" placeholder="为什么选这个品？差异化优势、竞品对比..."></textarea>
+        <button onclick="aiPolish('f-p-note','product-note')" class="ai-btn" id="ai-f-p-note">✨ AI 整理分析</button>
+      </div>
     </div>
 
     <div id="form-meeting" style="display:none">
-      <div class="frow"><label>会议主题 *</label><input id="f-m-title" placeholder="会议主题..."/></div>
+      <div class="frow"><label>会议主题 *</label>
+        <input id="f-m-title" placeholder="会议主题..."/>
+        <button onclick="aiPolish('f-m-title','meeting-title')" class="ai-btn" id="ai-f-m-title">✨ AI 整理主题</button>
+      </div>
       <div class="frow2">
         <div class="frow" style="margin:0"><label>平台</label><input id="f-m-platform" placeholder="腾讯会议" value="腾讯会议"/></div>
         <div class="frow" style="margin:0"><label>时间段</label><input id="f-m-dur" placeholder="09:00-10:30"/></div>
       </div>
       <div class="frow"><label>日期</label><input id="f-m-date" type="date"/></div>
-      <div class="frow"><label>会议议题（每行一条）</label><textarea id="f-m-topics" placeholder="议题1&#10;议题2&#10;..."></textarea></div>
-      <div class="frow"><label>结论 / 行动项</label><textarea id="f-m-conclusion" placeholder="达成的共识或下一步..."></textarea></div>
+      <div class="frow"><label>会议议题（每行一条）</label>
+        <textarea id="f-m-topics" placeholder="议题1&#10;议题2&#10;..."></textarea>
+        <button onclick="aiPolish('f-m-topics','meeting-topics')" class="ai-btn" id="ai-f-m-topics">✨ AI 整理议题</button>
+      </div>
+      <div class="frow"><label>结论 / 行动项</label>
+        <textarea id="f-m-conclusion" placeholder="达成的共识或下一步..."></textarea>
+        <button onclick="aiPolish('f-m-conclusion','meeting-conclusion')" class="ai-btn" id="ai-f-m-conclusion">✨ AI 整理结论</button>
+      </div>
     </div>
 
     <div id="form-insight" style="display:none">
-      <div class="frow"><label>标题 *</label><input id="f-i-title" placeholder="心得主题..."/></div>
+      <div class="frow"><label>标题 *</label>
+        <input id="f-i-title" placeholder="心得主题..."/>
+        <button onclick="aiPolish('f-i-title','insight-title')" class="ai-btn" id="ai-f-i-title">✨ AI 整理标题</button>
+      </div>
       <div class="frow"><label>分类</label>
         <select id="f-i-cat"><option>WorkBuddy使用</option><option>TEMU选品</option><option>亚马逊运营</option><option>产品方向</option><option>创业感悟</option></select>
       </div>
-      <div class="frow"><label>内容 *</label><textarea id="f-i-content" placeholder="记录你的思考..." style="min-height:110px"></textarea></div>
+      <div class="frow"><label>内容 *</label>
+        <textarea id="f-i-content" placeholder="记录你的思考..." style="min-height:110px"></textarea>
+        <button onclick="aiPolish('f-i-content','insight-content')" class="ai-btn" id="ai-f-i-content">✨ AI 智能整理内容</button>
+      </div>
     </div>
 
     <div id="form-account" style="display:none">
@@ -979,23 +1015,19 @@ function renderAll() {
   renderStats(); renderActs(); renderHomeTasks(); renderHomeMeetings();
   renderTaskList(); renderProdList(); renderInsightList(); renderAccList();
   renderRoadmap(); renderProfileActs(); renderProfileInsights();
-  renderHomeInsightsPublic();
+  renderHomeInsightsPublic(); renderMeetingList();
   renderMemberList(); applyReadOnly();
 }
 
 // ══════════════════════════════════════════════
-//  STATS
+//  STATS (内部统计，不再渲染到首页方块)
 // ══════════════════════════════════════════════
 function renderStats() {
+  // 统计数据供其他地方使用，方块已从首页移除
   const s = getLocal();
-  const open = s.tasks.filter(t => t.status !== 'done').length;
-  const done = s.tasks.filter(t => t.status === 'done').length;
-  const profit = s.products.filter(p => p.status === '在售').reduce((acc, p) => {
-    return acc + (p.price - p.cost) * (p.sales || 0) * (1 - (p.refund || 0) / 100);
-  }, 0);
-  setEl('sOpen', open); setEl('sDone', done);
-  setEl('sProd', s.products.filter(p => p.status === '在售').length);
-  document.getElementById('sProfit').textContent = '¥' + Math.round(profit);
+  const taskCount = s.tasks.filter(t => t.status !== 'done').length;
+  const tcEl = document.getElementById('myTaskCount');
+  if (tcEl) tcEl.textContent = taskCount + ' 项待处理';
 }
 
 // ══════════════════════════════════════════════
@@ -1096,25 +1128,34 @@ function renderRoadmap() {
     </div>`).join('');
 }
 
-// ── 我的页面：心得列表（只显示自己的） ──
+// ── 我的页面：全团队心得（全员可读，管理员可删） ──
 function renderProfileInsights() {
   const s = getLocal();
   const el = document.getElementById('profileInsightList');
   if (!el) return;
-  const list = (s.insights || []).filter(i => i.author === CU);
+  const list = s.insights || [];
+  const users = s.users || {};
   if (!list.length) {
     el.innerHTML = '<div style="color:var(--hint);font-size:13px">还没有心得，点「+ 添加」记录第一条</div>';
     return;
   }
-  el.innerHTML = list.map(i => `
-    <div style="padding:10px 0;border-bottom:1px solid #f5f7fa">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between">
-        <div style="font-size:13px;font-weight:700;flex:1">${i.title}</div>
-        <button class="del-btn" style="opacity:.4" onclick="delInsight('${i.id}')">🗑</button>
+  el.innerHTML = list.map(i => {
+    const u = users[i.author] || { name: i.author || '?', color: '#94a3b8' };
+    const canDel = isAdmin() || i.author === CU;
+    return `<div style="padding:12px 0;border-bottom:1px solid #f5f7fa">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="width:32px;height:32px;border-radius:50%;background:${u.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">${u.name.charAt(0)}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <div style="font-size:13px;font-weight:700;flex:1">${i.title}</div>
+            ${canDel ? `<button class="del-btn" style="opacity:.4" onclick="delInsight('${i.id}')">🗑</button>` : ''}
+          </div>
+          <div style="font-size:11px;color:var(--hint);margin:3px 0">${u.name} · ${i.cat} · ${i.date}</div>
+          <div style="font-size:13px;color:var(--sub);line-height:1.65">${i.content}</div>
+        </div>
       </div>
-      <div style="font-size:11px;color:var(--hint);margin:3px 0">${i.cat} · ${i.date}</div>
-      <div style="font-size:13px;color:var(--sub);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${i.content}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 // ── 我的页面：完整动态列表 ──
@@ -1122,10 +1163,6 @@ function renderProfileActs() {
   const s = getLocal();
   const el = document.getElementById('profileActList');
   if (!el) return;
-  // 更新任务计数
-  const taskCount = s.tasks.filter(t => t.status !== 'done').length;
-  const tcEl = document.getElementById('myTaskCount');
-  if (tcEl) tcEl.textContent = taskCount + ' 项待处理';
   if (!s.activities.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态</div>'; return; }
   const map = { b:'', g:'g', o:'o', p:'p' };
   el.innerHTML = s.activities.map((a, idx) => {
@@ -1153,7 +1190,7 @@ function renderHomeInsightsPublic() {
   const users = s.users || {};
   el.innerHTML = s.insights.slice(0, 3).map(i => {
     const u = users[i.author] || { name: i.author || '?', color: '#94a3b8' };
-    return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f5f7fa;cursor:pointer" onclick="goPage('insights')">
+    return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f5f7fa;cursor:pointer" onclick="goPage('profile')">
       <div style="width:36px;height:36px;border-radius:50%;background:${u.color};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0">${u.name.charAt(0)}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:700;margin-bottom:2px">${i.title}</div>
@@ -1161,12 +1198,13 @@ function renderHomeInsightsPublic() {
         <div style="font-size:12px;color:var(--sub);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${i.content}</div>
       </div>
     </div>`;
-  }).join('') + (s.insights.length > 3 ? `<div style="text-align:center;padding-top:8px"><span class="cm" onclick="goPage('insights')">查看全部 ${s.insights.length} 条 →</span></div>` : '');
+  }).join('') + (s.insights.length > 3 ? `<div style="text-align:center;padding-top:8px"><span class="cm" onclick="goPage('profile')">查看全部 ${s.insights.length} 条 →</span></div>` : '');
 }
 
 // ── 每日鸡汤（AI 生成，按日期缓存） ──
 async function fetchDailySoup(forceRefresh) {
-  const todayKey = 'sl_soup_' + new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Shanghai'})).toISOString().split('T')[0];
+  const bjDate = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Shanghai'}));
+  const todayKey = 'sl_soup_' + bjDate.toISOString().split('T')[0];
   const el = document.getElementById('bnrSoupText');
   if (!el) return;
   if (!forceRefresh) {
@@ -1175,26 +1213,14 @@ async function fetchDailySoup(forceRefresh) {
   }
   el.textContent = '✨ 获取今日励志句子中...';
   try {
-    const seed = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Shanghai'})).toDateString();
-    const resp = await fetch('https://api.deepseek.com/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer sk-2fb10a88bab5450398b226e6c3e7b23f' },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: '你是一位专为跨境电商创业者写励志句子的文案大师。每天提供一句简洁有力、充满激情的原创励志句子，适合两个刚起步的年轻创业者。句子要接地气，不套路，不说废话，有画面感，1-2句话，中文。种子：' + seed },
-          { role: 'user', content: '给我今天的一句话励志，不要带引号，不要解释。' }
-        ],
-        max_tokens: 120,
-        stream: false
-      })
-    });
-    const data = await resp.json();
-    const text = data.choices?.[0]?.message?.content?.trim();
-    if (text) {
-      el.textContent = '🔥 ' + text;
-      localStorage.setItem(todayKey, '🔥 ' + text);
-    } else { el.textContent = '🔥 每一个今天都是你离目标最近的一天，出发！'; }
+    const seed = bjDate.toDateString();
+    const text = await callDeepSeek(
+      '你是一位专为跨境电商创业者写励志句子的文案大师。每天提供一句简洁有力、充满激情的原创励志句子，适合两个刚起步的年轻创业者。句子要接地气，不套路，不说废话，有画面感，1-2句话，中文。今日种子词（影响内容方向，不要写出来）：' + seed,
+      '给我今天的一句话励志，不要带引号，不要有任何解释和前缀，直接给出句子本身。',
+      120
+    );
+    el.textContent = '🔥 ' + text;
+    localStorage.setItem(todayKey, '🔥 ' + text);
   } catch(e) {
     el.textContent = '🔥 不是所有努力都立竿见影，但没有一份努力会被辜负。';
   }
@@ -1207,7 +1233,74 @@ function openImgLightbox(src) {
 }
 function closeImgLightbox() { document.getElementById('imgLightbox').classList.remove('show'); }
 
-// ── AI 智能整理 ──
+// ── 通用 AI 整理核心函数 ──
+const DS_KEY = 'sk-2fb10a88bab5450398b226e6c3e7b23f';
+const PROMPTS = {
+  'task-title':        '你是创业任务管理助手。将任务名称整理成简洁清晰的一句话，动词开头，保留核心目标。只返回整理后的文字，不要解释。',
+  'task-note':         '你是创业任务管理助手。将任务备注整理成简洁、结构化的补充说明，保留关键信息。只返回整理后的文字，不要解释。',
+  'meeting-title':     '你是会议记录助手。将会议主题整理成简洁专业的标题，保留核心议题。只返回整理后的文字，不要解释。',
+  'meeting-topics':    '你是会议记录助手。将会议议题整理成清晰的条目，每条一行，简洁专业。只返回整理后的文字，不要解释。',
+  'meeting-conclusion':'你是会议记录助手。将会议结论整理成清晰的行动项列表，每条一行，包含责任人和时间节点（若有）。只返回整理后的文字，不要解释。',
+  'insight-title':     '你是创业心得整理助手。将心得标题整理成简洁有力的一句话标题。只返回整理后的文字，不要解释。',
+  'insight-content':   '你是创业心得整理助手。将心得内容整理成结构清晰、逻辑连贯的正文，保留核心观点，适当分段。只返回整理后的文字，不要解释。',
+  'product-title':     '你是跨境电商选品专家。将商品标题优化成符合TEMU/亚马逊SEO规范的标题，包含核心关键词，简洁吸引人。只返回整理后的文字，不要解释。',
+  'product-note':      '你是跨境电商选品专家。将选品理由整理成结构化的竞品分析报告，包含：选品理由、差异化优势、竞品对比，逻辑清晰。只返回整理后的文字，不要解释。',
+  'activity':          '你是创业工作记录助手。将输入内容整理成简洁、清晰、专业的1-2句话动态，保留核心信息，去掉语气词。只返回整理后的文字，不要解释。',
+};
+
+async function callDeepSeek(systemPrompt, userContent, maxTokens) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000); // 15秒超时
+  try {
+    const resp = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DS_KEY },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userContent }
+        ],
+        max_tokens: maxTokens || 300,
+        temperature: 0.7,
+        stream: false
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    const result = data?.choices?.[0]?.message?.content;
+    if (!result || !result.trim()) throw new Error('empty response');
+    return result.trim();
+  } catch(e) {
+    clearTimeout(timeout);
+    throw e;
+  }
+}
+
+async function aiPolish(fieldId, promptKey) {
+  const el = document.getElementById(fieldId);
+  if (!el) return;
+  const raw = el.value.trim();
+  if (!raw) { toast('请先输入内容再整理'); return; }
+  const btn = document.getElementById('ai-' + fieldId);
+  const origText = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = '✨ 整理中...'; btn.disabled = true; }
+  try {
+    const prompt = PROMPTS[promptKey] || PROMPTS['activity'];
+    const result = await callDeepSeek(prompt, raw, 400);
+    el.value = result;
+    toast('✓ AI 整理完成');
+  } catch(e) {
+    if (e.name === 'AbortError') toast('AI 响应超时，请重试');
+    else toast('AI 服务暂时不可用，请稍后重试');
+    console.error('AI Polish error:', e);
+  } finally {
+    if (btn) { btn.textContent = origText; btn.disabled = false; }
+  }
+}
+
 async function aiPolishAct() {
   const ta = document.getElementById('act-text');
   const raw = ta.value.trim();
@@ -1216,32 +1309,12 @@ async function aiPolishAct() {
   btn.textContent = '✨ 整理中...';
   btn.disabled = true;
   try {
-    const resp = await fetch('https://api.deepseek.com/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer sk-2fb10a88bab5450398b226e6c3e7b23f'
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: '你是一个创业工作记录助手。请将用户输入的动态内容整理成简洁、清晰、专业的一句话或两句话，保留核心信息，去掉语气词，格式整齐。只返回整理后的内容，不要解释。' },
-          { role: 'user', content: raw }
-        ],
-        max_tokens: 200,
-        stream: false
-      })
-    });
-    const data = await resp.json();
-    const result = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-    if (result) {
-      ta.value = result.trim();
-      toast('AI 整理完成 ✓');
-    } else {
-      toast('AI 返回为空，请重试');
-    }
+    const result = await callDeepSeek(PROMPTS['activity'], raw, 200);
+    ta.value = result;
+    toast('AI 整理完成 ✓');
   } catch(e) {
-    toast('AI 服务暂时不可用');
+    if (e.name === 'AbortError') toast('AI 响应超时，请重试');
+    else toast('AI 服务暂时不可用');
   } finally {
     btn.textContent = '✨ AI 智能整理';
     btn.disabled = false;
@@ -1748,6 +1821,17 @@ function delInsight(id) {
   });
 }
 
+// ── 会议独立页全列表 ──
+function renderMeetingList() {
+  const s = getLocal();
+  const el = document.getElementById('meetingList');
+  if (!el) return;
+  if (!s.meetings || !s.meetings.length) {
+    el.innerHTML = '<div class="empty"><div class="ei">📋</div>暂无会议记录<br><span style="font-size:13px">点右上角「+ 新会议」开始记录</span></div>'; return;
+  }
+  el.innerHTML = s.meetings.map(m => meetingHTML(m)).join('');
+}
+
 // ══════════════════════════════════════════════
 //  ACCOUNTS
 // ══════════════════════════════════════════════
@@ -1816,7 +1900,7 @@ function delAcc(id) {
 }
 
 function openModal() {
-  const fm = { home:'task', tasks:'task', products:'product', accounts:'account', insights:'insight', profile:'task' };
+  const fm = { home:'task', tasks:'task', meetings:'meeting', products:'product', accounts:'account', insights:'insight', profile:'task' };
   document.getElementById('tsw').style.display = 'flex';
   switchForm(fm[curPage] || 'task');
   document.getElementById('modal').classList.add('show');
@@ -1925,23 +2009,49 @@ function saveRecord() {
     const title = document.getElementById('f-m-title').value.trim();
     if (!title) { toast('请输入会议主题'); return; }
     const raw = document.getElementById('f-m-topics').value.trim();
+    const dur = document.getElementById('f-m-dur').value.trim() || '-';
+    const mDate = document.getElementById('f-m-date').value || today;
+    const conclusion = document.getElementById('f-m-conclusion').value.trim();
+    const topics = raw ? raw.split('\n').filter(l=>l.trim()) : [];
     const editId = modal.dataset.editMeetingId;
     if (editId) {
       const m = s.meetings.find(x => x.id === editId);
       if (m) {
         m.title      = title;
         m.platform   = document.getElementById('f-m-platform').value.trim() || '腾讯会议';
-        m.duration   = document.getElementById('f-m-dur').value.trim() || '-';
-        m.date       = document.getElementById('f-m-date').value || new Date().toISOString().split('T')[0];
-        m.topics     = raw ? raw.split('\n').filter(l=>l.trim()) : [];
-        m.conclusion = document.getElementById('f-m-conclusion').value.trim();
+        m.duration   = dur;
+        m.date       = mDate;
+        m.topics     = topics;
+        m.conclusion = conclusion;
       }
       addAct('更新了会议「' + title + '」', 'b');
       toast('会议已更新 ✓');
     } else {
-      s.meetings.unshift({ id:'m'+Date.now(), title, platform:document.getElementById('f-m-platform').value.trim()||'腾讯会议', duration:document.getElementById('f-m-dur').value.trim()||'-', date:document.getElementById('f-m-date').value||new Date().toISOString().split('T')[0], topics:raw?raw.split('\n').filter(l=>l.trim()):[], conclusion:document.getElementById('f-m-conclusion').value.trim(), by:CU });
-      addAct('记录了会议「' + title + '」', 'b');
-      toast('会议已记录 ✓');
+      const newMeeting = { id:'m'+Date.now(), title, platform:document.getElementById('f-m-platform').value.trim()||'腾讯会议', duration:dur, date:mDate, topics, conclusion, by:CU };
+      s.meetings.unshift(newMeeting);
+      // AI 自动生成会议动态（异步，不阻塞保存流程）
+      const actTime = nowBJStr();
+      const fallbackText = `📋 ${mDate} ${dur} 召开「${title}」` + (conclusion ? `，结论：${conclusion.slice(0,40)}` : '');
+      addAct(fallbackText, 'b'); // 先存一条默认动态
+      toast('会议已记录，AI 正在生成动态摘要...');
+      // 异步替换为 AI 生成的动态
+      (async () => {
+        try {
+          const meetingDesc = `会议主题：${title}，时间：${mDate} ${dur}` +
+            (topics.length ? `，议题：${topics.join('、')}` : '') +
+            (conclusion ? `，结论：${conclusion}` : '');
+          const aiText = await callDeepSeek(
+            '你是会议记录助手。根据会议信息，生成一条简洁的会议动态，包含时间、主题和核心结论，1-2句话，格式：📋 [日期时间] 召开「xxx」会议，[核心成果/结论]。只返回动态文字，不要解释。',
+            meetingDesc, 150
+          );
+          const s2 = getLocal();
+          // 找到刚才添加的那条动态并替换
+          const idx = s2.activities.findIndex(a => a.time === actTime && a.type === 'b');
+          if (idx !== -1) s2.activities[idx].text = aiText;
+          setLocal(s2); renderAll(); forcePushAndPull();
+          toast('✓ AI 会议动态已生成');
+        } catch(e) { /* 保留 fallback 动态 */ }
+      })();
     }
   } else if (curForm === 'insight') {
     const title = document.getElementById('f-i-title').value.trim();
