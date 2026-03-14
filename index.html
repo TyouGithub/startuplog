@@ -548,7 +548,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div class="btab" id="bt-gameacc" onclick="goPage('gameacc')"><span class="bi">🎮</span><span class="bl">账号</span></div>
     <div class="btab" id="bt-profile" onclick="goPage('profile')"><span class="bi">👤</span><span class="bl">我的</span></div>
   </div>
-  <button class="fab" id="fab" onclick="openModal()">＋</button>
+  <button class="fab" id="fab">＋</button>
 </div>
 
 <!-- MODAL -->
@@ -949,12 +949,15 @@ function defaultData() {
 
 function getLocal() {
   try {
-    const d = JSON.parse(localStorage.getItem(SYNC_KEY)) || defaultData();
+    const raw = localStorage.getItem(SYNC_KEY);
+    const d = raw ? JSON.parse(raw) : defaultData();
     const def = defaultData();
-    // 兼容旧数据：补全缺失字段
-    if (!d.roadmap) d.roadmap = def.roadmap;
-    if (!d.gameAccounts || !d.gameAccounts.length) d.gameAccounts = def.gameAccounts;
-    if (!d.incomeRecords || !d.incomeRecords.length) d.incomeRecords = def.incomeRecords;
+    let dirty = false;
+    // 兼容旧数据：补全缺失字段并写回
+    if (!d.roadmap) { d.roadmap = def.roadmap; dirty = true; }
+    if (!d.gameAccounts || !d.gameAccounts.length) { d.gameAccounts = def.gameAccounts; dirty = true; }
+    if (!d.incomeRecords || !d.incomeRecords.length) { d.incomeRecords = def.incomeRecords; dirty = true; }
+    if (dirty) localStorage.setItem(SYNC_KEY, JSON.stringify(d));
     return d;
   } catch(e) { return defaultData(); }
 }
