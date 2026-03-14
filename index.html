@@ -471,28 +471,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 const SB_URL  = 'https://kgyregrnrppqkdjhexzs.supabase.co';
 const SB_KEY  = 'sb_publishable_w6tzS-2wUL0xySdIMRZQyA_r08-4TPY';
 const SB_HDR  = { 'Content-Type':'application/json', 'apikey': SB_KEY, 'Authorization':'Bearer '+SB_KEY };
+const DB_KEY  = 'startuplog';
 
-// Supabase REST helpers
-async function sbGet(key) {
+// 获取云端数据（同时返回 value 和 updated_at）
+async function sbFetch() {
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/store?key=eq.${encodeURIComponent(key)}&select=value`, { headers: SB_HDR });
+    const r = await fetch(
+      `${SB_URL}/rest/v1/store?key=eq.${encodeURIComponent(DB_KEY)}&select=value,updated_at`,
+      { headers: SB_HDR, cache: 'no-store' }
+    );
     const j = await r.json();
-    return (j && j[0]) ? j[0].value : null;
+    if (j && j[0]) return { value: j[0].value, updatedAt: j[0].updated_at };
+    return null;
   } catch(e) { return null; }
 }
-async function sbSet(key, value) {
+
+// 写入云端（让服务端用 NOW() 更新 updated_at，客户端不传时间戳）
+async function sbPush(value) {
   try {
     const r = await fetch(`${SB_URL}/rest/v1/store`, {
       method: 'POST',
       headers: { ...SB_HDR, 'Prefer': 'resolution=merge-duplicates' },
-      body: JSON.stringify({ key, value, updated_at: new Date().toISOString() })
+      body: JSON.stringify({ key: DB_KEY, value })
     });
     return r.ok || r.status === 201;
   } catch(e) { return false; }
 }
 
-const SYNC_KEY = 'sl_v5';       // localStorage key
-const DB_KEY   = 'startuplog';  // Supabase store key
+const SYNC_KEY     = 'sl_v6';        // localStorage 数据 key（版本号升1，强制各设备刷新）
+const LAST_SYNC_AT = 'sl_last_sync'; // localStorage 记录"上次我看到的云端时间戳"
 let syncTimer  = null;
 let lastSyncTs = 0;
 let isOnline   = navigator.onLine;
@@ -554,30 +561,29 @@ function setLocal(d) {
 }
 
 // ══════════════════════════════════════════════
-//  云同步 — Supabase
+//  云同步 — Supabase（以服务端时间为基准）
 // ══════════════════════════════════════════════
 
-// 写入：直接把本地数据推上云端（覆盖），不做合并
-// 这样删除/修改都能真实同步，不会被"合并"还原
+// 推送：把本地数据写到云端，让服务端的 NOW() 更新时间戳
 async function pushToCloud() {
   const local = getLocal();
-  local._v = Date.now();
-  localStorage.setItem(SYNC_KEY, JSON.stringify(local));
-  return await sbSet(DB_KEY, local);
+  const ok = await sbPush(local);
+  return ok;
 }
 
-// 拉取：从云端拉最新，版本更新则覆盖本地并刷新界面
+// 拉取：对比服务端 updated_at，只要跟上次记录的不一样就更新
 async function pullFromCloud(silent = false) {
-  const remote = await sbGet(DB_KEY);
-  if (!remote) {
-    // 云端没数据，初次使用：把本地推上去
+  const result = await sbFetch();
+  if (!result) {
     await pushToCloud();
-    if (!silent) toast('☁️ 数据已上传云端');
+    if (!silent) toast('☁️ 数据已初始化到云端');
     return false;
   }
-  const local = getLocal();
-  if (remote._v > local._v) {
-    setLocal(remote);
+  const lastSeen = localStorage.getItem(LAST_SYNC_AT) || '';
+  const cloudAt  = result.updatedAt || '';
+  if (cloudAt !== lastSeen) {
+    setLocal(result.value);
+    localStorage.setItem(LAST_SYNC_AT, cloudAt);
     renderAll();
     if (!silent) toast('☁️ 已更新最新数据');
     return true;
@@ -592,7 +598,12 @@ async function doSync(isWrite = false) {
   setSyncBar('syncing');
   try {
     if (isWrite) {
-      await pushToCloud();
+      const ok = await pushToCloud();
+      // 推完后立刻查询服务端时间戳，存到本地，避免下次自己把自己的推送当新数据
+      if (ok) {
+        const result = await sbFetch();
+        if (result) localStorage.setItem(LAST_SYNC_AT, result.updatedAt || '');
+      }
     } else {
       await pullFromCloud(true);
     }
@@ -627,7 +638,9 @@ function updateSyncTime() {
 }
 
 async function syncNow() {
+  if (!isOnline) { toast('当前无网络'); return; }
   toast('同步中...');
+  isSyncing = false; // 强制解锁，防止卡住
   await doSync(false);
 }
 
