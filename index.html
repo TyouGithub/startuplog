@@ -1696,7 +1696,15 @@ function renderHomeMeetings() {
   const s = getLocal();
   const el = document.getElementById('homeMeetings');
   if (!s.meetings || !s.meetings.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px;padding:8px 0">暂无会议记录</div>'; return; }
-  el.innerHTML = s.meetings.slice(0,3).map(m => meetingHTML(m)).join('');
+  // 首页只展示摘要，点击跳转到会议页（避免与会议页 id 冲突导致下拉失效）
+  el.innerHTML = s.meetings.slice(0,3).map(m => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="goPage('meetings')">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.title}</div>
+        <div style="font-size:11px;color:var(--hint);margin-top:2px">${m.date} · ${m.platform}</div>
+      </div>
+      <span class="mdur" style="flex-shrink:0;margin-left:8px">${m.duration}</span>
+    </div>`).join('');
 }
 
 function meetingHTML(m) {
