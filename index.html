@@ -339,9 +339,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div class="banner" style="position:relative;overflow:hidden">
       <h2 id="bnrTitle">你好 👋</h2>
       <p>今天是 <span id="bnrDate"></span>，继续加油！</p>
-      <div id="bnrSoup" style="margin-top:10px;background:rgba(255,255,255,0.13);border-radius:10px;padding:10px 13px;font-size:13px;line-height:1.65;min-height:42px;opacity:.95;cursor:pointer;transition:opacity .2s;-webkit-user-select:none;user-select:none" onclick="fetchDailySoup(true)" title="点击换一句">
+      <div id="bnrSoup" style="margin-top:10px;background:rgba(255,255,255,0.13);border-radius:10px;padding:10px 13px;font-size:13px;line-height:1.65;min-height:42px;opacity:.95">
         <span id="bnrSoupText" style="font-style:italic">✨ 加载每日鸡汤中...</span>
-        <span style="font-size:10px;opacity:.6;margin-left:6px">↻ 换一句</span>
+        <span id="bnrRefreshBtn" onclick="fetchDailySoup(true)" style="font-size:11px;opacity:.7;margin-left:8px;cursor:pointer;background:rgba(255,255,255,0.2);border-radius:8px;padding:2px 8px;-webkit-user-select:none;user-select:none;transition:opacity .15s" title="换一句">↻ 换一句</span>
       </div>
     </div>
     <div class="card">
@@ -430,13 +430,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div id="insightList"></div>
   </div>
 
-  <!-- ACCOUNTS -->
-  <div class="pg" id="pg-accounts">
-    <div id="accList"></div>
-    <div style="text-align:center;margin-top:8px">
-      <button class="fbtn" onclick="openModal();switchForm('account')" style="border-color:var(--blue);color:var(--blue)">＋ 添加平台账号</button>
-    </div>
-  </div>
+  <!-- ACCOUNTS (内容整合到 profile，此页保留空壳供跳转兼容) -->
+  <div class="pg" id="pg-accounts" style="display:none"></div>
 
   <!-- PROFILE -->
   <div class="pg" id="pg-profile">
@@ -458,6 +453,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
         <span style="font-size:24px">📋</span>
         <div><div style="font-size:13px;font-weight:700">记录会议</div><div style="font-size:11px;color:var(--hint)">点击快速记录</div></div>
       </div>
+      <div style="background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openAddAct()">
+        <span style="font-size:24px">⚡</span>
+        <div><div style="font-size:13px;font-weight:700">记录动态</div><div style="font-size:11px;color:var(--hint)">快速添加动态</div></div>
+      </div>
+      <div style="background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openModal();switchForm('insight')">
+        <span style="font-size:24px">💡</span>
+        <div><div style="font-size:13px;font-weight:700">记录心得</div><div style="font-size:11px;color:var(--hint)">分享创业思考</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch">
+        <div class="ct">🔑 平台账号</div>
+        <div class="cm" onclick="openModal();switchForm('account')">+ 添加</div>
+      </div>
+      <div id="accList"></div>
     </div>
     <div class="card">
       <div class="ch">
@@ -499,9 +509,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 
   <div class="bnav">
     <div class="btab on" id="bt-home" onclick="goPage('home')"><span class="bi">🏠</span><span class="bl">首页</span></div>
+    <div class="btab" id="bt-tasks" onclick="goPage('tasks')"><span class="bi">✅</span><span class="bl">任务</span></div>
     <div class="btab" id="bt-meetings" onclick="goPage('meetings')"><span class="bi">📋</span><span class="bl">会议</span></div>
     <div class="btab" id="bt-products" onclick="goPage('products')"><span class="bi">🛒</span><span class="bl">选品库</span></div>
-    <div class="btab" id="bt-accounts" onclick="goPage('accounts')"><span class="bi">🔑</span><span class="bl">账号库</span></div>
     <div class="btab" id="bt-profile" onclick="goPage('profile')"><span class="bi">👤</span><span class="bl">我的</span></div>
   </div>
   <button class="fab" id="fab" onclick="openModal()">＋</button>
@@ -639,6 +649,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div class="handle"></div>
     <div class="stitle" id="actModalTitle">添加动态</div>
     <input type="hidden" id="act-edit-id"/>
+    <input type="hidden" id="act-edit-idx"/>
     <div class="frow">
       <label>动态内容 *</label>
       <textarea id="act-text" placeholder="随手记录，比如：今天完成了产品上架，发现竞品定价偏低..." style="min-height:80px"></textarea>
@@ -1086,11 +1097,10 @@ function renderActs() {
   const el = document.getElementById('actList');
   if (!s.activities.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态，点「+ 添加」记录第一条</div>'; return; }
   const map = { b:'', g:'g', o:'o', p:'p' };
-  el.innerHTML = s.activities.slice(0,8).map(a => {
+  el.innerHTML = s.activities.slice(0,8).map((a, idx) => {
     const uname = a.author && s.users && s.users[a.author] ? s.users[a.author].name : (a.author || '');
     const authorTag = uname ? `<span style="font-size:11px;color:var(--hint);background:#f1f5f9;border-radius:10px;padding:1px 7px;margin-left:5px">@${uname}</span>` : '';
-    const actId = a.id || '';
-    const editBtn = isAdmin() || a.author === CU ? `<button class="edit-btn" style="flex-shrink:0;padding:2px 8px" onclick="openEditAct('${actId}')">编辑</button>` : '';
+    const editBtn = isAdmin() || a.author === CU ? `<button class="edit-btn" style="flex-shrink:0;padding:2px 8px" onclick="openEditActByIdx(${idx})">编辑</button>` : '';
     return `<div class="tli"><div class="tldot ${map[a.type]||''}"></div>
     <div class="tlt">${fmtTime(a.time)}</div>
     <div style="display:flex;align-items:flex-start;gap:6px">
@@ -1197,7 +1207,6 @@ function renderProfileActs() {
   el.innerHTML = s.activities.map((a, idx) => {
     const uname = a.author && s.users && s.users[a.author] ? s.users[a.author].name : (a.author || '');
     const authorTag = uname ? `<span style="font-size:11px;color:var(--hint);background:#f1f5f9;border-radius:10px;padding:1px 7px;margin-left:5px">@${uname}</span>` : '';
-    const actId = a.id || '';
     const canEdit = isAdmin() || a.author === CU;
     return `<div class="tli">
       <div class="tldot ${map[a.type]||''}"></div>
@@ -1205,7 +1214,7 @@ function renderProfileActs() {
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
         <div class="tlc" style="flex:1">${a.text}${authorTag}</div>
         <div style="display:flex;gap:4px;flex-shrink:0">
-          ${canEdit ? `<button class="edit-btn" style="padding:2px 8px" onclick="openEditAct('${actId}')">编辑</button>` : ''}
+          ${canEdit ? `<button class="edit-btn" style="padding:2px 8px" onclick="openEditActByIdx(${idx})">编辑</button>` : ''}
           <button class="del-btn" style="font-size:13px;opacity:.4" onclick="delAct(${idx})">🗑</button>
         </div>
       </div>
@@ -1318,28 +1327,36 @@ function renderHomeInsightsPublic() {
 async function fetchDailySoup(forceRefresh) {
   const bjDate = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Shanghai'}));
   const todayKey = 'sl_soup_' + bjDate.toISOString().split('T')[0];
-  const el = document.getElementById('bnrSoupText');
-  const box = document.getElementById('bnrSoup');
+  const el  = document.getElementById('bnrSoupText');
+  const btn = document.getElementById('bnrRefreshBtn');
   if (!el) return;
   if (!forceRefresh) {
     const cached = localStorage.getItem(todayKey);
     if (cached) { el.textContent = cached; return; }
   }
-  if (box) box.style.opacity = '.6';
-  el.textContent = '⏳ 换一句中...';
+  // loading 状态
+  if (btn) { btn.style.opacity = '.35'; btn.style.pointerEvents = 'none'; }
+  el.textContent = '⏳ 生成中...';
   try {
-    const seed = forceRefresh ? (bjDate.toDateString() + '_' + Date.now()) : bjDate.toDateString();
+    const seed = bjDate.toDateString() + (forceRefresh ? '_' + Date.now() : '');
     const text = await callDeepSeek(
       '你是一位专为跨境电商创业者写励志句子的文案大师。每天提供一句简洁有力、充满激情的原创励志句子，适合两个刚起步的年轻创业者。句子要接地气，不套路，不说废话，有画面感，1-2句话，中文。今日种子词（影响内容方向，不要写出来）：' + seed,
       '给我今天的一句话励志，不要带引号，不要有任何解释和前缀，直接给出句子本身。',
       120
     );
     el.textContent = '🔥 ' + text;
+    // 非强制刷新才缓存（手动换一句不覆盖今日缓存）
     if (!forceRefresh) localStorage.setItem(todayKey, '🔥 ' + text);
   } catch(e) {
-    el.textContent = '🔥 不是所有努力都立竿见影，但没有一份努力会被辜负。';
+    const fallbacks = [
+      '不是所有努力都立竿见影，但没有一份努力会被辜负。',
+      '创业就是把不可能变成可能，先做起来再说。',
+      '市场不相信眼泪，只相信行动和结果。',
+      '今天的坚持，是明天最好的底气。',
+    ];
+    el.textContent = '🔥 ' + fallbacks[Math.floor(Math.random() * fallbacks.length)];
   } finally {
-    if (box) box.style.opacity = '.95';
+    if (btn) { btn.style.opacity = '.7'; btn.style.pointerEvents = ''; }
   }
 }
 
@@ -1439,6 +1456,7 @@ async function aiPolishAct() {
 }
 function openAddAct() {
   document.getElementById('act-edit-id').value = '';
+  document.getElementById('act-edit-idx').value = '';
   document.getElementById('act-text').value = '';
   document.getElementById('act-type').value = 'g';
   document.getElementById('act-time').value = '';
@@ -1446,12 +1464,13 @@ function openAddAct() {
   document.getElementById('actModal').classList.add('show');
 }
 
-function openEditAct(actId) {
-  if (!actId) return;
+// 通过 index 打开编辑（兼容无 id 的旧动态）
+function openEditActByIdx(idx) {
   const s = getLocal();
-  const a = s.activities.find(x => x.id === actId);
+  const a = s.activities[idx];
   if (!a) { toast('找不到该动态'); return; }
-  document.getElementById('act-edit-id').value = actId;
+  document.getElementById('act-edit-id').value  = a.id || '';
+  document.getElementById('act-edit-idx').value = String(idx);
   document.getElementById('act-text').value = a.text;
   document.getElementById('act-type').value = a.type || 'g';
   document.getElementById('act-time').value = a.time || '';
@@ -1467,16 +1486,17 @@ function saveAct() {
   const type = document.getElementById('act-type').value;
   const timeInput = document.getElementById('act-time').value.trim();
   const time = timeInput || nowBJStr();
-  const editId = document.getElementById('act-edit-id').value;
+  const editIdx = document.getElementById('act-edit-idx').value;
   const s = getLocal();
-  if (editId) {
-    const idx = s.activities.findIndex(a => a.id === editId);
-    if (idx !== -1) {
+  if (editIdx !== '') {
+    const idx = parseInt(editIdx);
+    if (!isNaN(idx) && s.activities[idx]) {
       s.activities[idx].text = text;
       s.activities[idx].type = type;
       s.activities[idx].time = time;
+      if (!s.activities[idx].id) s.activities[idx].id = 'act_' + Date.now(); // 顺便补 id
       setLocal(s); renderAll(); closeActModal(); forcePushAndPull(); toast('动态已更新 ✓');
-    }
+    } else { toast('保存失败，请重试'); }
   } else {
     s.activities.unshift({ id: 'act_' + Date.now(), time, text, type, author: CU });
     if (s.activities.length > 30) s.activities = s.activities.slice(0,30);
@@ -1992,7 +2012,14 @@ function renderMeetingList() {
 function renderAccList() {
   const s = getLocal();
   const el = document.getElementById('accList');
-  if (!s.accounts.length) { el.innerHTML = '<div class="empty"><div class="ei">🔑</div>暂无账号</div>'; return; }
+  if (!el) return;
+  if (!s.accounts.length) {
+    el.innerHTML = `<div style="padding:16px 0;text-align:center">
+      <div style="font-size:32px;margin-bottom:8px">🔑</div>
+      <div style="font-size:13px;color:var(--hint);margin-bottom:12px">暂无账号，点右上角「+ 添加」</div>
+    </div>`;
+    return;
+  }
   el.innerHTML = s.accounts.map(a => {
     const bg   = a.name.includes('TEMU') ? '#fff1f0' : a.name.includes('亚马逊') ? '#fff7e6' : '#f0f9ff';
     const icon = a.name.includes('TEMU') ? '🛒' : a.name.includes('亚马逊') ? '📦' : '🔑';
@@ -2092,6 +2119,8 @@ function clearForms() {
 }
 
 function goPage(p) {
+  // 兼容旧的 accounts 页跳转（账号已整合到 profile）
+  if (p === 'accounts') p = 'profile';
   document.querySelectorAll('.pg').forEach(e => e.classList.remove('on'));
   document.querySelectorAll('.btab').forEach(e => e.classList.remove('on'));
   const pg = document.getElementById('pg-' + p);
@@ -2243,7 +2272,7 @@ function saveRecord() {
   closeModal();
   // 保存后强制推送到云端（不经过确认，因为用户点了「保存并同步」）
   forcePushAndPull();
-  const pm = { task:'tasks', product:'products', meeting:'home', insight:'insights', account:'accounts' };
+  const pm = { task:'tasks', product:'products', meeting:'home', insight:'profile', account:'profile' };
   goPage(pm[curForm] || 'home');
 }
 
