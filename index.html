@@ -453,7 +453,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
       <div class="frow"><label>平台名称 *</label><input id="f-a-name" placeholder="如：TEMU卖家后台"/></div>
       <div class="frow"><label>平台网址</label><input id="f-a-url" placeholder="https://..."/></div>
       <div class="frow"><label>账号 / 邮箱 *</label><input id="f-a-user" placeholder="登录账号..."/></div>
-      <div class="frow"><label>密码 *</label><input id="f-a-pwd" type="password" placeholder="密码..."/></div>
+      <div class="frow"><label>密码 *</label><input id="f-a-pwd" type="text" placeholder="密码..."/></div>
       <div class="frow"><label>备注</label><input id="f-a-note" placeholder="补充信息..."/></div>
     </div>
 
@@ -556,20 +556,33 @@ function setLocal(d) {
 // ══════════════════════════════════════════════
 //  云同步 — Supabase
 // ══════════════════════════════════════════════
-function mergeData(local, remote) {
-  if (!remote) return local;
-  const base = remote._v >= local._v ? { ...remote } : { ...local };
-  ['tasks','products','meetings','insights','accounts','activities'].forEach(key => {
-    const lArr = local[key] || [], rArr = remote[key] || [];
-    const map = {};
-    [...rArr, ...lArr].forEach(item => { if(item && item.id) map[item.id] = item; });
-    base[key] = Object.values(map);
-    // activities 保持时间倒序，限制20条
-    if (key === 'activities') base[key] = base[key].sort((a,b)=>b.time>a.time?1:-1).slice(0,20);
-  });
-  // 用户密码：版本更新的优先
-  base.users = local._v >= remote._v ? local.users : remote.users;
-  return base;
+
+// 写入：直接把本地数据推上云端（覆盖），不做合并
+// 这样删除/修改都能真实同步，不会被"合并"还原
+async function pushToCloud() {
+  const local = getLocal();
+  local._v = Date.now();
+  localStorage.setItem(SYNC_KEY, JSON.stringify(local));
+  return await sbSet(DB_KEY, local);
+}
+
+// 拉取：从云端拉最新，版本更新则覆盖本地并刷新界面
+async function pullFromCloud(silent = false) {
+  const remote = await sbGet(DB_KEY);
+  if (!remote) {
+    // 云端没数据，初次使用：把本地推上去
+    await pushToCloud();
+    if (!silent) toast('☁️ 数据已上传云端');
+    return false;
+  }
+  const local = getLocal();
+  if (remote._v > local._v) {
+    setLocal(remote);
+    renderAll();
+    if (!silent) toast('☁️ 已更新最新数据');
+    return true;
+  }
+  return false;
 }
 
 async function doSync(isWrite = false) {
@@ -579,28 +592,9 @@ async function doSync(isWrite = false) {
   setSyncBar('syncing');
   try {
     if (isWrite) {
-      // 先拉远端，合并后推上去
-      const remote = await sbGet(DB_KEY);
-      const local  = getLocal();
-      const merged = mergeData(local, remote);
-      setLocal(merged);
-      await sbSet(DB_KEY, merged);
+      await pushToCloud();
     } else {
-      // 只拉取
-      const remote = await sbGet(DB_KEY);
-      if (remote) {
-        const local = getLocal();
-        if (remote._v > local._v) {
-          const merged = mergeData(local, remote);
-          setLocal(merged);
-          renderAll();
-          toast('☁️ 已更新对方的最新数据');
-        }
-      } else {
-        // 远端没有数据，把本地数据推上去（初次使用）
-        await sbSet(DB_KEY, getLocal());
-        toast('☁️ 数据已上传云端');
-      }
+      await pullFromCloud(true);
     }
     setSyncBar('ok');
     updateSyncTime();
@@ -632,12 +626,15 @@ function updateSyncTime() {
   if (ss) ss.textContent = '同步于 ' + t;
 }
 
-async function syncNow() { await doSync(false); toast('同步中...'); }
+async function syncNow() {
+  toast('同步中...');
+  await doSync(false);
+}
 
-// 定时轮询（每20秒自动拉取一次）
+// 定时轮询（每10秒自动拉取一次）
 function startAutoSync() {
   if (syncTimer) clearInterval(syncTimer);
-  syncTimer = setInterval(() => doSync(false), 20000);
+  syncTimer = setInterval(() => doSync(false), 10000);
 }
 
 // ══════════════════════════════════════════════
@@ -663,8 +660,11 @@ function enterApp(uid) {
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   initApp();
-  doSync(false);
-  startAutoSync();
+  // 进入后立即拉取云端最新，确保刷新后看到最新数据
+  pullFromCloud(false).then(() => {
+    renderAll();
+    startAutoSync();
+  });
 }
 
 function login() {
