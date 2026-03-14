@@ -1381,7 +1381,8 @@ function openImgLightbox(src) {
 function closeImgLightbox() { document.getElementById('imgLightbox').classList.remove('show'); }
 
 // ── 通用 AI 整理核心函数 ──
-const DS_KEY = 'sk-2fb10a88bab5450398b226e6c3e7b23f';
+const GROQ_KEY = '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';
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const PROMPTS = {
   'task-title':        '你是创业任务管理助手。将任务名称整理成简洁清晰的一句话，动词开头，保留核心目标。只返回整理后的文字，不要解释。',
   'task-note':         '你是创业任务管理助手。将任务备注整理成简洁、结构化的补充说明，保留关键信息。只返回整理后的文字，不要解释。',
@@ -1397,20 +1398,19 @@ const PROMPTS = {
 
 async function callDeepSeek(systemPrompt, userContent, maxTokens) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000); // 15秒超时
+  const timeout = setTimeout(() => controller.abort(), 20000);
   try {
-    const resp = await fetch('https://api.deepseek.com/chat/completions', {
+    const resp = await fetch(GROQ_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DS_KEY },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_KEY },
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: 'llama-3.3-70b-versatile',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: userContent }
+          { role: 'user',   content: userContent }
         ],
         max_tokens: maxTokens || 300,
-        temperature: 0.7,
-        stream: false
+        temperature: 0.7
       }),
       signal: controller.signal
     });
