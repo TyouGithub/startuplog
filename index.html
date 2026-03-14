@@ -1111,12 +1111,14 @@ function renderActs() {
   el.innerHTML = s.activities.slice(0,8).map((a, idx) => {
     const uname = a.author && s.users && s.users[a.author] ? s.users[a.author].name : (a.author || '');
     const authorTag = uname ? `<span style="font-size:11px;color:var(--hint);background:#f1f5f9;border-radius:10px;padding:1px 7px;margin-left:5px">@${uname}</span>` : '';
-    const editBtn = isAdmin() || a.author === CU ? `<button class="edit-btn" style="flex-shrink:0;padding:2px 8px" onclick="openEditActByIdx(${idx})">编辑</button>` : '';
+    const canEdit = isAdmin() || a.author === CU;
+    const editBtn = canEdit ? `<button class="edit-btn" style="flex-shrink:0;padding:2px 8px" onclick="openEditActByIdx(${idx})">编辑</button>` : '';
+    const delBtn  = canEdit ? `<button class="del-btn" style="font-size:13px;opacity:.4;flex-shrink:0" onclick="delAct(${idx})">🗑</button>` : '';
     return `<div class="tli"><div class="tldot ${map[a.type]||''}"></div>
     <div class="tlt">${fmtTime(a.time)}</div>
     <div style="display:flex;align-items:flex-start;gap:6px">
       <div class="tlc" style="flex:1">${a.text}${authorTag}</div>
-      ${editBtn}
+      ${editBtn}${delBtn}
     </div></div>`;
   }).join('') + (s.activities.length > 8 ? `<div style="text-align:center;padding-top:10px"><span style="font-size:12px;color:var(--hint)">共 ${s.activities.length} 条记录</span></div>` : '');
 }
