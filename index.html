@@ -328,7 +328,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
       <div class="pbar"><div class="pfill" id="pfill" style="width:0%"></div></div>
     </div>
     <div class="card">
-      <div class="ch"><div class="ct">⚡ 最近动态</div><div class="cm" id="syncStatus" style="font-size:11px"></div></div>
+      <div class="ch"><div class="ct">⚡ 最近动态</div>
+        <div style="display:flex;gap:8px">
+          <div class="cm" onclick="openAddAct()">+ 添加</div>
+          <div class="cm" id="syncStatus" style="font-size:11px"></div>
+        </div>
+      </div>
       <div class="tl" id="actList"></div>
     </div>
     <div class="card">
@@ -338,6 +343,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div class="card">
       <div class="ch"><div class="ct">📋 最近会议</div><div class="cm" onclick="openModal();switchForm('meeting')">+ 记录</div></div>
       <div id="homeMeetings"></div>
+    </div>
+    <div class="card" style="border:1.5px solid #fde68a;background:linear-gradient(135deg,#fffbeb,#fff)">
+      <div class="ch">
+        <div class="ct">🔑 平台账号库</div>
+        <div class="cm" onclick="goPage('accounts')">管理 →</div>
+      </div>
+      <div id="homeAccounts"></div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">💡 心得分享</div><div class="cm" onclick="goPage('insights')">全部 →</div></div>
+      <div id="homeInsights"></div>
     </div>
   </div>
 
@@ -386,23 +402,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
       </div>
     </div>
     <div class="card">
-      <div class="ct" style="margin-bottom:12px">🌏 创业路线</div>
-      <div class="tl">
-        <div class="tli"><div class="tldot g"></div><div class="tlt">当前重点</div><div class="tlc">TEMU 跨境电商 · 羽毛球手胶</div></div>
-        <div class="tli"><div class="tldot o"></div><div class="tlt">规划中</div><div class="tlc">亚马逊平台拓展 · 多品类扩展</div></div>
-        <div class="tli"><div class="tldot p"></div><div class="tlt">工具赋能</div><div class="tlc">WorkBuddy AI 工具提效</div></div>
+      <div class="ch">
+        <div class="ct">🌏 创业路线</div>
+        <div class="cm" onclick="openRoadmapEdit()">编辑</div>
       </div>
+      <div class="tl" id="roadmapList"></div>
     </div>
     <div class="card">
-      <div class="ct" style="margin-bottom:12px">🔐 修改密码</div>
-      <div class="frow"><label>新密码（6位以上）</label><input type="password" id="npwd" placeholder="输入新密码"/></div>
-      <div class="frow"><label>确认密码</label><input type="password" id="cpwd" placeholder="再次确认"/></div>
-      <button class="btn btn-p" style="width:100%;margin-top:4px" onclick="changePwd()">更新密码</button>
+      <div class="ch">
+        <div class="ct">⚡ 最近动态</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="cm" onclick="openAddAct()">+ 添加</div>
+        </div>
+      </div>
+      <div class="tl" id="profileActList"></div>
     </div>
     <div class="card">
       <div class="ct" style="margin-bottom:10px">☁️ 同步状态</div>
       <div style="font-size:13px;color:var(--sub)" id="lastSyncTime">上次同步：-</div>
       <button class="btn btn-p" style="width:100%;margin-top:12px" onclick="syncNow()">立即同步</button>
+    </div>
+    <!-- 修改密码：折叠隐藏 -->
+    <div style="text-align:center;margin-bottom:8px">
+      <span style="font-size:12px;color:var(--hint);cursor:pointer;text-decoration:underline" onclick="togglePwdPanel()">修改密码</span>
+    </div>
+    <div class="card" id="pwdPanel" style="display:none">
+      <div class="ct" style="margin-bottom:12px">🔐 修改密码</div>
+      <div class="frow"><label>新密码（6位以上）</label><input type="password" id="npwd" placeholder="输入新密码"/></div>
+      <div class="frow"><label>确认密码</label><input type="password" id="cpwd" placeholder="再次确认"/></div>
+      <button class="btn btn-p" style="width:100%;margin-top:4px" onclick="changePwd()">更新密码</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px;background:#fff5f5;border:1px solid #fecaca;border-radius:var(--r);padding:14px 16px;cursor:pointer;margin-bottom:12px" onclick="logout()">
       <span style="font-size:18px">🚪</span><span style="color:var(--red);font-weight:600;font-size:14px">退出登录</span>
@@ -413,7 +441,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div class="btab on" id="bt-home" onclick="goPage('home')"><span class="bi">🏠</span><span class="bl">首页</span></div>
     <div class="btab" id="bt-tasks" onclick="goPage('tasks')"><span class="bi">✅</span><span class="bl">任务</span></div>
     <div class="btab" id="bt-products" onclick="goPage('products')"><span class="bi">🛒</span><span class="bl">选品库</span></div>
-    <div class="btab" id="bt-insights" onclick="goPage('insights')"><span class="bi">💡</span><span class="bl">心得</span></div>
+    <div class="btab" id="bt-accounts" onclick="goPage('accounts')"><span class="bi">🔑</span><span class="bl">账号库</span></div>
     <div class="btab" id="bt-profile" onclick="goPage('profile')"><span class="bi">👤</span><span class="bl">我的</span></div>
   </div>
   <button class="fab" id="fab" onclick="openModal()">＋</button>
@@ -473,7 +501,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div id="form-meeting" style="display:none">
       <div class="frow"><label>会议主题 *</label><input id="f-m-title" placeholder="会议主题..."/></div>
       <div class="frow2">
-        <div class="frow" style="margin:0"><label>平台</label><input id="f-m-platform" placeholder="腾讯视频..."/></div>
+        <div class="frow" style="margin:0"><label>平台</label><input id="f-m-platform" placeholder="腾讯会议" value="腾讯会议"/></div>
         <div class="frow" style="margin:0"><label>时间段</label><input id="f-m-dur" placeholder="09:00-10:30"/></div>
       </div>
       <div class="frow"><label>日期</label><input id="f-m-date" type="date"/></div>
@@ -502,6 +530,43 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div class="mact">
       <button class="btn btn-c" onclick="closeModal()">取消</button>
       <button class="btn btn-p" onclick="saveRecord()">保存并同步</button>
+    </div>
+  </div>
+</div>
+
+<!-- 添加动态弹窗 -->
+<div class="overlay" id="actModal" onclick="if(event.target===this)closeActModal()">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="stitle">添加动态</div>
+    <div class="frow"><label>动态内容 *</label><textarea id="act-text" placeholder="发生了什么..." style="min-height:80px"></textarea></div>
+    <div class="frow">
+      <label>类型</label>
+      <select id="act-type">
+        <option value="g">✅ 完成/进展（绿）</option>
+        <option value="b">📋 会议/计划（蓝）</option>
+        <option value="o">⚡ 行动/操作（橙）</option>
+        <option value="p">💡 心得/洞察（紫）</option>
+      </select>
+    </div>
+    <div class="frow"><label>时间（北京时间，留空=当前时间）</label><input id="act-time" placeholder="2026-03-14 09:00"/></div>
+    <div class="mact">
+      <button class="btn btn-c" onclick="closeActModal()">取消</button>
+      <button class="btn btn-p" onclick="saveAct()">保存动态</button>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑创业路线弹窗 -->
+<div class="overlay" id="roadmapModal" onclick="if(event.target===this)closeRoadmapModal()">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="stitle">编辑创业路线</div>
+    <div id="roadmapEditorList"></div>
+    <button class="btn btn-c" style="width:100%;margin-bottom:10px" onclick="addRoadmapItem()">＋ 添加一条</button>
+    <div class="mact">
+      <button class="btn btn-c" onclick="closeRoadmapModal()">取消</button>
+      <button class="btn btn-p" onclick="saveRoadmap()">保存并同步</button>
     </div>
   </div>
 </div>
@@ -575,6 +640,11 @@ function defaultData() {
       jiashuo: { name:'佳硕', role:'创始人', pwd:'5201314', color:'#1677ff' },
       yixin:   { name:'一新', role:'联合创始人', pwd:'5201314', color:'#7c3aed' }
     },
+    roadmap: [
+      { id:'r1', dot:'g', label:'当前重点', text:'TEMU 跨境电商 · 羽毛球手胶' },
+      { id:'r2', dot:'o', label:'规划中',   text:'亚马逊平台拓展 · 多品类扩展' },
+      { id:'r3', dot:'p', label:'工具赋能', text:'WorkBuddy AI 工具提效' }
+    ],
     tasks: [
       {id:'t1',title:'完成羽毛球手胶第一个产品上架',cat:'TEMU选品',owner:'共同',status:'doing',note:'首个产品，主攻图片和标题关键词',date:'2026-03-14',by:'jiashuo'},
       {id:'t2',title:'TEMU卖家账号注册完成',cat:'TEMU选品',owner:'佳硕',status:'done',note:'',date:'2026-03-14',by:'jiashuo'},
@@ -605,7 +675,12 @@ function defaultData() {
 }
 
 function getLocal() {
-  try { return JSON.parse(localStorage.getItem(SYNC_KEY)) || defaultData(); } catch(e) { return defaultData(); }
+  try {
+    const d = JSON.parse(localStorage.getItem(SYNC_KEY)) || defaultData();
+    // 兼容旧数据：补全 roadmap 字段
+    if (!d.roadmap) d.roadmap = defaultData().roadmap;
+    return d;
+  } catch(e) { return defaultData(); }
 }
 function setLocal(d) {
   localStorage.setItem(SYNC_KEY, JSON.stringify(d));
@@ -682,12 +757,11 @@ function setSyncBar(state) {
 }
 
 function updateSyncTime() {
-  const d = new Date();
-  const t = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  const bjTime = nowBJStr().split(' ')[1] || '';
   const el = document.getElementById('lastSyncTime');
-  if (el) el.textContent = '上次同步：今天 ' + t;
+  if (el) el.textContent = '上次同步：' + nowBJStr();
   const ss = document.getElementById('syncStatus');
-  if (ss) ss.textContent = '同步于 ' + t;
+  if (ss) ss.textContent = '同步 ' + bjTime;
 }
 
 async function syncNow() {
@@ -834,8 +908,9 @@ function renderAll() {
     if (document.getElementById('pfAv')) document.getElementById('pfAv').style.background = u.color;
     setEl('pfNm', u.name); setEl('pfRl', u.role);
   }
-  renderStats(); renderActs(); renderHomeTasks(); renderHomeMeetings();
+  renderStats(); renderActs(); renderHomeTasks(); renderHomeMeetings(); renderHomeAccounts(); renderHomeInsights();
   renderTaskList(); renderProdList(); renderInsightList(); renderAccList();
+  renderRoadmap(); renderProfileActs();
 }
 
 // ══════════════════════════════════════════════
@@ -860,17 +935,28 @@ function renderStats() {
 // ══════════════════════════════════════════════
 //  ACTIVITIES
 // ══════════════════════════════════════════════
+// 格式化时间 → 北京时间 + 日期
 function fmtTime(raw) {
   if (!raw) return '';
-  const now = new Date();
-  const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  // 当前北京时间日期字符串
+  const nowBJ = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
+  const todayStr = `${nowBJ.getFullYear()}-${String(nowBJ.getMonth()+1).padStart(2,'0')}-${String(nowBJ.getDate()).padStart(2,'0')}`;
   const m = raw.match(/^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})$/);
   if (m) {
-    if (m[1] === todayStr) return '今天 ' + m[2];
-    const p = m[1].split('-');
-    return `${parseInt(p[1])}月${parseInt(p[2])}日 ${m[2]}`;
+    const [, dateStr, timeStr] = m;
+    const p = dateStr.split('-');
+    const dateLabel = dateStr === todayStr ? '今天' : `${p[0]}年${parseInt(p[1])}月${parseInt(p[2])}日`;
+    return `${dateLabel} ${timeStr}`;
   }
   return raw;
+}
+
+// 获取当前北京时间字符串 "YYYY-MM-DD HH:mm"
+function nowBJStr() {
+  const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
+  const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const ts = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  return `${ds} ${ts}`;
 }
 
 function renderActs() {
@@ -881,6 +967,153 @@ function renderActs() {
   el.innerHTML = s.activities.slice(0,6).map(a => `
     <div class="tli"><div class="tldot ${map[a.type]||''}"></div>
     <div class="tlt">${fmtTime(a.time)}</div><div class="tlc">${a.text}</div></div>`).join('');
+}
+
+// ── 首页账号快捷入口 ──
+function renderHomeAccounts() {
+  const s = getLocal();
+  const el = document.getElementById('homeAccounts');
+  if (!el) return;
+  if (!s.accounts || !s.accounts.length) {
+    el.innerHTML = '<div style="color:var(--hint);font-size:13px;padding:4px 0">暂无账号，点「管理」添加</div>'; return;
+  }
+  el.innerHTML = s.accounts.slice(0,3).map(a => {
+    const icon = a.name.includes('TEMU') ? '🛒' : a.name.includes('亚马逊') ? '📦' : '🔑';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f5f7fa">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px">${icon}</span>
+        <div>
+          <div style="font-size:13px;font-weight:700">${a.name}</div>
+          <div style="font-size:11px;color:var(--hint)">${a.user}</div>
+        </div>
+      </div>
+      <button class="copy-btn" onclick="copyTxt('${a.pwd}','${a.name}密码')">复制密码</button>
+    </div>`;
+  }).join('') + (s.accounts.length > 3 ? `<div style="text-align:center;padding-top:8px"><span class="cm" onclick="goPage('accounts')">查看全部 ${s.accounts.length} 个账号 →</span></div>` : '');
+}
+
+// ── 首页心得摘要 ──
+function renderHomeInsights() {
+  const s = getLocal();
+  const el = document.getElementById('homeInsights');
+  if (!el) return;
+  if (!s.insights || !s.insights.length) {
+    el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无心得，点 + 分享第一条</div>'; return;
+  }
+  const latest = s.insights[0];
+  const u = (s.users || {})[latest.author] || { name: latest.author || '?', color:'#94a3b8' };
+  el.innerHTML = `<div class="icard" style="margin-bottom:0">
+    <div class="ihead">
+      <div class="iav" style="background:${u.color}">${u.name.charAt(0)}</div>
+      <div><div class="iau">${latest.title}</div><div class="iac">${u.name} · ${latest.cat}</div></div>
+    </div>
+    <div class="ico" style="-webkit-line-clamp:3;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden">${latest.content}</div>
+  </div>` + (s.insights.length > 1 ? `<div style="text-align:center;padding-top:8px"><span class="cm" onclick="goPage('insights')">查看全部 ${s.insights.length} 条心得 →</span></div>` : '');
+}
+
+// ── 我的页面：创业路线渲染 ──
+function renderRoadmap() {
+  const s = getLocal();
+  const el = document.getElementById('roadmapList');
+  if (!el) return;
+  const items = s.roadmap || [];
+  if (!items.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无路线，点「编辑」添加</div>'; return; }
+  el.innerHTML = items.map(r => `
+    <div class="tli">
+      <div class="tldot ${r.dot||''}"></div>
+      <div class="tlt">${r.label}</div>
+      <div class="tlc">${r.text}</div>
+    </div>`).join('');
+}
+
+// ── 我的页面：完整动态列表 ──
+function renderProfileActs() {
+  const s = getLocal();
+  const el = document.getElementById('profileActList');
+  if (!el) return;
+  if (!s.activities.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态</div>'; return; }
+  const map = { b:'', g:'g', o:'o', p:'p' };
+  el.innerHTML = s.activities.map((a, idx) => `
+    <div class="tli">
+      <div class="tldot ${map[a.type]||''}"></div>
+      <div class="tlt">${fmtTime(a.time)}</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div class="tlc" style="flex:1">${a.text}</div>
+        <button class="del-btn" style="flex-shrink:0;font-size:13px;opacity:.4" onclick="delAct(${idx})">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── 动态：添加弹窗 ──
+function openAddAct() {
+  document.getElementById('act-text').value = '';
+  document.getElementById('act-type').value = 'g';
+  document.getElementById('act-time').value = '';
+  document.getElementById('actModal').classList.add('show');
+}
+function closeActModal() { document.getElementById('actModal').classList.remove('show'); }
+function saveAct() {
+  const text = document.getElementById('act-text').value.trim();
+  if (!text) { toast('请输入动态内容'); return; }
+  const type = document.getElementById('act-type').value;
+  const timeInput = document.getElementById('act-time').value.trim();
+  const time = timeInput || nowBJStr();
+  const s = getLocal();
+  s.activities.unshift({ time, text, type });
+  if (s.activities.length > 30) s.activities = s.activities.slice(0,30);
+  setLocal(s); renderAll(); closeActModal(); forcePushAndPull(); toast('动态已保存 ✓');
+}
+function delAct(idx) {
+  showConfirm('删除动态', '确定删除这条动态吗？').then(ok => {
+    if (!ok) return;
+    const s = getLocal(); s.activities.splice(idx, 1);
+    setLocal(s); renderAll(); forcePushAndPull(); toast('已删除');
+  });
+}
+
+// ── 创业路线：编辑弹窗 ──
+let roadmapDraft = [];
+function openRoadmapEdit() {
+  const s = getLocal();
+  roadmapDraft = JSON.parse(JSON.stringify(s.roadmap || []));
+  renderRoadmapEditor();
+  document.getElementById('roadmapModal').classList.add('show');
+}
+function closeRoadmapModal() { document.getElementById('roadmapModal').classList.remove('show'); }
+function renderRoadmapEditor() {
+  const el = document.getElementById('roadmapEditorList');
+  const dotOpts = ['g','o','p','b',''].map(d => {
+    const lb = { g:'绿·当前', o:'橙·规划', p:'紫·工具', b:'蓝·其他','':'灰·默认' }[d];
+    return `<option value="${d}">${lb}</option>`;
+  }).join('');
+  el.innerHTML = roadmapDraft.map((r, i) => `
+    <div style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:10px">
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <select style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit" onchange="roadmapDraft[${i}].dot=this.value">
+          ${['g','o','p','b',''].map(d => `<option value="${d}" ${r.dot===d?'selected':''}>${{g:'绿·当前',o:'橙·规划',p:'紫·工具',b:'蓝·其他','':'灰·默认'}[d]}</option>`).join('')}
+        </select>
+        <button onclick="roadmapDraft.splice(${i},1);renderRoadmapEditor()" style="background:#fee2e2;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px">删除</button>
+      </div>
+      <input value="${r.label}" placeholder="标签（如：当前重点）" oninput="roadmapDraft[${i}].label=this.value"
+        style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:6px;background:#fff"/>
+      <input value="${r.text}" placeholder="内容..." oninput="roadmapDraft[${i}].text=this.value"
+        style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff"/>
+    </div>`).join('');
+}
+function addRoadmapItem() {
+  roadmapDraft.push({ id:'r'+Date.now(), dot:'g', label:'新阶段', text:'' });
+  renderRoadmapEditor();
+}
+function saveRoadmap() {
+  const s = getLocal();
+  s.roadmap = roadmapDraft.map(r => ({ ...r }));
+  setLocal(s); renderAll(); closeRoadmapModal(); forcePushAndPull(); toast('创业路线已更新 ✓');
+}
+
+// ── 修改密码折叠 ──
+function togglePwdPanel() {
+  const el = document.getElementById('pwdPanel');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
 function renderHomeTasks() {
@@ -1203,22 +1436,6 @@ function delAcc(id) {
   });
 }
 
-// ══════════════════════════════════════════════
-//  PAGE NAV
-// ══════════════════════════════════════════════
-function goPage(p) {
-  document.querySelectorAll('.pg').forEach(e => e.classList.remove('on'));
-  document.querySelectorAll('.btab').forEach(e => e.classList.remove('on'));
-  const pg = document.getElementById('pg-' + p);
-  if (pg) pg.classList.add('on');
-  const bt = document.getElementById('bt-' + p); if (bt) bt.classList.add('on');
-  curPage = p;
-  document.getElementById('fab').style.display = p === 'profile' ? 'none' : 'flex';
-}
-
-// ══════════════════════════════════════════════
-//  MODAL
-// ══════════════════════════════════════════════
 function openModal() {
   const fm = { home:'task', tasks:'task', products:'product', accounts:'account', insights:'insight', profile:'task' };
   document.getElementById('tsw').style.display = 'flex';
@@ -1249,15 +1466,24 @@ function switchForm(type) {
 function clearForms() {
   document.querySelectorAll('.sheet input,.sheet textarea').forEach(e => { if(e.type!=='date') e.value=''; });
   document.getElementById('f-m-date').value = new Date().toISOString().split('T')[0];
+  // 恢复会议平台默认值
+  document.getElementById('f-m-platform').value = '腾讯会议';
+}
+
+function goPage(p) {
+  document.querySelectorAll('.pg').forEach(e => e.classList.remove('on'));
+  document.querySelectorAll('.btab').forEach(e => e.classList.remove('on'));
+  const pg = document.getElementById('pg-' + p);
+  if (pg) pg.classList.add('on');
+  const bt = document.getElementById('bt-' + p); if (bt) bt.classList.add('on');
+  curPage = p;
+  document.getElementById('fab').style.display = p === 'profile' ? 'none' : 'flex';
 }
 
 function addAct(text, type) {
   const s = getLocal();
-  const now = new Date();
-  const ds = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-  const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  s.activities.unshift({ time:`${ds} ${ts}`, text, type: type||'b' });
-  if (s.activities.length > 20) s.activities = s.activities.slice(0,20);
+  s.activities.unshift({ time: nowBJStr(), text, type: type||'b' });
+  if (s.activities.length > 30) s.activities = s.activities.slice(0,30);
   setLocal(s);
 }
 
