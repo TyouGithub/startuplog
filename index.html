@@ -8,8 +8,8 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
   --blue:#1677ff;--green:#22c55e;--orange:#f59e0b;--red:#ef4444;--purple:#8b5cf6;
-  --bg:#f1f5f9;--card:#fff;--border:#e2e8f0;--text:#1e293b;--sub:#64748b;--hint:#94a3b8;
-  --r:14px;--shadow:0 1px 8px rgba(0,0,0,0.08);
+  --bg:#f0f4f8;--card:#fff;--border:#e8edf4;--text:#1a2332;--sub:#64748b;--hint:#94a3b8;
+  --r:16px;--shadow:0 2px 14px rgba(0,0,0,0.07);
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
 
@@ -57,11 +57,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 .hdr-nm{font-size:13px;color:rgba(255,255,255,.9);font-weight:600}
 
 /* ── BOTTOM NAV ── */
-.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
-.btab{flex:1;padding:8px 4px 10px;text-align:center;cursor:pointer;-webkit-user-select:none;user-select:none}
-.btab .bi{font-size:20px;display:block;margin-bottom:2px}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 24px rgba(0,0,0,0.06)}
+.btab{flex:1;padding:8px 4px 10px;text-align:center;cursor:pointer;-webkit-user-select:none;user-select:none;transition:opacity .15s}
+.btab .bi{font-size:22px;display:block;margin-bottom:2px;transition:transform .15s}
+.btab.on .bi{transform:scale(1.1)}
 .btab .bl{font-size:10px;color:var(--hint);font-weight:500}
-.btab.on .bl{color:var(--blue)}
+.btab.on .bl{color:var(--blue);font-weight:700}
 
 /* ── PAGES ── */
 .pg{display:none;padding:14px 14px 10px;animation:fi .18s ease}
@@ -69,22 +70,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── CARDS ── */
-.card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
-.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
-.ct{font-size:15px;font-weight:700}
-.cm{font-size:12px;color:var(--blue);cursor:pointer}
+.card{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ct{font-size:15px;font-weight:700;letter-spacing:-0.2px}
+.cm{font-size:12px;color:var(--blue);cursor:pointer;font-weight:600}
 
 /* ── BANNER ── */
-.banner{background:linear-gradient(135deg,#1677ff,#7c3aed);border-radius:var(--r);padding:20px;margin-bottom:12px;color:#fff}
-.banner h2{font-size:17px;font-weight:800;margin-bottom:5px}
+.banner{background:linear-gradient(135deg,#1677ff 0%,#4f46e5 60%,#7c3aed 100%);border-radius:var(--r);padding:22px;margin-bottom:12px;color:#fff;position:relative;overflow:hidden}
+.banner::before{content:'';position:absolute;top:-40px;right:-40px;width:140px;height:140px;background:rgba(255,255,255,0.08);border-radius:50%}
+.banner h2{font-size:18px;font-weight:800;margin-bottom:5px;letter-spacing:-0.3px}
 .banner p{font-size:13px;opacity:.85;line-height:1.55}
 .tag{display:inline-block;background:rgba(255,255,255,.18);border-radius:20px;padding:3px 10px;font-size:11px;margin-top:8px;margin-right:5px}
 
 /* ── STATS ── */
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.scard{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);text-align:center}
-.snum{font-size:26px;font-weight:800;line-height:1;margin-bottom:4px}
-.slb{font-size:11px;color:var(--hint)}
+.scard{background:var(--card);border-radius:var(--r);padding:18px 16px;box-shadow:var(--shadow);text-align:center;transition:transform .15s}
+.scard:active{transform:scale(.97)}
+.snum{font-size:28px;font-weight:800;line-height:1;margin-bottom:5px}
+.slb{font-size:11px;color:var(--hint);font-weight:500}
 
 /* ── PROGRESS ── */
 .pbar{background:#f0f4f8;border-radius:10px;height:7px;overflow:hidden;margin-top:6px}
@@ -186,25 +189,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 .pf-rl{font-size:13px;opacity:.8}
 
 /* ── FAB ── */
-.fab{position:fixed;bottom:74px;right:16px;width:52px;height:52px;background:linear-gradient(135deg,#1677ff,#0d47a1);color:#fff;border:none;border-radius:50%;font-size:26px;cursor:pointer;box-shadow:0 4px 16px rgba(22,119,255,.42);display:flex;align-items:center;justify-content:center;z-index:49;transition:transform .15s}
-.fab:active{transform:scale(.9)}
+.fab{position:fixed;bottom:74px;right:16px;width:54px;height:54px;background:linear-gradient(135deg,#1677ff,#4f46e5);color:#fff;border:none;border-radius:50%;font-size:28px;cursor:pointer;box-shadow:0 6px 20px rgba(22,119,255,.45);display:flex;align-items:center;justify-content:center;z-index:49;transition:transform .15s}
+.fab:active{transform:scale(.88)}
 
 /* ── MODAL ── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:100;align-items:flex-end}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-end;backdrop-filter:blur(4px)}
 .overlay.show{display:flex}
-.sheet{background:#fff;border-radius:22px 22px 0 0;padding:18px 18px 36px;width:100%;max-height:88vh;overflow-y:auto}
-.handle{width:38px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 14px}
-.stitle{font-size:17px;font-weight:800;margin-bottom:18px}
-.frow{margin-bottom:13px}
-.frow label{display:block;font-size:11px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
-.frow input,.frow select,.frow textarea{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:#f8fafc;color:var(--text);transition:border-color .2s}
-.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--blue);background:#fff}
+.sheet{background:#fff;border-radius:24px 24px 0 0;padding:20px 18px 40px;width:100%;max-height:90vh;overflow-y:auto}
+.handle{width:40px;height:4px;background:#e2e8f0;border-radius:4px;margin:0 auto 16px}
+.stitle{font-size:18px;font-weight:800;margin-bottom:18px;letter-spacing:-0.3px}
+.frow{margin-bottom:14px}
+.frow label{display:block;font-size:11px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.frow input,.frow select,.frow textarea{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;outline:none;background:#f8fafc;color:var(--text);transition:border-color .2s}
+.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(22,119,255,.08)}
 .frow textarea{resize:vertical;min-height:78px;line-height:1.5}
 .frow2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mact{display:flex;gap:10px;margin-top:18px}
-.btn{flex:1;padding:13px;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.mact{display:flex;gap:10px;margin-top:20px}
+.btn{flex:1;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
 .btn:active{opacity:.82}
-.btn-p{background:linear-gradient(135deg,#1677ff,#0d47a1);color:#fff}
+.btn-p{background:linear-gradient(135deg,#1677ff,#4f46e5);color:#fff;box-shadow:0 4px 14px rgba(22,119,255,.3)}
 .btn-c{background:#f1f5f9;color:var(--sub)}
 
 /* ── TYPE SWITCHER ── */
@@ -242,6 +245,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 .loading-screen .spin{font-size:52px;animation:spin 1.5s linear infinite;margin-bottom:16px}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .loading-screen p{font-size:14px;opacity:.8}
+
+/* ── 图片灯箱 ── */
+.img-lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:600;align-items:center;justify-content:center;padding:20px}
+.img-lightbox.show{display:flex}
+.img-lightbox img{max-width:100%;max-height:90vh;border-radius:14px;box-shadow:0 16px 64px rgba(0,0,0,.5)}
+.img-lightbox-close{position:absolute;top:16px;right:16px;width:38px;height:38px;background:rgba(255,255,255,.15);border:none;border-radius:50%;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* ── 上传图片预览 ── */
+.prod-img-item{position:relative;display:inline-block}
+.prod-img-item img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;transition:transform .15s}
+.prod-img-item img:active{transform:scale(.95)}
+.prod-img-del{position:absolute;top:-7px;right:-7px;width:20px;height:20px;background:#ef4444;border:none;border-radius:50%;color:#fff;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.2)}
 </style>
 </head>
 <body>
@@ -316,20 +331,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 
   <!-- HOME -->
   <div class="pg on" id="pg-home">
-    <div class="banner">
+    <div class="banner" style="position:relative;overflow:hidden">
       <h2 id="bnrTitle">你好 👋</h2>
       <p>今天是 <span id="bnrDate"></span>，继续加油！</p>
-      <div id="bnrTags"></div>
+      <div id="bnrSoup" style="margin-top:10px;background:rgba(255,255,255,0.13);border-radius:10px;padding:10px 13px;font-size:13px;line-height:1.65;min-height:42px;opacity:.95" onclick="fetchDailySoup(true)">
+        <span id="bnrSoupText" style="font-style:italic">✨ 加载每日鸡汤中...</span>
+      </div>
     </div>
     <div class="sgrid">
       <div class="scard" style="cursor:pointer" onclick="goPage('tasks');filterTask('todo')"><div class="snum" style="color:var(--blue)" id="sOpen">-</div><div class="slb">待完成任务</div></div>
       <div class="scard" style="cursor:pointer" onclick="goPage('tasks');filterTask('done')"><div class="snum" style="color:var(--green)" id="sDone">-</div><div class="slb">已完成任务</div></div>
       <div class="scard" style="cursor:pointer" onclick="goPage('products')"><div class="snum" style="color:var(--orange)" id="sProd">-</div><div class="slb">在售商品</div></div>
       <div class="scard" style="cursor:pointer" onclick="goPage('products')"><div class="snum" style="color:var(--purple)" id="sProfit">-</div><div class="slb">月利润预估</div></div>
-    </div>
-    <div class="card">
-      <div class="ch"><div class="ct">📈 今日完成进度</div><div id="pctLb" style="font-size:13px;color:var(--hint);font-weight:700">0%</div></div>
-      <div class="pbar"><div class="pfill" id="pfill" style="width:0%"></div></div>
     </div>
     <div class="card">
       <div class="ch"><div class="ct">⚡ 最近动态</div>
@@ -343,6 +356,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div class="card">
       <div class="ch"><div class="ct">🔥 进行中任务</div><div class="cm" onclick="goPage('tasks')">全部 →</div></div>
       <div id="homeTasks"></div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">💡 心得分享</div><div class="cm" onclick="goPage('insights')">全部 →</div></div>
+      <div id="homeInsightsPublic"></div>
     </div>
     <div class="card">
       <div class="ch"><div class="ct">📋 最近会议</div><div class="cm" onclick="openModal();switchForm('meeting')">+ 记录</div></div>
@@ -394,6 +411,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
         <div style="font-size:12px;opacity:.7;margin-top:3px">与搭档共同创业中 ☁️ 数据云端同步</div>
       </div>
     </div>
+    <!-- 快捷工具入口 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div style="background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;cursor:pointer" onclick="goPage('tasks')">
+        <span style="font-size:24px">✅</span>
+        <div><div style="font-size:13px;font-weight:700">任务管理</div><div style="font-size:11px;color:var(--hint)" id="myTaskCount">-</div></div>
+      </div>
+      <div style="background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openModal();switchForm('meeting')">
+        <span style="font-size:24px">📋</span>
+        <div><div style="font-size:13px;font-weight:700">记录会议</div><div style="font-size:11px;color:var(--hint)">点击快速记录</div></div>
+      </div>
+    </div>
     <div class="card">
       <div class="ch">
         <div class="ct">🌏 创业路线</div>
@@ -438,8 +466,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 
   <div class="bnav">
     <div class="btab on" id="bt-home" onclick="goPage('home')"><span class="bi">🏠</span><span class="bl">首页</span></div>
-    <div class="btab" id="bt-tasks" onclick="goPage('tasks')"><span class="bi">✅</span><span class="bl">任务</span></div>
     <div class="btab" id="bt-products" onclick="goPage('products')"><span class="bi">🛒</span><span class="bl">选品库</span></div>
+    <div class="btab" id="bt-insights" onclick="goPage('insights')"><span class="bi">💡</span><span class="bl">心得</span></div>
     <div class="btab" id="bt-accounts" onclick="goPage('accounts')"><span class="bi">🔑</span><span class="bl">账号库</span></div>
     <div class="btab" id="bt-profile" onclick="goPage('profile')"><span class="bi">👤</span><span class="bl">我的</span></div>
   </div>
@@ -601,6 +629,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
       <button class="btn btn-p" onclick="saveNewMember()">添加成员</button>
     </div>
   </div>
+</div>
+
+<!-- 图片灯箱 -->
+<div class="img-lightbox" id="imgLightbox" onclick="closeImgLightbox()">
+  <button class="img-lightbox-close" onclick="closeImgLightbox()">✕</button>
+  <img id="imgLightboxSrc" src="" alt=""/>
 </div>
 
 <script>
@@ -920,14 +954,12 @@ function initApp() {
   const h = now.getHours();
   setEl('bnrTitle', `${h<12?'早上好':h<18?'下午好':'晚上好'}，${u.name} 👋`);
   setEl('bnrDate', `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`);
-  // banner tags 从 roadmap 读
-  const tags = document.getElementById('bnrTags');
-  if (tags) tags.innerHTML = (s.roadmap||[]).map(r=>`<span class="tag">${r.label}：${r.text}</span>`).join('');
   setEl('pfAv', init); document.getElementById('pfAv').style.background = u.color;
   setEl('pfNm', u.name); setEl('pfRl', u.role);
   document.getElementById('f-m-date').value = now.toISOString().split('T')[0];
   renderAll();
   goPage('home');
+  fetchDailySoup();
 }
 
 function setEl(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
@@ -947,6 +979,7 @@ function renderAll() {
   renderStats(); renderActs(); renderHomeTasks(); renderHomeMeetings();
   renderTaskList(); renderProdList(); renderInsightList(); renderAccList();
   renderRoadmap(); renderProfileActs(); renderProfileInsights();
+  renderHomeInsightsPublic();
   renderMemberList(); applyReadOnly();
 }
 
@@ -957,16 +990,12 @@ function renderStats() {
   const s = getLocal();
   const open = s.tasks.filter(t => t.status !== 'done').length;
   const done = s.tasks.filter(t => t.status === 'done').length;
-  const total = s.tasks.length;
-  const pct = total ? Math.round(done / total * 100) : 0;
   const profit = s.products.filter(p => p.status === '在售').reduce((acc, p) => {
     return acc + (p.price - p.cost) * (p.sales || 0) * (1 - (p.refund || 0) / 100);
   }, 0);
   setEl('sOpen', open); setEl('sDone', done);
   setEl('sProd', s.products.filter(p => p.status === '在售').length);
   document.getElementById('sProfit').textContent = '¥' + Math.round(profit);
-  setEl('pctLb', pct + '%');
-  document.getElementById('pfill').style.width = pct + '%';
 }
 
 // ══════════════════════════════════════════════
@@ -1093,6 +1122,10 @@ function renderProfileActs() {
   const s = getLocal();
   const el = document.getElementById('profileActList');
   if (!el) return;
+  // 更新任务计数
+  const taskCount = s.tasks.filter(t => t.status !== 'done').length;
+  const tcEl = document.getElementById('myTaskCount');
+  if (tcEl) tcEl.textContent = taskCount + ' 项待处理';
   if (!s.activities.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态</div>'; return; }
   const map = { b:'', g:'g', o:'o', p:'p' };
   el.innerHTML = s.activities.map((a, idx) => {
@@ -1108,6 +1141,71 @@ function renderProfileActs() {
     </div>`;
   }).join('');
 }
+
+// ── 首页心得公开展示（所有人可读） ──
+function renderHomeInsightsPublic() {
+  const s = getLocal();
+  const el = document.getElementById('homeInsightsPublic');
+  if (!el) return;
+  if (!s.insights || !s.insights.length) {
+    el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无心得，去「心得」页分享</div>'; return;
+  }
+  const users = s.users || {};
+  el.innerHTML = s.insights.slice(0, 3).map(i => {
+    const u = users[i.author] || { name: i.author || '?', color: '#94a3b8' };
+    return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f5f7fa;cursor:pointer" onclick="goPage('insights')">
+      <div style="width:36px;height:36px;border-radius:50%;background:${u.color};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0">${u.name.charAt(0)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px">${i.title}</div>
+        <div style="font-size:11px;color:var(--hint);margin-bottom:4px">${u.name} · ${i.cat} · ${i.date}</div>
+        <div style="font-size:12px;color:var(--sub);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${i.content}</div>
+      </div>
+    </div>`;
+  }).join('') + (s.insights.length > 3 ? `<div style="text-align:center;padding-top:8px"><span class="cm" onclick="goPage('insights')">查看全部 ${s.insights.length} 条 →</span></div>` : '');
+}
+
+// ── 每日鸡汤（AI 生成，按日期缓存） ──
+async function fetchDailySoup(forceRefresh) {
+  const todayKey = 'sl_soup_' + new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Shanghai'})).toISOString().split('T')[0];
+  const el = document.getElementById('bnrSoupText');
+  if (!el) return;
+  if (!forceRefresh) {
+    const cached = localStorage.getItem(todayKey);
+    if (cached) { el.textContent = cached; return; }
+  }
+  el.textContent = '✨ 获取今日励志句子中...';
+  try {
+    const seed = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Shanghai'})).toDateString();
+    const resp = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer sk-2fb10a88bab5450398b226e6c3e7b23f' },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: '你是一位专为跨境电商创业者写励志句子的文案大师。每天提供一句简洁有力、充满激情的原创励志句子，适合两个刚起步的年轻创业者。句子要接地气，不套路，不说废话，有画面感，1-2句话，中文。种子：' + seed },
+          { role: 'user', content: '给我今天的一句话励志，不要带引号，不要解释。' }
+        ],
+        max_tokens: 120,
+        stream: false
+      })
+    });
+    const data = await resp.json();
+    const text = data.choices?.[0]?.message?.content?.trim();
+    if (text) {
+      el.textContent = '🔥 ' + text;
+      localStorage.setItem(todayKey, '🔥 ' + text);
+    } else { el.textContent = '🔥 每一个今天都是你离目标最近的一天，出发！'; }
+  } catch(e) {
+    el.textContent = '🔥 不是所有努力都立竿见影，但没有一份努力会被辜负。';
+  }
+}
+
+// ── 图片灯箱 ──
+function openImgLightbox(src) {
+  document.getElementById('imgLightboxSrc').src = src;
+  document.getElementById('imgLightbox').classList.add('show');
+}
+function closeImgLightbox() { document.getElementById('imgLightbox').classList.remove('show'); }
 
 // ── AI 智能整理 ──
 async function aiPolishAct() {
@@ -1492,18 +1590,31 @@ function delTask(id) {
 let pendingProdImgs = [];
 function handleProdImgs(input) {
   const files = Array.from(input.files);
-  const preview = document.getElementById('f-p-img-preview');
   files.forEach(file => {
     const reader = new FileReader();
     reader.onload = e => {
       pendingProdImgs.push(e.target.result);
-      const img = document.createElement('img');
-      img.src = e.target.result;
-      img.style.cssText = 'width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--border)';
-      preview.appendChild(img);
+      renderProdImgPreview();
     };
     reader.readAsDataURL(file);
   });
+  input.value = ''; // 清空以允许重复选同一文件
+}
+
+function renderProdImgPreview() {
+  const preview = document.getElementById('f-p-img-preview');
+  if (!preview) return;
+  preview.innerHTML = pendingProdImgs.map((src, idx) =>
+    `<div class="prod-img-item">
+      <img src="${src}" onclick="openImgLightbox('${src}')" title="点击放大"/>
+      <button class="prod-img-del" onclick="delProdImg(${idx})" title="删除">×</button>
+    </div>`
+  ).join('');
+}
+
+function delProdImg(idx) {
+  pendingProdImgs.splice(idx, 1);
+  renderProdImgPreview();
 }
 
 // ══════════════════════════════════════════════
@@ -1516,7 +1627,7 @@ function prodHTML(p) {
   const em = { TEMU:'🛒', 亚马逊:'📦', 速卖通:'🌐', 其他:'📌' };
   const sc = { 选品中:'b-purple', 备货中:'b-todo', 在售:'b-done', 下架:'b-todo' };
   const imgsHtml = p.imgs && p.imgs.length
-    ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${p.imgs.map(src=>`<img src="${src}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">`).join('')}</div>` : '';
+    ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${p.imgs.map(src=>`<div class="prod-img-item" style="display:inline-block"><img src="${src}" onclick="openImgLightbox('${src}')" title="点击放大" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1.5px solid var(--border);cursor:pointer"></div>`).join('')}</div>` : '';
   const keywordsHtml = p.keywords ? `<div class="pfull"><div class="pflab">关键词</div><div style="font-size:13px;color:var(--text);margin-top:3px">${p.keywords}</div></div>` : '';
   const skuHtml = p.sku ? `<div class="pfull"><div class="pflab">SKU / 变体</div><div style="font-size:13px;color:var(--text);margin-top:3px">${p.sku}</div></div>` : '';
   return `<div class="pcard">
@@ -1588,8 +1699,7 @@ function editProd(id) {
   document.getElementById('f-p-note').value     = p.note || '';
   // 显示已有图片预览
   pendingProdImgs = p.imgs ? [...p.imgs] : [];
-  const preview = document.getElementById('f-p-img-preview');
-  preview.innerHTML = pendingProdImgs.map(src=>`<img src="${src}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">`).join('');
+  renderProdImgPreview();
   document.getElementById('modal').dataset.editProdId = id;
   document.getElementById('modal').classList.add('show');
   document.getElementById('modalTitle').textContent = '编辑选品';
