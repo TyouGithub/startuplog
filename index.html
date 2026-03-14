@@ -656,19 +656,26 @@ function selUser(uid) {
 }
 selUser('jiashuo');
 
+const SESSION_KEY = 'sl_session';
+
+function enterApp(uid) {
+  CU = uid;
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  initApp();
+  doSync(false);
+  startAutoSync();
+}
+
 function login() {
   if (!CU) { document.getElementById('lerr').textContent = '请选择身份'; return; }
   const pw = document.getElementById('pwdIn').value;
   const store = getLocal();
   if (pw === store.users[CU].pwd) {
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
+    localStorage.setItem(SESSION_KEY, CU);  // 记住登录状态
     document.getElementById('pwdIn').value = '';
     document.getElementById('lerr').textContent = '';
-    initApp();
-    // 登录后立即同步
-    doSync(false);
-    startAutoSync();
+    enterApp(CU);
   } else {
     document.getElementById('lerr').textContent = '密码错误，请重试';
     document.getElementById('pwdIn').value = '';
@@ -677,6 +684,7 @@ function login() {
 
 function logout() {
   if (!confirm('确定退出？')) return;
+  localStorage.removeItem(SESSION_KEY);
   if (syncTimer) clearInterval(syncTimer);
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginPage').style.display = 'flex';
@@ -1067,7 +1075,15 @@ function toast(msg) {
 window.addEventListener('DOMContentLoaded', async () => {
   await new Promise(r => setTimeout(r, 600));
   document.getElementById('loadingScreen').style.display = 'none';
-  document.getElementById('loginPage').style.display = 'flex';
+  const savedUser = localStorage.getItem(SESSION_KEY);
+  const store = getLocal();
+  if (savedUser && store.users[savedUser]) {
+    // 有保存的登录状态，直接进入
+    selUser(savedUser);
+    enterApp(savedUser);
+  } else {
+    document.getElementById('loginPage').style.display = 'flex';
+  }
 });
 </script>
 </body>
