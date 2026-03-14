@@ -430,6 +430,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div id="insightList"></div>
   </div>
 
+  <!-- GAME ACCOUNTS -->
+  <div class="pg" id="pg-gameacc">
+    <!-- 顶部标题 + 操作按钮 -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:16px;font-weight:800;color:var(--text)">🎮 游戏账号</div>
+      <div style="display:flex;gap:8px">
+        <button class="fbtn" style="border-color:var(--blue);color:var(--blue)" onclick="openAddIncome()">＋ 收入</button>
+        <button class="fbtn" style="border-color:var(--blue);color:var(--blue)" onclick="openAddGameAcc()">＋ 账号</button>
+      </div>
+    </div>
+
+    <!-- 数据看板 -->
+    <div id="gameaccDashboard" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"></div>
+
+    <!-- 状态筛选 -->
+    <div class="fbar" style="margin-bottom:10px">
+      <button class="fbtn on" id="gaf-all"      onclick="filterGameAcc('all')">全部</button>
+      <button class="fbtn"    id="gaf-normal"   onclick="filterGameAcc('normal')">✅ 正常</button>
+      <button class="fbtn"    id="gaf-frozen"   onclick="filterGameAcc('frozen')">⚠️ 冻结</button>
+      <button class="fbtn"    id="gaf-sold"     onclick="filterGameAcc('sold')">🔒 已出售</button>
+      <button class="fbtn"    id="gaf-returned" onclick="filterGameAcc('returned')">❌ 被找回</button>
+    </div>
+
+    <!-- 账号列表 -->
+    <div id="gameaccList"></div>
+
+    <!-- 收入记录 -->
+    <div style="margin-top:18px">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px">💵 收入记录</div>
+      <div id="incomeList"></div>
+    </div>
+  </div>
+
   <!-- ACCOUNTS (内容整合到 profile，此页保留空壳供跳转兼容) -->
   <div class="pg" id="pg-accounts" style="display:none"></div>
 
@@ -512,6 +545,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div class="btab" id="bt-meetings" onclick="goPage('meetings')"><span class="bi">📋</span><span class="bl">会议</span></div>
     <div class="btab" id="bt-tasks" onclick="goPage('tasks')"><span class="bi">✅</span><span class="bl">任务</span></div>
     <div class="btab" id="bt-products" onclick="goPage('products')"><span class="bi">🛒</span><span class="bl">选品库</span></div>
+    <div class="btab" id="bt-gameacc" onclick="goPage('gameacc')"><span class="bi">🎮</span><span class="bl">账号</span></div>
     <div class="btab" id="bt-profile" onclick="goPage('profile')"><span class="bi">👤</span><span class="bl">我的</span></div>
   </div>
   <button class="fab" id="fab" onclick="openModal()">＋</button>
@@ -712,6 +746,64 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
   <img id="imgLightboxSrc" src="" alt=""/>
 </div>
 
+<!-- 新增/编辑账号弹窗 -->
+<div class="overlay" id="gameaccModal" onclick="if(event.target===this)closeGameAccModal()">
+  <div class="sheet" style="max-height:92vh;overflow-y:auto">
+    <div class="handle"></div>
+    <div class="stitle" id="gameaccModalTitle">新增账号</div>
+    <div style="padding:0 16px 24px">
+      <div class="frow2">
+        <div class="frow" style="margin:0"><label>游戏名称 *</label><input id="ga-game" placeholder="王者荣耀"/></div>
+        <div class="frow" style="margin:0"><label>系统</label>
+          <select id="ga-os" style="width:100%;font-size:14px;padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;background:var(--card);color:var(--text)">
+            <option value="苹果">🍎 苹果</option>
+            <option value="安卓">🤖 安卓</option>
+          </select>
+        </div>
+      </div>
+      <div class="frow2">
+        <div class="frow" style="margin:0"><label>账号名称 *</label><input id="ga-name" placeholder="如：神1150"/></div>
+        <div class="frow" style="margin:0"><label>区服</label><input id="ga-region" placeholder="QQ区" value="QQ区"/></div>
+      </div>
+      <div class="frow"><label>QQ号</label><input id="ga-qq" placeholder="QQ号" type="number"/></div>
+      <div class="frow"><label>密码</label><input id="ga-pwd" placeholder="密码"/></div>
+      <div class="frow"><label>密保手机</label><input id="ga-phone" placeholder="手机号" type="tel"/></div>
+      <div class="frow2">
+        <div class="frow" style="margin:0"><label>成本价(¥) *</label><input id="ga-cost" placeholder="0" type="number"/></div>
+        <div class="frow" style="margin:0"><label>出售价(¥)</label><input id="ga-sellprice" placeholder="留空则无"/></div>
+      </div>
+      <div class="frow"><label>状态</label>
+        <select id="ga-status" style="width:100%;font-size:14px;padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;background:var(--card);color:var(--text)">
+          <option value="正常">✅ 正常</option>
+          <option value="冻结">⚠️ 冻结</option>
+          <option value="已出售">🔒 已出售</option>
+          <option value="被找回">❌ 被找回</option>
+        </select>
+      </div>
+      <div class="frow"><label>备注</label><input id="ga-note" placeholder="可选备注"/></div>
+      <button class="sbtn" onclick="saveGameAcc()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新增收入弹窗 -->
+<div class="overlay" id="incomeModal" onclick="if(event.target===this)closeIncomeModal()">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="stitle" id="incomeModalTitle">新增收入</div>
+    <div style="padding:0 16px 24px">
+      <div class="frow"><label>日期 *</label><input id="inc-date" type="date"/></div>
+      <div class="frow"><label>金额(¥) *</label><input id="inc-amount" type="number" placeholder="0" step="0.01" oninput="calcIncomeFee()"/></div>
+      <div class="frow2">
+        <div class="frow" style="margin:0"><label>手续费(2%)</label><input id="inc-fee" readonly style="background:var(--bg);color:var(--hint)" placeholder="自动计算"/></div>
+        <div class="frow" style="margin:0"><label>实际到手</label><input id="inc-net" readonly style="background:var(--bg);color:var(--hint)" placeholder="自动计算"/></div>
+      </div>
+      <div class="frow"><label>备注</label><input id="inc-note" placeholder="可选"/></div>
+      <button class="sbtn" onclick="saveIncome()">保存</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════════
 //  Supabase 配置
@@ -811,6 +903,40 @@ function defaultData() {
     ],
     accounts: [
       {id:'a1',name:'TEMU卖家后台',url:'https://seller.temu.com',user:'19353944026',pwd:'Zyxasd123',note:'跨境电商主平台',by:'jiashuo'}
+    ],
+    gameAccounts: [
+      {id:'ga1', game:'王者荣耀/和平精英', os:'苹果', name:'神1150', qq:'2248590240', pwd:'zjs99988', phone:'18342003395', cost:1150, region:'QQ区', status:'正常', sellPrice:null, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga2', game:'王者荣耀', os:'苹果', name:'暖800', qq:'1502944865', pwd:'zjs99988', phone:'13610848355', cost:800, region:'QQ区', status:'正常', sellPrice:null, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga3', game:'王者荣耀', os:'苹果', name:'双680', qq:'3136097140', pwd:'zjs99988', phone:'18342003395', cost:680, region:'QQ区', status:'正常', sellPrice:null, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga4', game:'王者荣耀', os:'苹果', name:'花450', qq:'1703153627', pwd:'zjs99988', phone:'13610848355', cost:450, region:'QQ区', status:'正常', sellPrice:null, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga5', game:'王者荣耀', os:'苹果', name:'川400', qq:'2238574649', pwd:'zjs99988', phone:'18477080413', cost:400, region:'QQ区', status:'正常', sellPrice:null, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga6', game:'王者荣耀', os:'苹果', name:'御380', qq:'2516400713', pwd:'zjs99988', phone:'13610848355', cost:380, region:'QQ区', status:'正常', sellPrice:null, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga7', game:'王者荣耀', os:'苹果', name:'星辰', qq:'3035289237', pwd:'zjs99988', phone:'18157656184', cost:360, region:'QQ区', status:'正常', sellPrice:null, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga8', game:'王者荣耀', os:'苹果', name:'芝305', qq:'2030684942', pwd:'zjs99988', phone:'18342003395', cost:305, region:'QQ区', status:'正常', sellPrice:null, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga9', game:'王者荣耀', os:'苹果', name:'乐300', qq:'3328176251', pwd:'zjs99988', phone:'18342003395', cost:300, region:'QQ区', status:'正常', sellPrice:null, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga10',game:'王者荣耀', os:'苹果', name:'滨300', qq:'3817422802', pwd:'zjs99988', phone:'18477080413', cost:300, region:'QQ区', status:'正常', sellPrice:null, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga11',game:'王者荣耀', os:'苹果', name:'蒸300', qq:'2906862985', pwd:'zjs99988', phone:'18477080413', cost:300, region:'QQ区', status:'正常', sellPrice:null, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga12',game:'王者荣耀', os:'安卓', name:'韩220', qq:'2813549251', pwd:'zjs99988', phone:'18342003395', cost:220, region:'QQ区', status:'正常', sellPrice:null, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga13',game:'王者荣耀/和平精英', os:'苹果', name:'冰2000', qq:'2602403221', pwd:'zjs99988', phone:'13610848355', cost:2000, region:'QQ区', status:'冻结', sellPrice:null, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga14',game:'王者荣耀', os:'苹果', name:'樱598', qq:'1330333159', pwd:'zjs99988', phone:'18157656184', cost:598, region:'QQ区', status:'冻结', sellPrice:null, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga15',game:'王者荣耀', os:'苹果', name:'港1200', qq:'1536297880', pwd:'zjs99988', phone:'18477080413', cost:1200, region:'QQ区', status:'被找回', sellPrice:860, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga16',game:'王者荣耀', os:'苹果', name:'嘉430', qq:'674950197', pwd:'zjs99988', phone:'18157656184', cost:430, region:'QQ区', status:'被找回', sellPrice:430, note:'', date:'2026-03-14', by:'jiashuo'},
+      {id:'ga17',game:'王者荣耀', os:'苹果', name:'岚510', qq:'602372245', pwd:'zjs99988', phone:'18157656184', cost:510, region:'QQ区', status:'已出售', sellPrice:750, note:'', date:'2026-03-14', by:'jiashuo'}
+    ],
+    incomeRecords: [
+      {id:'inc1', date:'2026-01-03', amount:100, fee:2, net:98, note:'', by:'jiashuo'},
+      {id:'inc2', date:'2026-01-06', amount:100, fee:2, net:98, note:'', by:'jiashuo'},
+      {id:'inc3', date:'2026-01-11', amount:100, fee:2, net:98, note:'', by:'jiashuo'},
+      {id:'inc4', date:'2026-01-16', amount:100, fee:2, net:98, note:'', by:'jiashuo'},
+      {id:'inc5', date:'2026-01-31', amount:100, fee:2, net:98, note:'', by:'jiashuo'},
+      {id:'inc6', date:'2026-02-03', amount:300, fee:6, net:294, note:'', by:'jiashuo'},
+      {id:'inc7', date:'2026-02-09', amount:100, fee:2, net:98, note:'', by:'jiashuo'},
+      {id:'inc8', date:'2026-02-13', amount:100, fee:2, net:98, note:'', by:'jiashuo'},
+      {id:'inc9', date:'2026-02-18', amount:200, fee:4, net:196, note:'', by:'jiashuo'},
+      {id:'inc10',date:'2026-03-01', amount:230, fee:4.6, net:225.4, note:'', by:'jiashuo'},
+      {id:'inc11',date:'2026-03-08', amount:100, fee:2, net:98, note:'', by:'jiashuo'},
+      {id:'inc12',date:'2026-03-14', amount:200, fee:4, net:196, note:'', by:'jiashuo'},
+      {id:'inc13',date:'2026-03-14', amount:200, fee:4, net:196, note:'', by:'jiashuo'}
     ],
     activities: [
       {time:'2026-03-14 14:00',text:'开始准备第一个产品上架材料',type:'o'},
@@ -1064,7 +1190,7 @@ function renderAll() {
   renderTaskList(); renderProdList(); renderInsightList(); renderAccList();
   renderRoadmap(); renderProfileActs(); renderProfileInsights();
   renderHomePulse(); renderMeetingList();
-  renderMemberList(); applyReadOnly();
+  renderMemberList(); renderGameAccPage(); applyReadOnly();
 }
 
 // ══════════════════════════════════════════════
@@ -2194,7 +2320,8 @@ function goPage(p) {
   if (pg) pg.classList.add('on');
   const bt = document.getElementById('bt-' + p); if (bt) bt.classList.add('on');
   curPage = p;
-  document.getElementById('fab').style.display = (p === 'profile' || !isAdmin()) ? 'none' : 'flex';
+  // 游戏账号页不显示主 FAB（有自己的新增按钮）
+  document.getElementById('fab').style.display = (p === 'profile' || p === 'gameacc' || !isAdmin()) ? 'none' : 'flex';
   applyReadOnly();
 }
 
@@ -2353,6 +2480,282 @@ function toast(msg) {
   el.className = 'toast'; el.textContent = msg;
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2400);
+}
+
+// ══════════════════════════════════════════════
+//  🎮 GAME ACCOUNTS
+// ══════════════════════════════════════════════
+let gaFilter = 'all';
+
+const GA_STATUS_MAP = {
+  '正常':  { label:'✅ 正常',  cls:'#22c55e' },
+  '冻结':  { label:'⚠️ 冻结',  cls:'#f59e0b' },
+  '已出售':{ label:'🔒 已出售', cls:'#6b7280' },
+  '被找回':{ label:'❌ 被找回', cls:'#ef4444' }
+};
+
+function filterGameAcc(f) {
+  gaFilter = f;
+  ['all','normal','frozen','sold','returned'].forEach(k => {
+    document.getElementById('gaf-' + k)?.classList.remove('on');
+  });
+  document.getElementById('gaf-' + f)?.classList.add('on');
+  renderGameAccList();
+}
+
+function renderGameAccPage() {
+  renderGameAccDashboard();
+  renderGameAccList();
+  renderIncomeList();
+}
+
+function renderGameAccDashboard() {
+  const s = getLocal();
+  const acc = s.gameAccounts || [];
+  const inc = s.incomeRecords || [];
+  const stockAcc    = acc.filter(a => a.status === '正常' || a.status === '冻结');
+  const stockValue  = stockAcc.reduce((sum, a) => sum + (a.cost || 0), 0);
+  const totalIncome = inc.reduce((sum, r) => sum + (r.amount || 0), 0);
+  const totalNet    = inc.reduce((sum, r) => sum + (r.net || 0), 0);
+  const el = document.getElementById('gameaccDashboard');
+  if (!el) return;
+  const cards = [
+    { icon:'📦', label:'库存账号', val: stockAcc.length + ' 个' },
+    { icon:'💰', label:'库存总价值', val: '¥' + stockValue },
+    { icon:'💵', label:'累计收入', val: '¥' + totalIncome },
+    { icon:'💳', label:'实际到手', val: '¥' + totalNet.toFixed(1) }
+  ];
+  el.innerHTML = cards.map(c => `
+    <div class="card" style="padding:12px 14px">
+      <div style="font-size:20px">${c.icon}</div>
+      <div style="font-size:18px;font-weight:800;color:var(--blue);margin:4px 0">${c.val}</div>
+      <div style="font-size:11px;color:var(--hint)">${c.label}</div>
+    </div>`).join('');
+}
+
+function renderGameAccList() {
+  const s = getLocal();
+  const filterMap = { all: null, normal:'正常', frozen:'冻结', sold:'已出售', returned:'被找回' };
+  let acc = (s.gameAccounts || []).slice();
+  const fv = filterMap[gaFilter];
+  if (fv) acc = acc.filter(a => a.status === fv);
+  const el = document.getElementById('gameaccList');
+  if (!el) return;
+  if (!acc.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px;padding:12px 0;text-align:center">暂无账号</div>'; return; }
+  el.innerHTML = acc.map(a => {
+    const sm = GA_STATUS_MAP[a.status] || { label: a.status, cls:'var(--hint)' };
+    const profit = (a.status === '已出售' || a.status === '被找回') && a.sellPrice != null
+      ? (a.sellPrice - a.cost) : null;
+    const profitHtml = profit !== null
+      ? `<span style="font-size:11px;font-weight:600;color:${profit>=0?'#22c55e':'#ef4444'}">${profit>=0?'+':''}${profit}</span>` : '';
+    return `<div class="card" style="margin-bottom:10px;padding:12px 14px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="font-size:14px;font-weight:700;color:var(--text)">${a.name}</span>
+            <span style="font-size:11px;padding:2px 7px;border-radius:20px;background:${sm.cls}22;color:${sm.cls};font-weight:600">${sm.label}</span>
+            ${profitHtml}
+          </div>
+          <div style="font-size:12px;color:var(--hint);margin-top:4px">${a.game} · ${a.os === '苹果' ? '🍎' : '🤖'} ${a.os} · ${a.region}</div>
+          <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:12px">
+            <div><span style="color:var(--hint)">QQ：</span><span style="color:var(--text);user-select:all">${a.qq||'-'}</span></div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <span style="color:var(--hint)">密码：</span>
+              <span id="pwd-${a.id}" style="color:var(--text);font-family:monospace;letter-spacing:1px">••••••••</span>
+              <button onclick="togglePwd('${a.id}','${a.pwd||''}')" style="font-size:10px;color:var(--blue);background:none;border:none;cursor:pointer;padding:0">👁</button>
+            </div>
+            <div><span style="color:var(--hint)">密保：</span><span style="color:var(--text)">${a.phone||'-'}</span></div>
+            <div><span style="color:var(--hint)">成本：</span><span style="color:var(--text);font-weight:600">¥${a.cost||0}</span>${a.sellPrice!=null?`<span style="color:var(--hint)"> → ¥${a.sellPrice}</span>`:''}</div>
+          </div>
+          ${a.note ? `<div style="font-size:11px;color:var(--hint);margin-top:6px">📝 ${a.note}</div>` : ''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+          <button class="edit-btn" onclick="editGameAcc('${a.id}')">编辑</button>
+          <button class="del-btn" onclick="delGameAcc('${a.id}')">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function togglePwd(id, pwd) {
+  const el = document.getElementById('pwd-' + id);
+  if (!el) return;
+  el.textContent = el.textContent.includes('•') ? pwd : '••••••••';
+}
+
+function renderIncomeList() {
+  const s = getLocal();
+  const inc = (s.incomeRecords || []).slice().sort((a, b) => b.date.localeCompare(a.date));
+  const el = document.getElementById('incomeList');
+  if (!el) return;
+  if (!inc.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px;padding:8px 0;text-align:center">暂无收入记录</div>'; return; }
+  const totalAmount = inc.reduce((s, r) => s + r.amount, 0);
+  const totalNet    = inc.reduce((s, r) => s + r.net, 0);
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div class="card" style="padding:10px 12px;text-align:center">
+        <div style="font-size:16px;font-weight:800;color:var(--blue)">¥${totalAmount}</div>
+        <div style="font-size:11px;color:var(--hint)">累计收入</div>
+      </div>
+      <div class="card" style="padding:10px 12px;text-align:center">
+        <div style="font-size:16px;font-weight:800;color:#22c55e">¥${totalNet.toFixed(1)}</div>
+        <div style="font-size:11px;color:var(--hint)">实际到手</div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:var(--bg)">
+            <th style="padding:8px 10px;text-align:left;color:var(--hint);font-weight:600">日期</th>
+            <th style="padding:8px 10px;text-align:right;color:var(--hint);font-weight:600">金额</th>
+            <th style="padding:8px 10px;text-align:right;color:var(--hint);font-weight:600">手续费</th>
+            <th style="padding:8px 10px;text-align:right;color:var(--hint);font-weight:600">到手</th>
+            <th style="padding:8px 10px;text-align:center;color:var(--hint);font-weight:600">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${inc.map((r, i) => `
+          <tr style="border-top:1px solid var(--border)${i===0?' display:none':''}">
+            <td style="padding:8px 10px;color:var(--text)">${r.date}</td>
+            <td style="padding:8px 10px;text-align:right;color:var(--text);font-weight:600">¥${r.amount}</td>
+            <td style="padding:8px 10px;text-align:right;color:var(--hint)">¥${r.fee}</td>
+            <td style="padding:8px 10px;text-align:right;color:#22c55e;font-weight:600">¥${r.net}</td>
+            <td style="padding:8px 10px;text-align:center">
+              <button onclick="delIncome('${r.id}')" style="font-size:12px;color:var(--hint);background:none;border:none;cursor:pointer">🗑</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// 打开新增账号弹窗
+function openAddGameAcc() {
+  document.getElementById('gameaccModalTitle').textContent = '新增账号';
+  ['ga-game','ga-name','ga-qq','ga-pwd','ga-phone','ga-cost','ga-sellprice','ga-note'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('ga-os').value = '苹果';
+  document.getElementById('ga-status').value = '正常';
+  document.getElementById('ga-region').value = 'QQ区';
+  delete document.getElementById('gameaccModal').dataset.editId;
+  document.getElementById('gameaccModal').classList.add('show');
+}
+
+function closeGameAccModal() {
+  document.getElementById('gameaccModal').classList.remove('show');
+}
+
+function editGameAcc(id) {
+  const s = getLocal(), a = (s.gameAccounts||[]).find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('gameaccModalTitle').textContent = '编辑账号';
+  document.getElementById('ga-game').value      = a.game || '';
+  document.getElementById('ga-os').value        = a.os || '苹果';
+  document.getElementById('ga-name').value      = a.name || '';
+  document.getElementById('ga-region').value    = a.region || 'QQ区';
+  document.getElementById('ga-qq').value        = a.qq || '';
+  document.getElementById('ga-pwd').value       = a.pwd || '';
+  document.getElementById('ga-phone').value     = a.phone || '';
+  document.getElementById('ga-cost').value      = a.cost || '';
+  document.getElementById('ga-sellprice').value = a.sellPrice != null ? a.sellPrice : '';
+  document.getElementById('ga-status').value    = a.status || '正常';
+  document.getElementById('ga-note').value      = a.note || '';
+  document.getElementById('gameaccModal').dataset.editId = id;
+  document.getElementById('gameaccModal').classList.add('show');
+}
+
+function saveGameAcc() {
+  const game = document.getElementById('ga-game').value.trim();
+  const name = document.getElementById('ga-name').value.trim();
+  const cost = parseFloat(document.getElementById('ga-cost').value) || 0;
+  if (!game || !name) { toast('游戏名称和账号名称必填'); return; }
+  const sp = document.getElementById('ga-sellprice').value.trim();
+  const obj = {
+    game, name, cost,
+    os:       document.getElementById('ga-os').value,
+    region:   document.getElementById('ga-region').value.trim() || 'QQ区',
+    qq:       document.getElementById('ga-qq').value.trim(),
+    pwd:      document.getElementById('ga-pwd').value.trim(),
+    phone:    document.getElementById('ga-phone').value.trim(),
+    sellPrice: sp !== '' ? parseFloat(sp) : null,
+    status:   document.getElementById('ga-status').value,
+    note:     document.getElementById('ga-note').value.trim(),
+    by:       CU
+  };
+  const s = getLocal();
+  if (!s.gameAccounts) s.gameAccounts = [];
+  const editId = document.getElementById('gameaccModal').dataset.editId;
+  if (editId) {
+    const idx = s.gameAccounts.findIndex(x => x.id === editId);
+    if (idx !== -1) s.gameAccounts[idx] = { ...s.gameAccounts[idx], ...obj };
+    toast('账号已更新 ✓');
+  } else {
+    obj.id = 'ga' + Date.now();
+    obj.date = new Date().toISOString().split('T')[0];
+    s.gameAccounts.unshift(obj);
+    toast('账号已添加 ✓');
+  }
+  setLocal(s); renderGameAccPage(); closeGameAccModal(); forcePushAndPull();
+}
+
+async function delGameAcc(id) {
+  const ok = await showConfirm('删除账号', '确认删除这个账号？此操作不可恢复。');
+  if (!ok) return;
+  const s = getLocal();
+  s.gameAccounts = (s.gameAccounts || []).filter(a => a.id !== id);
+  setLocal(s); renderGameAccPage(); forcePushAndPull();
+  toast('已删除 ✓');
+}
+
+// 收入相关
+function calcIncomeFee() {
+  const amount = parseFloat(document.getElementById('inc-amount').value) || 0;
+  const fee = Math.round(amount * 0.02 * 100) / 100;
+  const net = Math.round((amount - fee) * 100) / 100;
+  document.getElementById('inc-fee').value = fee || '';
+  document.getElementById('inc-net').value = net || '';
+}
+
+function openAddIncome() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('inc-date').value   = today;
+  document.getElementById('inc-amount').value = '';
+  document.getElementById('inc-fee').value    = '';
+  document.getElementById('inc-net').value    = '';
+  document.getElementById('inc-note').value   = '';
+  document.getElementById('incomeModal').classList.add('show');
+}
+
+function closeIncomeModal() {
+  document.getElementById('incomeModal').classList.remove('show');
+}
+
+function saveIncome() {
+  const amount = parseFloat(document.getElementById('inc-amount').value);
+  const date   = document.getElementById('inc-date').value;
+  if (!date || isNaN(amount) || amount <= 0) { toast('请填写日期和金额'); return; }
+  const fee = Math.round(amount * 0.02 * 100) / 100;
+  const net = Math.round((amount - fee) * 100) / 100;
+  const s = getLocal();
+  if (!s.incomeRecords) s.incomeRecords = [];
+  s.incomeRecords.unshift({
+    id: 'inc' + Date.now(), date, amount, fee, net,
+    note: document.getElementById('inc-note').value.trim(),
+    by: CU
+  });
+  setLocal(s); renderGameAccPage(); closeIncomeModal(); forcePushAndPull();
+  toast('收入已记录 ✓');
+}
+
+async function delIncome(id) {
+  const ok = await showConfirm('删除收入记录', '确认删除这条收入记录？');
+  if (!ok) return;
+  const s = getLocal();
+  s.incomeRecords = (s.incomeRecords || []).filter(r => r.id !== id);
+  setLocal(s); renderGameAccPage(); forcePushAndPull();
+  toast('已删除 ✓');
 }
 
 // ══════════════════════════════════════════════
