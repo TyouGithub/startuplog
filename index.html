@@ -262,6 +262,81 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 .ai-btn{display:block;width:100%;margin-top:7px;background:linear-gradient(135deg,#7c3aed,#1677ff);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.2px;transition:opacity .15s}
 .ai-btn:active{opacity:.8}
 .ai-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── GAME ACC PAGE ── */
+.ga-hero{background:linear-gradient(135deg,#0f172a 0%,#1e293b 40%,#312e81 100%);border-radius:var(--r);padding:20px;margin-bottom:14px;color:#fff;position:relative;overflow:hidden}
+.ga-hero::before{content:'🎮';position:absolute;right:-10px;top:-10px;font-size:90px;opacity:.12;transform:rotate(-15deg)}
+.ga-hero-title{font-size:16px;font-weight:800;margin-bottom:12px;letter-spacing:-.3px;opacity:.95}
+.ga-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.ga-kpi{background:rgba(255,255,255,.1);border-radius:12px;padding:12px 14px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08)}
+.ga-kpi-val{font-size:22px;font-weight:900;line-height:1;margin-bottom:3px;letter-spacing:-.5px}
+.ga-kpi-lab{font-size:11px;opacity:.65;font-weight:500}
+.ga-kpi.green .ga-kpi-val{color:#4ade80}
+.ga-kpi.amber .ga-kpi-val{color:#fbbf24}
+.ga-kpi.blue  .ga-kpi-val{color:#60a5fa}
+.ga-kpi.white .ga-kpi-val{color:#fff}
+
+/* 游戏账号卡片 */
+.ga-card{background:#fff;border-radius:14px;padding:0;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;border:1px solid var(--border)}
+.ga-card-top{padding:14px 14px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.ga-card-bottom{background:#f8fafc;border-top:1px solid var(--border);padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}
+.ga-card-bottom-item{display:flex;align-items:center;gap:5px;font-size:12px}
+.ga-card-bottom-label{color:var(--hint);font-weight:500;flex-shrink:0}
+.ga-card-bottom-val{color:var(--text);font-weight:600;font-family:monospace;letter-spacing:.3px;word-break:break-all}
+.ga-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.ga-name{font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.2px}
+.ga-status-tag{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.2px}
+.ga-profit{font-size:12px;font-weight:700;padding:2px 7px;border-radius:8px}
+.ga-profit.pos{background:#dcfce7;color:#15803d}
+.ga-profit.neg{background:#fee2e2;color:#dc2626}
+.ga-meta{font-size:12px;color:var(--hint);line-height:1.5}
+.ga-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.ga-btn-edit{background:#eff6ff;color:var(--blue);border:none;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.ga-btn-edit:active{background:#dbeafe}
+.ga-btn-del{background:#fff0f0;color:var(--red);border:none;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.ga-btn-del:active{background:#fee2e2}
+.ga-pwd-row{display:flex;align-items:center;gap:4px}
+.ga-pwd-text{font-family:monospace;font-size:12px;letter-spacing:1px;color:var(--text)}
+.ga-eye-btn{background:none;border:none;color:var(--blue);font-size:12px;cursor:pointer;padding:0;line-height:1;opacity:.7;transition:opacity .15s}
+.ga-eye-btn:active{opacity:1}
+
+/* 收入区块 */
+.income-section{margin-top:20px}
+.income-section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.income-section-title{font-size:14px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:6px}
+.income-add-btn{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.income-add-btn:active{opacity:.8}
+.income-table-wrap{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid var(--border)}
+.income-table{width:100%;border-collapse:collapse;font-size:12px}
+.income-table th{padding:10px 12px;text-align:left;color:var(--hint);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.4px;background:#f8fafc;border-bottom:1px solid var(--border)}
+.income-table th:not(:first-child){text-align:right}
+.income-table th:last-child{text-align:center}
+.income-table td{padding:10px 12px;border-top:1px solid #f1f5f9;color:var(--text)}
+.income-table td:not(:first-child){text-align:right}
+.income-table td:last-child{text-align:center}
+.income-table tr:hover td{background:#fafbff}
+.income-table .inc-date{font-weight:600;color:var(--sub)}
+.income-table .inc-amount{font-weight:700;color:var(--text)}
+.income-table .inc-fee{color:var(--hint)}
+.income-table .inc-net{font-weight:700;color:#16a34a}
+.income-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.income-summary-card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid var(--border);text-align:center}
+.income-summary-val{font-size:20px;font-weight:900;letter-spacing:-.5px;line-height:1;margin-bottom:3px}
+.income-summary-lab{font-size:11px;color:var(--hint);font-weight:500}
+
+/* 弹窗表单升级 */
+.modal-section-label{font-size:11px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px;padding-left:2px}
+.modal-divider{height:1px;background:var(--border);margin:12px 0}
+.form-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;outline:none;background:#f8fafc;color:var(--text);transition:all .2s;margin-bottom:12px}
+.form-input:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(22,119,255,.08)}
+.form-select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;outline:none;background:#f8fafc;color:var(--text);transition:all .2s;margin-bottom:12px;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:12px;padding-right:36px}
+.form-select:focus{border-color:var(--blue);background-color:#fff;box-shadow:0 0 0 3px rgba(22,119,255,.08)}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-label{font-size:11px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;display:block}
+.form-group{margin-bottom:2px}
+.save-btn{width:100%;padding:15px;background:linear-gradient(135deg,#1677ff,#4f46e5);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:16px;letter-spacing:.2px;box-shadow:0 4px 16px rgba(22,119,255,.3);transition:all .15s}
+.save-btn:active{transform:scale(.98);opacity:.9}
+.cancel-link{display:block;text-align:center;font-size:13px;color:var(--hint);cursor:pointer;margin-top:12px;padding:6px}
 </style>
 </head>
 <body>
@@ -432,20 +507,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 
   <!-- GAME ACCOUNTS -->
   <div class="pg" id="pg-gameacc">
-    <!-- 顶部标题 + 操作按钮 -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div style="font-size:16px;font-weight:800;color:var(--text)">🎮 游戏账号</div>
-      <div style="display:flex;gap:8px">
-        <button class="fbtn" style="border-color:var(--blue);color:var(--blue)" onclick="openAddIncome()">＋ 收入</button>
-        <button class="fbtn" style="border-color:var(--blue);color:var(--blue)" onclick="openAddGameAcc()">＋ 账号</button>
-      </div>
+    <!-- 英雄区：数据看板 -->
+    <div class="ga-hero">
+      <div class="ga-hero-title">🎮 游戏账号管理</div>
+      <div class="ga-kpi-grid" id="gameaccDashboard"></div>
     </div>
 
-    <!-- 数据看板 -->
-    <div id="gameaccDashboard" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"></div>
-
     <!-- 状态筛选 -->
-    <div class="fbar" style="margin-bottom:10px">
+    <div class="fbar" style="margin-bottom:12px">
       <button class="fbtn on" id="gaf-all"      onclick="filterGameAcc('all')">全部</button>
       <button class="fbtn"    id="gaf-normal"   onclick="filterGameAcc('normal')">✅ 正常</button>
       <button class="fbtn"    id="gaf-frozen"   onclick="filterGameAcc('frozen')">⚠️ 冻结</button>
@@ -457,8 +526,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div id="gameaccList"></div>
 
     <!-- 收入记录 -->
-    <div style="margin-top:18px">
-      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px">💵 收入记录</div>
+    <div class="income-section">
+      <div class="income-section-hd">
+        <div class="income-section-title">💵 收入记录</div>
+        <button class="income-add-btn" onclick="openAddIncome()">＋ 记录收入</button>
+      </div>
       <div id="incomeList"></div>
     </div>
   </div>
@@ -748,59 +820,108 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 
 <!-- 新增/编辑账号弹窗 -->
 <div class="overlay" id="gameaccModal" onclick="if(event.target===this)closeGameAccModal()">
-  <div class="sheet" style="max-height:92vh;overflow-y:auto">
+  <div class="sheet" style="max-height:92vh;overflow-y:auto;padding-bottom:32px">
     <div class="handle"></div>
     <div class="stitle" id="gameaccModalTitle">新增账号</div>
-    <div style="padding:0 16px 24px">
-      <div class="frow2">
-        <div class="frow" style="margin:0"><label>游戏名称 *</label><input id="ga-game" placeholder="王者荣耀"/></div>
-        <div class="frow" style="margin:0"><label>系统</label>
-          <select id="ga-os" style="width:100%;font-size:14px;padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;background:var(--card);color:var(--text)">
-            <option value="苹果">🍎 苹果</option>
-            <option value="安卓">🤖 安卓</option>
-          </select>
-        </div>
+
+    <div class="modal-section-label">基本信息</div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">游戏名称 *</label>
+        <input class="form-input" id="ga-game" placeholder="王者荣耀"/>
       </div>
-      <div class="frow2">
-        <div class="frow" style="margin:0"><label>账号名称 *</label><input id="ga-name" placeholder="如：神1150"/></div>
-        <div class="frow" style="margin:0"><label>区服</label><input id="ga-region" placeholder="QQ区" value="QQ区"/></div>
-      </div>
-      <div class="frow"><label>QQ号</label><input id="ga-qq" placeholder="QQ号" type="number"/></div>
-      <div class="frow"><label>密码</label><input id="ga-pwd" placeholder="密码"/></div>
-      <div class="frow"><label>密保手机</label><input id="ga-phone" placeholder="手机号" type="tel"/></div>
-      <div class="frow2">
-        <div class="frow" style="margin:0"><label>成本价(¥) *</label><input id="ga-cost" placeholder="0" type="number"/></div>
-        <div class="frow" style="margin:0"><label>出售价(¥)</label><input id="ga-sellprice" placeholder="留空则无"/></div>
-      </div>
-      <div class="frow"><label>状态</label>
-        <select id="ga-status" style="width:100%;font-size:14px;padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;background:var(--card);color:var(--text)">
-          <option value="正常">✅ 正常</option>
-          <option value="冻结">⚠️ 冻结</option>
-          <option value="已出售">🔒 已出售</option>
-          <option value="被找回">❌ 被找回</option>
+      <div class="form-group">
+        <label class="form-label">系统</label>
+        <select class="form-select" id="ga-os">
+          <option value="苹果">🍎 苹果</option>
+          <option value="安卓">🤖 安卓</option>
         </select>
       </div>
-      <div class="frow"><label>备注</label><input id="ga-note" placeholder="可选备注"/></div>
-      <button class="sbtn" onclick="saveGameAcc()">保存</button>
     </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">账号名称 *</label>
+        <input class="form-input" id="ga-name" placeholder="如：神1150"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">区服</label>
+        <input class="form-input" id="ga-region" placeholder="QQ区" value="QQ区"/>
+      </div>
+    </div>
+
+    <div class="modal-section-label">账号信息</div>
+    <div class="form-group">
+      <label class="form-label">QQ 号</label>
+      <input class="form-input" id="ga-qq" placeholder="QQ号" type="number"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">密码</label>
+      <input class="form-input" id="ga-pwd" placeholder="密码"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">密保手机</label>
+      <input class="form-input" id="ga-phone" placeholder="手机号" type="tel"/>
+    </div>
+
+    <div class="modal-section-label">价格 & 状态</div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">成本价(¥) *</label>
+        <input class="form-input" id="ga-cost" placeholder="0" type="number"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">出售价(¥)</label>
+        <input class="form-input" id="ga-sellprice" placeholder="留空则无" type="number"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">状态</label>
+      <select class="form-select" id="ga-status">
+        <option value="正常">✅ 正常</option>
+        <option value="冻结">⚠️ 冻结</option>
+        <option value="已出售">🔒 已出售</option>
+        <option value="被找回">❌ 被找回</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">备注</label>
+      <input class="form-input" id="ga-note" placeholder="可选备注"/>
+    </div>
+
+    <button class="save-btn" onclick="saveGameAcc()">保存账号</button>
+    <span class="cancel-link" onclick="closeGameAccModal()">取消</span>
   </div>
 </div>
 
 <!-- 新增收入弹窗 -->
 <div class="overlay" id="incomeModal" onclick="if(event.target===this)closeIncomeModal()">
-  <div class="sheet">
+  <div class="sheet" style="padding-bottom:32px">
     <div class="handle"></div>
-    <div class="stitle" id="incomeModalTitle">新增收入</div>
-    <div style="padding:0 16px 24px">
-      <div class="frow"><label>日期 *</label><input id="inc-date" type="date"/></div>
-      <div class="frow"><label>金额(¥) *</label><input id="inc-amount" type="number" placeholder="0" step="0.01" oninput="calcIncomeFee()"/></div>
-      <div class="frow2">
-        <div class="frow" style="margin:0"><label>手续费(2%)</label><input id="inc-fee" readonly style="background:var(--bg);color:var(--hint)" placeholder="自动计算"/></div>
-        <div class="frow" style="margin:0"><label>实际到手</label><input id="inc-net" readonly style="background:var(--bg);color:var(--hint)" placeholder="自动计算"/></div>
-      </div>
-      <div class="frow"><label>备注</label><input id="inc-note" placeholder="可选"/></div>
-      <button class="sbtn" onclick="saveIncome()">保存</button>
+    <div class="stitle" id="incomeModalTitle">记录收入</div>
+    <div class="form-group">
+      <label class="form-label">日期 *</label>
+      <input class="form-input" id="inc-date" type="date"/>
     </div>
+    <div class="form-group">
+      <label class="form-label">金额(¥) *</label>
+      <input class="form-input" id="inc-amount" type="number" placeholder="0.00" step="0.01" oninput="calcIncomeFee()"/>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">手续费(2%)</label>
+        <input class="form-input" id="inc-fee" readonly style="background:var(--bg);color:var(--hint)" placeholder="自动计算"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">实际到手</label>
+        <input class="form-input" id="inc-net" readonly style="background:var(--bg);color:#16a34a;font-weight:700" placeholder="自动计算"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">备注</label>
+      <input class="form-input" id="inc-note" placeholder="可选说明"/>
+    </div>
+    <button class="save-btn" onclick="saveIncome()">保存收入</button>
+    <span class="cancel-link" onclick="closeIncomeModal()">取消</span>
   </div>
 </div>
 
@@ -1175,6 +1296,8 @@ function initApp() {
   document.getElementById('f-m-date').value = now.toISOString().split('T')[0];
   renderAll();
   goPage('home');
+  // 确保 FAB 初始绑定
+  document.getElementById('fab').onclick = openModal;
   fetchDailySoup();
 }
 
@@ -2532,18 +2655,23 @@ function renderGameAccDashboard() {
   const totalNet    = inc.reduce((sum, r) => sum + (r.net || 0), 0);
   const el = document.getElementById('gameaccDashboard');
   if (!el) return;
-  const cards = [
-    { icon:'📦', label:'库存账号', val: stockAcc.length + ' 个' },
-    { icon:'💰', label:'库存总价值', val: '¥' + stockValue },
-    { icon:'💵', label:'累计收入', val: '¥' + totalIncome },
-    { icon:'💳', label:'实际到手', val: '¥' + totalNet.toFixed(1) }
-  ];
-  el.innerHTML = cards.map(c => `
-    <div class="card" style="padding:12px 14px">
-      <div style="font-size:20px">${c.icon}</div>
-      <div style="font-size:18px;font-weight:800;color:var(--blue);margin:4px 0">${c.val}</div>
-      <div style="font-size:11px;color:var(--hint)">${c.label}</div>
-    </div>`).join('');
+  el.innerHTML = `
+    <div class="ga-kpi white">
+      <div class="ga-kpi-val">${stockAcc.length}</div>
+      <div class="ga-kpi-lab">📦 库存账号</div>
+    </div>
+    <div class="ga-kpi amber">
+      <div class="ga-kpi-val">¥${stockValue.toLocaleString()}</div>
+      <div class="ga-kpi-lab">💰 库存价值</div>
+    </div>
+    <div class="ga-kpi blue">
+      <div class="ga-kpi-val">¥${totalIncome.toLocaleString()}</div>
+      <div class="ga-kpi-lab">💵 累计收入</div>
+    </div>
+    <div class="ga-kpi green">
+      <div class="ga-kpi-val">¥${totalNet.toFixed(0)}</div>
+      <div class="ga-kpi-lab">✅ 实际到手</div>
+    </div>`;
 }
 
 function renderGameAccList() {
@@ -2554,38 +2682,59 @@ function renderGameAccList() {
   if (fv) acc = acc.filter(a => a.status === fv);
   const el = document.getElementById('gameaccList');
   if (!el) return;
-  if (!acc.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px;padding:12px 0;text-align:center">暂无账号</div>'; return; }
+  if (!acc.length) {
+    el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--hint)"><div style="font-size:44px;margin-bottom:10px">🎮</div><div style="font-size:14px">暂无账号</div></div>';
+    return;
+  }
+  const STATUS_STYLE = {
+    '正常':  { bg:'#dcfce7', color:'#15803d', dot:'#22c55e' },
+    '冻结':  { bg:'#fef3c7', color:'#b45309', dot:'#f59e0b' },
+    '已出售':{ bg:'#f1f5f9', color:'#475569', dot:'#94a3b8' },
+    '被找回':{ bg:'#fee2e2', color:'#dc2626', dot:'#ef4444' }
+  };
   el.innerHTML = acc.map(a => {
-    const sm = GA_STATUS_MAP[a.status] || { label: a.status, cls:'var(--hint)' };
+    const ss = STATUS_STYLE[a.status] || { bg:'#f1f5f9', color:'#64748b', dot:'#94a3b8' };
     const profit = (a.status === '已出售' || a.status === '被找回') && a.sellPrice != null
       ? (a.sellPrice - a.cost) : null;
     const profitHtml = profit !== null
-      ? `<span style="font-size:11px;font-weight:600;color:${profit>=0?'#22c55e':'#ef4444'}">${profit>=0?'+':''}${profit}</span>` : '';
-    return `<div class="card" style="margin-bottom:10px;padding:12px 14px">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+      ? `<span class="ga-profit ${profit>=0?'pos':'neg'}">${profit>=0?'+':''}¥${profit}</span>` : '';
+    const statusLabel = { '正常':'✅ 正常', '冻结':'⚠️ 冻结', '已出售':'🔒 已出售', '被找回':'❌ 被找回' }[a.status] || a.status;
+    return `<div class="ga-card">
+      <div class="ga-card-top">
         <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <span style="font-size:14px;font-weight:700;color:var(--text)">${a.name}</span>
-            <span style="font-size:11px;padding:2px 7px;border-radius:20px;background:${sm.cls}22;color:${sm.cls};font-weight:600">${sm.label}</span>
+          <div class="ga-name-row">
+            <span class="ga-name">${a.name}</span>
+            <span class="ga-status-tag" style="background:${ss.bg};color:${ss.color}">${statusLabel}</span>
             ${profitHtml}
           </div>
-          <div style="font-size:12px;color:var(--hint);margin-top:4px">${a.game} · ${a.os === '苹果' ? '🍎' : '🤖'} ${a.os} · ${a.region}</div>
-          <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:12px">
-            <div><span style="color:var(--hint)">QQ：</span><span style="color:var(--text);user-select:all">${a.qq||'-'}</span></div>
-            <div style="display:flex;align-items:center;gap:4px">
-              <span style="color:var(--hint)">密码：</span>
-              <span id="pwd-${a.id}" style="color:var(--text);font-family:monospace;letter-spacing:1px">••••••••</span>
-              <button onclick="togglePwd('${a.id}','${a.pwd||''}')" style="font-size:10px;color:var(--blue);background:none;border:none;cursor:pointer;padding:0">👁</button>
-            </div>
-            <div><span style="color:var(--hint)">密保：</span><span style="color:var(--text)">${a.phone||'-'}</span></div>
-            <div><span style="color:var(--hint)">成本：</span><span style="color:var(--text);font-weight:600">¥${a.cost||0}</span>${a.sellPrice!=null?`<span style="color:var(--hint)"> → ¥${a.sellPrice}</span>`:''}</div>
-          </div>
-          ${a.note ? `<div style="font-size:11px;color:var(--hint);margin-top:6px">📝 ${a.note}</div>` : ''}
+          <div class="ga-meta">${a.game} &nbsp;·&nbsp; ${a.os === '苹果' ? '🍎' : '🤖'} ${a.os} &nbsp;·&nbsp; ${a.region || 'QQ区'}</div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
-          <button class="edit-btn" onclick="editGameAcc('${a.id}')">编辑</button>
-          <button class="del-btn" onclick="delGameAcc('${a.id}')">🗑</button>
+        <div class="ga-actions">
+          <button class="ga-btn-edit" onclick="editGameAcc('${a.id}')">编辑</button>
+          <button class="ga-btn-del" onclick="delGameAcc('${a.id}')">删除</button>
         </div>
+      </div>
+      <div class="ga-card-bottom">
+        <div class="ga-card-bottom-item">
+          <span class="ga-card-bottom-label">QQ</span>
+          <span class="ga-card-bottom-val">${a.qq||'-'}</span>
+        </div>
+        <div class="ga-card-bottom-item">
+          <span class="ga-card-bottom-label">密码</span>
+          <span class="ga-pwd-row">
+            <span id="pwd-${a.id}" class="ga-pwd-text">••••••••</span>
+            <button class="ga-eye-btn" onclick="togglePwd('${a.id}','${(a.pwd||'').replace(/'/g,"\\'")}')">👁</button>
+          </span>
+        </div>
+        <div class="ga-card-bottom-item">
+          <span class="ga-card-bottom-label">密保</span>
+          <span class="ga-card-bottom-val">${a.phone||'-'}</span>
+        </div>
+        <div class="ga-card-bottom-item">
+          <span class="ga-card-bottom-label">成本</span>
+          <span class="ga-card-bottom-val" style="color:var(--text)">¥${a.cost||0}${a.sellPrice!=null?` → ¥${a.sellPrice}`:''}</span>
+        </div>
+        ${a.note ? `<div class="ga-card-bottom-item" style="grid-column:1/-1"><span class="ga-card-bottom-label">备注</span><span style="font-size:12px;color:var(--sub)">${a.note}</span></div>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -2602,41 +2751,42 @@ function renderIncomeList() {
   const inc = (s.incomeRecords || []).slice().sort((a, b) => b.date.localeCompare(a.date));
   const el = document.getElementById('incomeList');
   if (!el) return;
-  if (!inc.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px;padding:8px 0;text-align:center">暂无收入记录</div>'; return; }
+  if (!inc.length) {
+    el.innerHTML = '<div style="text-align:center;padding:28px 20px;color:var(--hint)"><div style="font-size:36px;margin-bottom:8px">💵</div><div>暂无收入记录</div></div>';
+    return;
+  }
   const totalAmount = inc.reduce((s, r) => s + r.amount, 0);
   const totalNet    = inc.reduce((s, r) => s + r.net, 0);
   el.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-      <div class="card" style="padding:10px 12px;text-align:center">
-        <div style="font-size:16px;font-weight:800;color:var(--blue)">¥${totalAmount}</div>
-        <div style="font-size:11px;color:var(--hint)">累计收入</div>
+    <div class="income-summary">
+      <div class="income-summary-card">
+        <div class="income-summary-val" style="color:var(--blue)">¥${totalAmount.toLocaleString()}</div>
+        <div class="income-summary-lab">累计收入</div>
       </div>
-      <div class="card" style="padding:10px 12px;text-align:center">
-        <div style="font-size:16px;font-weight:800;color:#22c55e">¥${totalNet.toFixed(1)}</div>
-        <div style="font-size:11px;color:var(--hint)">实际到手</div>
+      <div class="income-summary-card">
+        <div class="income-summary-val" style="color:#16a34a">¥${totalNet.toFixed(1)}</div>
+        <div class="income-summary-lab">实际到手</div>
       </div>
     </div>
-    <div class="card" style="padding:0;overflow:hidden">
-      <table style="width:100%;border-collapse:collapse;font-size:12px">
+    <div class="income-table-wrap">
+      <table class="income-table">
         <thead>
-          <tr style="background:var(--bg)">
-            <th style="padding:8px 10px;text-align:left;color:var(--hint);font-weight:600">日期</th>
-            <th style="padding:8px 10px;text-align:right;color:var(--hint);font-weight:600">金额</th>
-            <th style="padding:8px 10px;text-align:right;color:var(--hint);font-weight:600">手续费</th>
-            <th style="padding:8px 10px;text-align:right;color:var(--hint);font-weight:600">到手</th>
-            <th style="padding:8px 10px;text-align:center;color:var(--hint);font-weight:600">操作</th>
+          <tr>
+            <th>日期</th>
+            <th>金额</th>
+            <th>手续费</th>
+            <th>到手</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          ${inc.map((r, i) => `
-          <tr style="border-top:1px solid var(--border)${i===0?' display:none':''}">
-            <td style="padding:8px 10px;color:var(--text)">${r.date}</td>
-            <td style="padding:8px 10px;text-align:right;color:var(--text);font-weight:600">¥${r.amount}</td>
-            <td style="padding:8px 10px;text-align:right;color:var(--hint)">¥${r.fee}</td>
-            <td style="padding:8px 10px;text-align:right;color:#22c55e;font-weight:600">¥${r.net}</td>
-            <td style="padding:8px 10px;text-align:center">
-              <button onclick="delIncome('${r.id}')" style="font-size:12px;color:var(--hint);background:none;border:none;cursor:pointer">🗑</button>
-            </td>
+          ${inc.map(r => `
+          <tr>
+            <td class="inc-date">${r.date}</td>
+            <td class="inc-amount">¥${r.amount}</td>
+            <td class="inc-fee">¥${r.fee}</td>
+            <td class="inc-net">¥${r.net}</td>
+            <td><button onclick="delIncome('${r.id}')" style="font-size:13px;color:var(--hint);background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:all .15s" onmouseover="this.style.background='#fee2e2';this.style.color='#dc2626'" onmouseout="this.style.background='none';this.style.color='var(--hint)'">🗑</button></td>
           </tr>`).join('')}
         </tbody>
       </table>
@@ -2782,7 +2932,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   try {
     const result = await sbFetch();
     if (result) {
-      setLocal(result.value);
+      const remote = result.value;
+      const def = defaultData();
+      // 合并补全：云端缺失的字段用默认数据填充
+      if (!remote.roadmap) remote.roadmap = def.roadmap;
+      if (!remote.gameAccounts || !remote.gameAccounts.length) remote.gameAccounts = def.gameAccounts;
+      if (!remote.incomeRecords || !remote.incomeRecords.length) remote.incomeRecords = def.incomeRecords;
+      setLocal(remote);
       localStorage.setItem(LAST_SYNC_AT, result.updatedAt || '');
     }
   } catch(e) {}
