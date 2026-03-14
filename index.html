@@ -351,10 +351,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
       <div class="ch"><div class="ct">🔥 进行中任务</div><div class="cm" onclick="goPage('tasks')">全部 →</div></div>
       <div id="homeTasks"></div>
     </div>
-    <div class="card">
-      <div class="ch"><div class="ct">💡 心得分享</div><div class="cm" onclick="goPage('profile')">查看全部 →</div></div>
-      <div id="homeInsightsPublic"></div>
-    </div>
+    <!-- 数据脉搏 -->
+    <div id="homePulse" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px"></div>
     <div class="card">
       <div class="ch"><div class="ct">⚡ 动态记录</div>
         <div style="display:flex;gap:8px;align-items:center">
@@ -444,11 +442,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
       </div>
       <!-- 全员公开可读 -->
       <div id="profileInsightList"></div>
-    </div>
-    <div class="card">
-      <div class="ct" style="margin-bottom:10px">☁️ 同步状态</div>
-      <div style="font-size:13px;color:var(--sub)" id="lastSyncTime">上次同步：-</div>
-      <button class="btn btn-p" style="width:100%;margin-top:12px" onclick="syncNow()">立即同步</button>
     </div>
     <!-- 成员管理：仅管理员可见 -->
     <div class="card" id="memberMgmtCard" style="display:none">
@@ -860,8 +853,6 @@ function setSyncBar(state) {
 
 function updateSyncTime() {
   const bjTime = nowBJStr().split(' ')[1] || '';
-  const el = document.getElementById('lastSyncTime');
-  if (el) el.textContent = '上次同步：' + nowBJStr();
   const ss = document.getElementById('syncStatus');
   if (ss) ss.textContent = '同步 ' + bjTime;
 }
@@ -1015,7 +1006,7 @@ function renderAll() {
   renderStats(); renderActs(); renderHomeTasks(); renderHomeMeetings();
   renderTaskList(); renderProdList(); renderInsightList(); renderAccList();
   renderRoadmap(); renderProfileActs(); renderProfileInsights();
-  renderHomeInsightsPublic(); renderMeetingList();
+  renderHomePulse(); renderMeetingList();
   renderMemberList(); applyReadOnly();
 }
 
@@ -1177,6 +1168,28 @@ function renderProfileActs() {
       </div>
     </div>`;
   }).join('');
+}
+
+// ── 首页数据脉搏（简洁数据概览）──
+function renderHomePulse() {
+  const s = getLocal();
+  const el = document.getElementById('homePulse');
+  if (!el) return;
+  const taskDoing = s.tasks.filter(t => t.status === 'doing').length;
+  const taskTodo  = s.tasks.filter(t => t.status === 'todo').length;
+  const meetings  = (s.meetings || []).length;
+  const products  = (s.products || []).filter(p => p.status === '在售').length;
+  const items = [
+    { icon: '✅', val: taskDoing, sub: '进行中任务', color: '#1677ff', bg: '#eff6ff', onclick: "goPage('tasks')" },
+    { icon: '📋', val: meetings,  sub: '会议记录',   color: '#7c3aed', bg: '#f5f3ff', onclick: "goPage('meetings')" },
+    { icon: '🛒', val: products,  sub: '在售商品',   color: '#16a34a', bg: '#f0fdf4', onclick: "goPage('products')" },
+  ];
+  el.innerHTML = items.map(it => `
+    <div onclick="${it.onclick}" style="background:${it.bg};border-radius:14px;padding:14px 12px;text-align:center;cursor:pointer;transition:transform .15s;active:scale(.97)">
+      <div style="font-size:22px;margin-bottom:5px">${it.icon}</div>
+      <div style="font-size:24px;font-weight:800;color:${it.color};line-height:1.1">${it.val}</div>
+      <div style="font-size:11px;color:var(--hint);margin-top:4px;font-weight:500">${it.sub}</div>
+    </div>`).join('');
 }
 
 // ── 首页心得公开展示（所有人可读） ──
@@ -2029,10 +2042,16 @@ function saveRecord() {
     } else {
       const newMeeting = { id:'m'+Date.now(), title, platform:document.getElementById('f-m-platform').value.trim()||'腾讯会议', duration:dur, date:mDate, topics, conclusion, by:CU };
       s.meetings.unshift(newMeeting);
-      // AI 自动生成会议动态（异步，不阻塞保存流程）
-      const actTime = nowBJStr();
+      // 先生成 fallback 动态并保存
+      const actId = 'act_' + Date.now();
       const fallbackText = `📋 ${mDate} ${dur} 召开「${title}」` + (conclusion ? `，结论：${conclusion.slice(0,40)}` : '');
-      addAct(fallbackText, 'b'); // 先存一条默认动态
+      s.activities.unshift({ id: actId, time: nowBJStr(), text: fallbackText, type: 'b', author: CU });
+      if (s.activities.length > 30) s.activities = s.activities.slice(0, 30);
+      setLocal(s);
+      renderAll();
+      closeModal();
+      forcePushAndPull();
+      goPage('home');
       toast('会议已记录，AI 正在生成动态摘要...');
       // 异步替换为 AI 生成的动态
       (async () => {
@@ -2044,14 +2063,13 @@ function saveRecord() {
             '你是会议记录助手。根据会议信息，生成一条简洁的会议动态，包含时间、主题和核心结论，1-2句话，格式：📋 [日期时间] 召开「xxx」会议，[核心成果/结论]。只返回动态文字，不要解释。',
             meetingDesc, 150
           );
+          if (!aiText || !aiText.trim()) return; // 空响应直接保留 fallback
           const s2 = getLocal();
-          // 找到刚才添加的那条动态并替换
-          const idx = s2.activities.findIndex(a => a.time === actTime && a.type === 'b');
-          if (idx !== -1) s2.activities[idx].text = aiText;
-          setLocal(s2); renderAll(); forcePushAndPull();
-          toast('✓ AI 会议动态已生成');
+          const idx = s2.activities.findIndex(a => a.id === actId);
+          if (idx !== -1) { s2.activities[idx].text = aiText; setLocal(s2); renderAll(); forcePushAndPull(); toast('✓ AI 会议动态已生成'); }
         } catch(e) { /* 保留 fallback 动态 */ }
       })();
+      return; // 已手动完成保存流程，跳过末尾 setLocal/renderAll/closeModal
     }
   } else if (curForm === 'insight') {
     const title = document.getElementById('f-i-title').value.trim();
