@@ -347,7 +347,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 <!-- 加载屏 -->
 <div class="loading-screen" id="loadingScreen">
   <div class="spin">🚀</div>
-  <p>正在连接云端数据库...</p>
+  <p>正在同步云端数据，请稍候…</p>
+  <p style="font-size:12px;opacity:.55;margin-top:8px">首次加载约需 3-6 秒</p>
 </div>
 
 <!-- 确认弹窗 -->
@@ -1213,18 +1214,22 @@ async function enterApp(uid) {
   CU = uid;
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  // 登录后强制从云端拉取最新数据，覆盖本地
+  initApp();
+  startAutoSync();
+  // 后台静默同步，不阻塞页面显示
   setSyncBar('syncing');
   try {
-    const result = await sbFetch();
+    const result = await Promise.race([
+      sbFetch(),
+      new Promise(r => setTimeout(() => r(null), 6000))
+    ]);
     if (result) {
       mergeAndSetLocal(result.value);
       localStorage.setItem(LAST_SYNC_AT, result.updatedAt || '');
+      renderAll();
     }
   } catch(e) {}
   setSyncBar('ok');
-  initApp();
-  startAutoSync();
 }
 
 function login() {
@@ -2934,23 +2939,21 @@ async function delIncome(id) {
 //  启动
 // ══════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
-  await new Promise(r => setTimeout(r, 500));
-  document.getElementById('loadingScreen').style.display = 'none';
   const savedUser = localStorage.getItem(SESSION_KEY);
-  // 先尝试从云端拉取，确保密码和数据是最新的
+  // 先尝试从云端拉取，确保密码和数据是最新的（最多等 6 秒，超时直接用本地数据）
   try {
-    const result = await sbFetch();
+    const fetchWithTimeout = Promise.race([
+      sbFetch(),
+      new Promise(r => setTimeout(() => r(null), 6000))
+    ]);
+    const result = await fetchWithTimeout;
     if (result) {
-      const remote = result.value;
-      const def = defaultData();
-      // 合并补全：云端缺失的字段用默认数据填充
-      if (!remote.roadmap) remote.roadmap = def.roadmap;
-      if (!remote.gameAccounts || !remote.gameAccounts.length) remote.gameAccounts = def.gameAccounts;
-      if (!remote.incomeRecords || !remote.incomeRecords.length) remote.incomeRecords = def.incomeRecords;
-      setLocal(remote);
+      mergeAndSetLocal(result.value);
       localStorage.setItem(LAST_SYNC_AT, result.updatedAt || '');
     }
   } catch(e) {}
+  // 云端请求结束后再隐藏加载屏，避免手机出现空白页
+  document.getElementById('loadingScreen').style.display = 'none';
   const store = getLocal();
   if (savedUser && store.users && store.users[savedUser]) {
     selUser(savedUser);
