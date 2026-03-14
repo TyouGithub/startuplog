@@ -286,6 +286,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
         <div class="nm">一新</div><div class="rl">联合创始人</div>
       </div>
     </div>
+    <div id="memberBtns" style="display:none;margin-bottom:14px"></div>
+    <div style="text-align:center;margin-bottom:12px">
+      <span style="font-size:12px;color:var(--hint);cursor:pointer" onclick="toggleMemberList()">👥 其他成员登录</span>
+    </div>
     <input class="finp" type="password" id="pwdIn" placeholder="输入密码" onkeydown="if(event.key==='Enter')login()"/>
     <button class="lbtn" onclick="login()">进入工作台</button>
     <div class="lerr" id="lerr"></div>
@@ -315,13 +319,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div class="banner">
       <h2 id="bnrTitle">你好 👋</h2>
       <p>今天是 <span id="bnrDate"></span>，继续加油！</p>
-      <span class="tag">🛒 TEMU</span><span class="tag">🏸 羽毛球手胶</span><span class="tag">🌏 跨境电商</span>
+      <div id="bnrTags"></div>
     </div>
     <div class="sgrid">
-      <div class="scard"><div class="snum" style="color:var(--blue)" id="sOpen">-</div><div class="slb">待完成任务</div></div>
-      <div class="scard"><div class="snum" style="color:var(--green)" id="sDone">-</div><div class="slb">已完成任务</div></div>
-      <div class="scard"><div class="snum" style="color:var(--orange)" id="sProd">-</div><div class="slb">在售商品</div></div>
-      <div class="scard"><div class="snum" style="color:var(--purple)" id="sProfit">-</div><div class="slb">月利润预估</div></div>
+      <div class="scard" style="cursor:pointer" onclick="goPage('tasks');filterTask('todo')"><div class="snum" style="color:var(--blue)" id="sOpen">-</div><div class="slb">待完成任务</div></div>
+      <div class="scard" style="cursor:pointer" onclick="goPage('tasks');filterTask('done')"><div class="snum" style="color:var(--green)" id="sDone">-</div><div class="slb">已完成任务</div></div>
+      <div class="scard" style="cursor:pointer" onclick="goPage('products')"><div class="snum" style="color:var(--orange)" id="sProd">-</div><div class="slb">在售商品</div></div>
+      <div class="scard" style="cursor:pointer" onclick="goPage('products')"><div class="snum" style="color:var(--purple)" id="sProfit">-</div><div class="slb">月利润预估</div></div>
     </div>
     <div class="card">
       <div class="ch"><div class="ct">📈 今日完成进度</div><div id="pctLb" style="font-size:13px;color:var(--hint);font-weight:700">0%</div></div>
@@ -343,17 +347,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div class="card">
       <div class="ch"><div class="ct">📋 最近会议</div><div class="cm" onclick="openModal();switchForm('meeting')">+ 记录</div></div>
       <div id="homeMeetings"></div>
-    </div>
-    <div class="card" style="border:1.5px solid #fde68a;background:linear-gradient(135deg,#fffbeb,#fff)">
-      <div class="ch">
-        <div class="ct">🔑 平台账号库</div>
-        <div class="cm" onclick="goPage('accounts')">管理 →</div>
-      </div>
-      <div id="homeAccounts"></div>
-    </div>
-    <div class="card">
-      <div class="ch"><div class="ct">💡 心得分享</div><div class="cm" onclick="goPage('insights')">全部 →</div></div>
-      <div id="homeInsights"></div>
     </div>
   </div>
 
@@ -410,17 +403,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     </div>
     <div class="card">
       <div class="ch">
-        <div class="ct">⚡ 最近动态</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <div class="cm" onclick="openAddAct()">+ 添加</div>
-        </div>
+        <div class="ct">💡 心得分享</div>
+        <div class="cm" onclick="openModal();switchForm('insight')">+ 添加</div>
       </div>
-      <div class="tl" id="profileActList"></div>
+      <div id="profileInsightList"></div>
     </div>
     <div class="card">
       <div class="ct" style="margin-bottom:10px">☁️ 同步状态</div>
       <div style="font-size:13px;color:var(--sub)" id="lastSyncTime">上次同步：-</div>
       <button class="btn btn-p" style="width:100%;margin-top:12px" onclick="syncNow()">立即同步</button>
+    </div>
+    <!-- 成员管理：仅管理员可见 -->
+    <div class="card" id="memberMgmtCard" style="display:none">
+      <div class="ch">
+        <div class="ct">👥 成员管理</div>
+        <div class="cm" onclick="openAddMember()">+ 添加成员</div>
+      </div>
+      <div id="memberList"></div>
     </div>
     <!-- 修改密码：折叠隐藏 -->
     <div style="text-align:center;margin-bottom:8px">
@@ -477,15 +476,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     </div>
 
     <div id="form-product" style="display:none">
-      <div class="frow"><label>商品名称 *</label><input id="f-p-name" placeholder="如：羽毛球手胶（黑色款）"/></div>
+      <div class="frow"><label>商品标题 *（建议含关键词）</label><input id="f-p-name" placeholder="如：羽毛球手胶 防滑吸汗 3条装"/></div>
       <div class="frow2">
         <div class="frow" style="margin:0"><label>平台</label>
           <select id="f-p-platform"><option>TEMU</option><option>亚马逊</option><option>速卖通</option><option>其他</option></select>
         </div>
-        <div class="frow" style="margin:0"><label>状态</label>
+        <div class="frow" style="margin:0"><label>上架状态</label>
           <select id="f-p-status"><option value="选品中">选品中</option><option value="备货中">备货中</option><option value="在售">在售</option><option value="下架">下架</option></select>
         </div>
       </div>
+      <div class="frow"><label>商品类目</label><input id="f-p-cat" placeholder="如：运动器材 > 羽毛球配件"/></div>
       <div class="frow2">
         <div class="frow" style="margin:0"><label>采购价(¥)</label><input id="f-p-cost" type="number" placeholder="0.00" step="0.01"/></div>
         <div class="frow" style="margin:0"><label>定价(¥)</label><input id="f-p-price" type="number" placeholder="0.00" step="0.01"/></div>
@@ -494,8 +494,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
         <div class="frow" style="margin:0"><label>月销量(件)</label><input id="f-p-sales" type="number" placeholder="0"/></div>
         <div class="frow" style="margin:0"><label>退款率(%)</label><input id="f-p-refund" type="number" placeholder="0" step="0.1"/></div>
       </div>
+      <div class="frow2">
+        <div class="frow" style="margin:0"><label>重量(g)</label><input id="f-p-weight" type="number" placeholder="如：50"/></div>
+        <div class="frow" style="margin:0"><label>尺寸(cm)</label><input id="f-p-size" placeholder="如：20×5×2"/></div>
+      </div>
+      <div class="frow"><label>关键词（逗号分隔）</label><input id="f-p-keywords" placeholder="羽毛球手胶,防滑,吸汗,手柄贴"/></div>
+      <div class="frow"><label>SKU / 变体说明</label><input id="f-p-sku" placeholder="如：黑色/蓝色/红色 各1条"/></div>
+      <div class="frow"><label>商品主图（上传图片）</label>
+        <div id="f-p-img-preview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px"></div>
+        <input type="file" id="f-p-img" accept="image/*" multiple style="font-size:13px" onchange="handleProdImgs(this)"/>
+      </div>
       <div class="frow"><label>商品链接</label><input id="f-p-url" placeholder="https://..."/></div>
-      <div class="frow"><label>备注 / 选品理由</label><textarea id="f-p-note" placeholder="为什么选这个品？竞品分析、差异化..."></textarea></div>
+      <div class="frow"><label>选品理由 / 竞品分析</label><textarea id="f-p-note" placeholder="为什么选这个品？差异化优势、竞品对比..."></textarea></div>
     </div>
 
     <div id="form-meeting" style="display:none">
@@ -539,7 +549,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
   <div class="sheet">
     <div class="handle"></div>
     <div class="stitle">添加动态</div>
-    <div class="frow"><label>动态内容 *</label><textarea id="act-text" placeholder="发生了什么..." style="min-height:80px"></textarea></div>
+    <div class="frow">
+      <label>动态内容 *</label>
+      <textarea id="act-text" placeholder="随手记录，比如：今天完成了产品上架，发现竞品定价偏低..." style="min-height:80px"></textarea>
+      <button onclick="aiPolishAct()" style="margin-top:6px;background:linear-gradient(135deg,#7c3aed,#1677ff);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;width:100%" id="aiPolishBtn">✨ AI 智能整理</button>
+    </div>
     <div class="frow">
       <label>类型</label>
       <select id="act-type">
@@ -567,6 +581,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div class="mact">
       <button class="btn btn-c" onclick="closeRoadmapModal()">取消</button>
       <button class="btn btn-p" onclick="saveRoadmap()">保存并同步</button>
+    </div>
+  </div>
+</div>
+
+<!-- 添加成员弹窗 -->
+<div class="overlay" id="addMemberModal" onclick="if(event.target===this)closeAddMember()">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="stitle">添加团队成员</div>
+    <div class="frow"><label>姓名 *</label><input id="am-name" placeholder="成员姓名"/></div>
+    <div class="frow"><label>职位 / 角色</label><input id="am-role" placeholder="如：运营、设计..."/></div>
+    <div class="frow"><label>初始密码 *（6位以上）</label><input type="password" id="am-pwd" placeholder="设置初始密码"/></div>
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px;font-size:12px;color:#92400e;margin-bottom:14px">
+      ⚠️ 普通成员只有<b>只读</b>权限，无法添加、修改或删除任何数据。
+    </div>
+    <div class="mact">
+      <button class="btn btn-c" onclick="closeAddMember()">取消</button>
+      <button class="btn btn-p" onclick="saveNewMember()">添加成员</button>
     </div>
   </div>
 </div>
@@ -791,7 +823,8 @@ let CU = null, curPage = 'home', taskFilter = 'all', prodFilter = 'all', curForm
 function selUser(uid) {
   CU = uid;
   document.querySelectorAll('.ubtn').forEach(b => b.classList.remove('sel'));
-  document.getElementById('ubtn-' + uid).classList.add('sel');
+  const btn = document.getElementById('ubtn-' + uid);
+  if (btn) btn.classList.add('sel');
   document.getElementById('lerr').textContent = '';
 }
 selUser('jiashuo');
@@ -887,6 +920,9 @@ function initApp() {
   const h = now.getHours();
   setEl('bnrTitle', `${h<12?'早上好':h<18?'下午好':'晚上好'}，${u.name} 👋`);
   setEl('bnrDate', `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`);
+  // banner tags 从 roadmap 读
+  const tags = document.getElementById('bnrTags');
+  if (tags) tags.innerHTML = (s.roadmap||[]).map(r=>`<span class="tag">${r.label}：${r.text}</span>`).join('');
   setEl('pfAv', init); document.getElementById('pfAv').style.background = u.color;
   setEl('pfNm', u.name); setEl('pfRl', u.role);
   document.getElementById('f-m-date').value = now.toISOString().split('T')[0];
@@ -908,9 +944,10 @@ function renderAll() {
     if (document.getElementById('pfAv')) document.getElementById('pfAv').style.background = u.color;
     setEl('pfNm', u.name); setEl('pfRl', u.role);
   }
-  renderStats(); renderActs(); renderHomeTasks(); renderHomeMeetings(); renderHomeAccounts(); renderHomeInsights();
+  renderStats(); renderActs(); renderHomeTasks(); renderHomeMeetings();
   renderTaskList(); renderProdList(); renderInsightList(); renderAccList();
-  renderRoadmap(); renderProfileActs();
+  renderRoadmap(); renderProfileActs(); renderProfileInsights();
+  renderMemberList(); applyReadOnly();
 }
 
 // ══════════════════════════════════════════════
@@ -964,9 +1001,13 @@ function renderActs() {
   const el = document.getElementById('actList');
   if (!s.activities.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态</div>'; return; }
   const map = { b:'', g:'g', o:'o', p:'p' };
-  el.innerHTML = s.activities.slice(0,6).map(a => `
-    <div class="tli"><div class="tldot ${map[a.type]||''}"></div>
-    <div class="tlt">${fmtTime(a.time)}</div><div class="tlc">${a.text}</div></div>`).join('');
+  el.innerHTML = s.activities.slice(0,6).map(a => {
+    const uname = a.author && s.users && s.users[a.author] ? s.users[a.author].name : (a.author || '');
+    const authorTag = uname ? `<span style="font-size:11px;color:var(--hint);background:#f1f5f9;border-radius:10px;padding:1px 7px;margin-left:5px">@${uname}</span>` : '';
+    return `<div class="tli"><div class="tldot ${map[a.type]||''}"></div>
+    <div class="tlt">${fmtTime(a.time)}</div>
+    <div class="tlc">${a.text}${authorTag}</div></div>`;
+  }).join('');
 }
 
 // ── 首页账号快捷入口 ──
@@ -1026,6 +1067,27 @@ function renderRoadmap() {
     </div>`).join('');
 }
 
+// ── 我的页面：心得列表（只显示自己的） ──
+function renderProfileInsights() {
+  const s = getLocal();
+  const el = document.getElementById('profileInsightList');
+  if (!el) return;
+  const list = (s.insights || []).filter(i => i.author === CU);
+  if (!list.length) {
+    el.innerHTML = '<div style="color:var(--hint);font-size:13px">还没有心得，点「+ 添加」记录第一条</div>';
+    return;
+  }
+  el.innerHTML = list.map(i => `
+    <div style="padding:10px 0;border-bottom:1px solid #f5f7fa">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div style="font-size:13px;font-weight:700;flex:1">${i.title}</div>
+        <button class="del-btn" style="opacity:.4" onclick="delInsight('${i.id}')">🗑</button>
+      </div>
+      <div style="font-size:11px;color:var(--hint);margin:3px 0">${i.cat} · ${i.date}</div>
+      <div style="font-size:13px;color:var(--sub);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${i.content}</div>
+    </div>`).join('');
+}
+
 // ── 我的页面：完整动态列表 ──
 function renderProfileActs() {
   const s = getLocal();
@@ -1033,18 +1095,60 @@ function renderProfileActs() {
   if (!el) return;
   if (!s.activities.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态</div>'; return; }
   const map = { b:'', g:'g', o:'o', p:'p' };
-  el.innerHTML = s.activities.map((a, idx) => `
-    <div class="tli">
+  el.innerHTML = s.activities.map((a, idx) => {
+    const uname = a.author && s.users && s.users[a.author] ? s.users[a.author].name : (a.author || '');
+    const authorTag = uname ? `<span style="font-size:11px;color:var(--hint);background:#f1f5f9;border-radius:10px;padding:1px 7px;margin-left:5px">@${uname}</span>` : '';
+    return `<div class="tli">
       <div class="tldot ${map[a.type]||''}"></div>
       <div class="tlt">${fmtTime(a.time)}</div>
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
-        <div class="tlc" style="flex:1">${a.text}</div>
+        <div class="tlc" style="flex:1">${a.text}${authorTag}</div>
         <button class="del-btn" style="flex-shrink:0;font-size:13px;opacity:.4" onclick="delAct(${idx})">🗑</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
-// ── 动态：添加弹窗 ──
+// ── AI 智能整理 ──
+async function aiPolishAct() {
+  const ta = document.getElementById('act-text');
+  const raw = ta.value.trim();
+  if (!raw) { toast('请先输入内容'); return; }
+  const btn = document.getElementById('aiPolishBtn');
+  btn.textContent = '✨ 整理中...';
+  btn.disabled = true;
+  try {
+    const resp = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer sk-2fb10a88bab5450398b226e6c3e7b23f'
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: '你是一个创业工作记录助手。请将用户输入的动态内容整理成简洁、清晰、专业的一句话或两句话，保留核心信息，去掉语气词，格式整齐。只返回整理后的内容，不要解释。' },
+          { role: 'user', content: raw }
+        ],
+        max_tokens: 200,
+        stream: false
+      })
+    });
+    const data = await resp.json();
+    const result = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if (result) {
+      ta.value = result.trim();
+      toast('AI 整理完成 ✓');
+    } else {
+      toast('AI 返回为空，请重试');
+    }
+  } catch(e) {
+    toast('AI 服务暂时不可用');
+  } finally {
+    btn.textContent = '✨ AI 智能整理';
+    btn.disabled = false;
+  }
+}
 function openAddAct() {
   document.getElementById('act-text').value = '';
   document.getElementById('act-type').value = 'g';
@@ -1059,7 +1163,7 @@ function saveAct() {
   const timeInput = document.getElementById('act-time').value.trim();
   const time = timeInput || nowBJStr();
   const s = getLocal();
-  s.activities.unshift({ time, text, type });
+  s.activities.unshift({ time, text, type, author: CU });
   if (s.activities.length > 30) s.activities = s.activities.slice(0,30);
   setLocal(s); renderAll(); closeActModal(); forcePushAndPull(); toast('动态已保存 ✓');
 }
@@ -1116,6 +1220,118 @@ function togglePwdPanel() {
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
+// ══════════════════════════════════════════════
+//  成员管理 & 权限
+// ══════════════════════════════════════════════
+const ADMINS = ['jiashuo', 'yixin'];
+function isAdmin() { return ADMINS.includes(CU); }
+
+// 只读模式：隐藏所有写操作按钮
+function applyReadOnly() {
+  const ro = !isAdmin();
+  // FAB（添加按钮）
+  document.getElementById('fab').style.display = ro ? 'none' : (curPage==='profile'?'none':'flex');
+  // 所有 .cm 按钮（各页面右上角操作）
+  document.querySelectorAll('.cm').forEach(el => {
+    if (el.id === 'syncStatus') return; // 同步状态不隐藏
+    el.style.display = ro ? 'none' : '';
+  });
+  // 编辑/删除按钮
+  document.querySelectorAll('.edit-btn,.del-btn').forEach(el => el.style.display = ro ? 'none' : '');
+  // 成员管理卡片仅管理员可见
+  const mc = document.getElementById('memberMgmtCard');
+  if (mc) mc.style.display = isAdmin() ? 'block' : 'none';
+}
+
+function renderMemberList() {
+  const s = getLocal();
+  const el = document.getElementById('memberList');
+  if (!el) return;
+  const members = Object.entries(s.users)
+    .filter(([uid]) => !ADMINS.includes(uid));
+  if (!members.length) {
+    el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无普通成员</div>'; return;
+  }
+  el.innerHTML = members.map(([uid, u]) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f5f7fa">
+      <div style="width:36px;height:36px;border-radius:50%;background:${u.color||'#94a3b8'};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff">${u.name.charAt(0)}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700">${u.name}</div>
+        <div style="font-size:11px;color:var(--hint)">${u.role||'成员'} · 只读</div>
+      </div>
+      <button class="del-btn" onclick="delMember('${uid}')">🗑</button>
+    </div>`).join('');
+}
+
+function openAddMember() { document.getElementById('addMemberModal').classList.add('show'); }
+function closeAddMember() {
+  document.getElementById('addMemberModal').classList.remove('show');
+  document.getElementById('am-name').value = '';
+  document.getElementById('am-role').value = '';
+  document.getElementById('am-pwd').value  = '';
+}
+
+function saveNewMember() {
+  const name = document.getElementById('am-name').value.trim();
+  const role = document.getElementById('am-role').value.trim();
+  const pwd  = document.getElementById('am-pwd').value;
+  if (!name) { toast('请输入姓名'); return; }
+  if (!pwd || pwd.length < 6) { toast('密码至少6位'); return; }
+  const uid = 'member_' + Date.now();
+  const colors = ['#0891b2','#059669','#d97706','#dc2626','#7c3aed'];
+  const color = colors[Math.floor(Math.random()*colors.length)];
+  const s = getLocal();
+  s.users[uid] = { name, role: role||'成员', pwd, color, isReadOnly: true };
+  setLocal(s);
+  closeAddMember();
+  renderMemberList();
+  // 更新登录页成员列表
+  refreshLoginMembers();
+  forcePushAndPull();
+  toast(`${name} 已添加 ✓`);
+}
+
+function delMember(uid) {
+  if (ADMINS.includes(uid)) { toast('不能删除管理员'); return; }
+  const s = getLocal();
+  const name = s.users[uid] ? s.users[uid].name : uid;
+  showConfirm('删除成员', `确定移除成员「${name}」吗？`).then(ok => {
+    if (!ok) return;
+    delete s.users[uid];
+    setLocal(s);
+    renderMemberList();
+    refreshLoginMembers();
+    forcePushAndPull();
+    toast('已移除');
+  });
+}
+
+// 登录页展示其他成员按钮
+function refreshLoginMembers() {
+  const s = getLocal();
+  const el = document.getElementById('memberBtns');
+  if (!el) return;
+  const members = Object.entries(s.users).filter(([uid]) => !ADMINS.includes(uid));
+  if (!members.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div style="font-size:11px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">团队成员</div>` +
+    `<div style="display:flex;flex-wrap:wrap;gap:8px">${members.map(([uid,u]) =>
+      `<div class="ubtn${CU===uid?' sel':''}" style="flex:0 0 auto;min-width:80px" id="ubtn-${uid}" onclick="selUser('${uid}')">
+        <div class="av" style="background:${u.color||'#94a3b8'}">${u.name.charAt(0)}</div>
+        <div class="nm">${u.name}</div><div class="rl">${u.role||'成员'}</div>
+      </div>`).join('')}</div>`;
+}
+
+function toggleMemberList() {
+  const el = document.getElementById('memberBtns');
+  if (!el) return;
+  if (el.style.display === 'none' || el.style.display === '') {
+    refreshLoginMembers();
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
 function renderHomeTasks() {
   const s = getLocal();
   const list = s.tasks.filter(t => t.status !== 'done').slice(0,4);
@@ -1152,7 +1368,8 @@ function meetingHTML(m) {
     </div>
     <div class="m-detail" id="mdetail-${m.id}">
       ${topicsHtml}${conclusionHtml}
-      <div style="display:flex;justify-content:flex-end;margin-top:10px">
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px">
+        <button class="edit-btn" onclick="editMeeting('${m.id}')">编辑</button>
         <button class="del-btn" onclick="delMeeting('${m.id}')">🗑 删除</button>
       </div>
     </div>
@@ -1174,6 +1391,21 @@ function delMeeting(id) {
     addAct('删除了会议记录', 'o');
     setLocal(s); renderAll(); forcePushAndPull(); toast('已删除');
   });
+}
+
+function editMeeting(id) {
+  const s = getLocal(), m = s.meetings.find(x => x.id === id); if (!m) return;
+  switchForm('meeting');
+  document.getElementById('f-m-title').value      = m.title;
+  document.getElementById('f-m-platform').value   = m.platform || '腾讯会议';
+  document.getElementById('f-m-dur').value        = m.duration || '';
+  document.getElementById('f-m-date').value       = m.date || '';
+  document.getElementById('f-m-topics').value     = (m.topics || []).join('\n');
+  document.getElementById('f-m-conclusion').value = m.conclusion || '';
+  document.getElementById('modal').dataset.editMeetingId = id;
+  document.getElementById('modal').classList.add('show');
+  document.getElementById('modalTitle').textContent = '编辑会议';
+  document.getElementById('tsw').style.display = 'none';
 }
 
 // ══════════════════════════════════════════════
@@ -1256,6 +1488,24 @@ function delTask(id) {
   });
 }
 
+// ── 选品图片处理 ──
+let pendingProdImgs = [];
+function handleProdImgs(input) {
+  const files = Array.from(input.files);
+  const preview = document.getElementById('f-p-img-preview');
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      pendingProdImgs.push(e.target.result);
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.cssText = 'width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--border)';
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 // ══════════════════════════════════════════════
 //  PRODUCTS
 // ══════════════════════════════════════════════
@@ -1265,15 +1515,20 @@ function prodHTML(p) {
   const monthly = p.price && p.cost && p.sales ? Math.round((p.price - p.cost) * p.sales * (1 - (p.refund||0)/100)) : 0;
   const em = { TEMU:'🛒', 亚马逊:'📦', 速卖通:'🌐', 其他:'📌' };
   const sc = { 选品中:'b-purple', 备货中:'b-todo', 在售:'b-done', 下架:'b-todo' };
+  const imgsHtml = p.imgs && p.imgs.length
+    ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${p.imgs.map(src=>`<img src="${src}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">`).join('')}</div>` : '';
+  const keywordsHtml = p.keywords ? `<div class="pfull"><div class="pflab">关键词</div><div style="font-size:13px;color:var(--text);margin-top:3px">${p.keywords}</div></div>` : '';
+  const skuHtml = p.sku ? `<div class="pfull"><div class="pflab">SKU / 变体</div><div style="font-size:13px;color:var(--text);margin-top:3px">${p.sku}</div></div>` : '';
   return `<div class="pcard">
     <div class="pcard-h">
       <div class="pimg">${em[p.platform]||'📦'}</div>
       <div style="flex:1;min-width:0">
         <div class="pname">${p.name}</div>
-        <div class="pcat">${p.platform} · ${p.date}</div>
+        <div class="pcat">${p.platform}${p.cat?' · '+p.cat:''} · ${p.date}</div>
       </div>
       <span class="bdg ${sc[p.status]||'b-todo'}">${p.status}</span>
     </div>
+    ${imgsHtml}
     <div class="prow">
       <div class="pfield"><div class="pflab">采购价</div><div class="pfval">¥${p.cost||'-'}</div></div>
       <div class="pfield"><div class="pflab">定价</div><div class="pfval">¥${p.price||'-'}</div></div>
@@ -1284,6 +1539,11 @@ function prodHTML(p) {
       <div class="pfield"><div class="pflab">月利润预估</div><div class="pfval green">¥${monthly}</div></div>
       <div class="pfield"><div class="pflab">退款率</div><div class="pfval ${(p.refund||0)>5?'red':'green'}">${p.refund||0}%</div></div>
     </div>` : ''}
+    ${(p.weight||p.size) ? `<div class="prow">
+      ${p.weight ? `<div class="pfield"><div class="pflab">重量</div><div class="pfval">${p.weight}g</div></div>` : ''}
+      ${p.size ? `<div class="pfield"><div class="pflab">尺寸</div><div class="pfval">${p.size}</div></div>` : ''}
+    </div>` : ''}
+    ${keywordsHtml}${skuHtml}
     ${p.note ? `<div class="pfull"><div class="pflab">选品备注</div><div style="font-size:13px;color:var(--text);margin-top:3px;line-height:1.6">${p.note}</div></div>` : ''}
     ${p.url ? `<div style="margin-top:6px"><a href="${p.url}" target="_blank" style="font-size:12px;color:var(--blue)">🔗 商品链接</a></div>` : ''}
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
@@ -1315,12 +1575,21 @@ function editProd(id) {
   document.getElementById('f-p-name').value     = p.name;
   document.getElementById('f-p-platform').value = p.platform;
   document.getElementById('f-p-status').value   = p.status;
+  document.getElementById('f-p-cat').value      = p.cat || '';
   document.getElementById('f-p-cost').value     = p.cost || '';
   document.getElementById('f-p-price').value    = p.price || '';
   document.getElementById('f-p-sales').value    = p.sales || '';
   document.getElementById('f-p-refund').value   = p.refund || '';
+  document.getElementById('f-p-weight').value   = p.weight || '';
+  document.getElementById('f-p-size').value     = p.size || '';
+  document.getElementById('f-p-keywords').value = p.keywords || '';
+  document.getElementById('f-p-sku').value      = p.sku || '';
   document.getElementById('f-p-url').value      = p.url || '';
   document.getElementById('f-p-note').value     = p.note || '';
+  // 显示已有图片预览
+  pendingProdImgs = p.imgs ? [...p.imgs] : [];
+  const preview = document.getElementById('f-p-img-preview');
+  preview.innerHTML = pendingProdImgs.map(src=>`<img src="${src}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">`).join('');
   document.getElementById('modal').dataset.editProdId = id;
   document.getElementById('modal').classList.add('show');
   document.getElementById('modalTitle').textContent = '编辑选品';
@@ -1448,6 +1717,7 @@ function closeModal() {
   delete m.dataset.editAccId;
   delete m.dataset.editTaskId;
   delete m.dataset.editProdId;
+  delete m.dataset.editMeetingId;
   m.classList.remove('show');
   document.getElementById('tsw').style.display = 'flex';
   clearForms();
@@ -1464,10 +1734,12 @@ function switchForm(type) {
 }
 
 function clearForms() {
-  document.querySelectorAll('.sheet input,.sheet textarea').forEach(e => { if(e.type!=='date') e.value=''; });
+  document.querySelectorAll('.sheet input,.sheet textarea').forEach(e => { if(e.type!=='date'&&e.type!=='file') e.value=''; });
   document.getElementById('f-m-date').value = new Date().toISOString().split('T')[0];
-  // 恢复会议平台默认值
   document.getElementById('f-m-platform').value = '腾讯会议';
+  pendingProdImgs = [];
+  const preview = document.getElementById('f-p-img-preview');
+  if (preview) preview.innerHTML = '';
 }
 
 function goPage(p) {
@@ -1477,12 +1749,13 @@ function goPage(p) {
   if (pg) pg.classList.add('on');
   const bt = document.getElementById('bt-' + p); if (bt) bt.classList.add('on');
   curPage = p;
-  document.getElementById('fab').style.display = p === 'profile' ? 'none' : 'flex';
+  document.getElementById('fab').style.display = (p === 'profile' || !isAdmin()) ? 'none' : 'flex';
+  applyReadOnly();
 }
 
 function addAct(text, type) {
   const s = getLocal();
-  s.activities.unshift({ time: nowBJStr(), text, type: type||'b' });
+  s.activities.unshift({ time: nowBJStr(), text, type: type||'b', author: CU });
   if (s.activities.length > 30) s.activities = s.activities.slice(0,30);
   setLocal(s);
 }
@@ -1510,23 +1783,56 @@ function saveRecord() {
     const name = document.getElementById('f-p-name').value.trim();
     if (!name) { toast('请输入商品名称'); return; }
     const editId = modal.dataset.editProdId;
+    const prodData = {
+      name,
+      platform: document.getElementById('f-p-platform').value,
+      status:   document.getElementById('f-p-status').value,
+      cat:      document.getElementById('f-p-cat').value.trim(),
+      cost:     parseFloat(document.getElementById('f-p-cost').value)||0,
+      price:    parseFloat(document.getElementById('f-p-price').value)||0,
+      sales:    parseInt(document.getElementById('f-p-sales').value)||0,
+      refund:   parseFloat(document.getElementById('f-p-refund').value)||0,
+      weight:   document.getElementById('f-p-weight').value.trim(),
+      size:     document.getElementById('f-p-size').value.trim(),
+      keywords: document.getElementById('f-p-keywords').value.trim(),
+      sku:      document.getElementById('f-p-sku').value.trim(),
+      url:      document.getElementById('f-p-url').value.trim(),
+      note:     document.getElementById('f-p-note').value.trim(),
+      imgs:     [...pendingProdImgs]
+    };
     if (editId) {
       const p = s.products.find(x => x.id === editId);
-      if (p) { p.name = name; p.platform = document.getElementById('f-p-platform').value; p.status = document.getElementById('f-p-status').value; p.cost = parseFloat(document.getElementById('f-p-cost').value)||0; p.price = parseFloat(document.getElementById('f-p-price').value)||0; p.sales = parseInt(document.getElementById('f-p-sales').value)||0; p.refund = parseFloat(document.getElementById('f-p-refund').value)||0; p.url = document.getElementById('f-p-url').value.trim(); p.note = document.getElementById('f-p-note').value.trim(); }
+      if (p) Object.assign(p, prodData);
       addAct('更新了选品「' + name + '」', 'p');
       toast('选品已更新 ✓');
     } else {
-      s.products.unshift({ id:'p'+Date.now(), name, platform:document.getElementById('f-p-platform').value, status:document.getElementById('f-p-status').value, cost:parseFloat(document.getElementById('f-p-cost').value)||0, price:parseFloat(document.getElementById('f-p-price').value)||0, sales:parseInt(document.getElementById('f-p-sales').value)||0, refund:parseFloat(document.getElementById('f-p-refund').value)||0, url:document.getElementById('f-p-url').value.trim(), note:document.getElementById('f-p-note').value.trim(), date:today, by:CU });
+      s.products.unshift({ id:'p'+Date.now(), date:today, by:CU, ...prodData });
       addAct('新增选品「' + name + '」', 'p');
       toast('选品已添加 ✓');
     }
+    pendingProdImgs = [];
   } else if (curForm === 'meeting') {
     const title = document.getElementById('f-m-title').value.trim();
     if (!title) { toast('请输入会议主题'); return; }
     const raw = document.getElementById('f-m-topics').value.trim();
-    s.meetings.unshift({ id:'m'+Date.now(), title, platform:document.getElementById('f-m-platform').value.trim()||'未知', duration:document.getElementById('f-m-dur').value.trim()||'-', date:document.getElementById('f-m-date').value||today, topics:raw?raw.split('\n').filter(l=>l.trim()):[], conclusion:document.getElementById('f-m-conclusion').value.trim(), by:CU });
-    addAct('记录了会议「' + title + '」', 'b');
-    toast('会议已记录 ✓');
+    const editId = modal.dataset.editMeetingId;
+    if (editId) {
+      const m = s.meetings.find(x => x.id === editId);
+      if (m) {
+        m.title      = title;
+        m.platform   = document.getElementById('f-m-platform').value.trim() || '腾讯会议';
+        m.duration   = document.getElementById('f-m-dur').value.trim() || '-';
+        m.date       = document.getElementById('f-m-date').value || new Date().toISOString().split('T')[0];
+        m.topics     = raw ? raw.split('\n').filter(l=>l.trim()) : [];
+        m.conclusion = document.getElementById('f-m-conclusion').value.trim();
+      }
+      addAct('更新了会议「' + title + '」', 'b');
+      toast('会议已更新 ✓');
+    } else {
+      s.meetings.unshift({ id:'m'+Date.now(), title, platform:document.getElementById('f-m-platform').value.trim()||'腾讯会议', duration:document.getElementById('f-m-dur').value.trim()||'-', date:document.getElementById('f-m-date').value||new Date().toISOString().split('T')[0], topics:raw?raw.split('\n').filter(l=>l.trim()):[], conclusion:document.getElementById('f-m-conclusion').value.trim(), by:CU });
+      addAct('记录了会议「' + title + '」', 'b');
+      toast('会议已记录 ✓');
+    }
   } else if (curForm === 'insight') {
     const title = document.getElementById('f-i-title').value.trim();
     const content = document.getElementById('f-i-content').value.trim();
