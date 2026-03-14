@@ -731,14 +731,20 @@ async function sbFetch() {
   } catch(e) { return null; }
 }
 
+// 推送并返回服务端最新 updated_at，避免推送后二次 fetch
 async function sbPush(value) {
   try {
     const r = await fetch(`${SB_URL}/rest/v1/store`, {
       method: 'POST',
-      headers: { ...SB_HDR, 'Prefer': 'resolution=merge-duplicates' },
+      headers: { ...SB_HDR, 'Prefer': 'resolution=merge-duplicates,return=representation' },
       body: JSON.stringify({ key: DB_KEY, value })
     });
-    return r.ok || r.status === 201;
+    if (!r.ok && r.status !== 201) return false;
+    try {
+      const j = await r.json();
+      if (j && j[0] && j[0].updated_at) return j[0].updated_at; // 直接返回时间戳
+    } catch(e) {}
+    return true; // Supabase 没返回行数据时兜底
   } catch(e) { return false; }
 }
 
@@ -829,14 +835,19 @@ function setLocal(d) {
 //  云同步核心 — 以服务端 updated_at 为基准
 // ══════════════════════════════════════════════
 
-// 强制推送本地到云端（覆盖），然后读回服务端时间戳
+// 强制推送本地到云端，直接从响应中取服务端时间戳（避免二次 fetch）
 async function forcePush() {
-  const ok = await sbPush(getLocal());
-  if (ok) {
+  const ret = await sbPush(getLocal());
+  if (!ret) return false;
+  if (typeof ret === 'string') {
+    // sbPush 直接返回了 updated_at 字符串
+    localStorage.setItem(LAST_SYNC_AT, ret);
+  } else {
+    // 兜底：ret===true，再 fetch 一次取时间戳
     const result = await sbFetch();
     if (result) localStorage.setItem(LAST_SYNC_AT, result.updatedAt || '');
   }
-  return ok;
+  return true;
 }
 
 // 拉取：云端时间变了就更新本地
