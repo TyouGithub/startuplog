@@ -898,29 +898,44 @@ function delProd(id) {
 // ══════════════════════════════════════════════
 //  ACCOUNTS
 // ══════════════════════════════════════════════
-const pwdVis = {};
 function renderAccList() {
   const s = getLocal();
   const el = document.getElementById('accList');
   if (!s.accounts.length) { el.innerHTML = '<div class="empty"><div class="ei">🔑</div>暂无账号</div>'; return; }
   el.innerHTML = s.accounts.map(a => {
-    const show = pwdVis[a.id];
-    const bg = a.name.includes('TEMU') ? '#fff1f0' : a.name.includes('亚马逊') ? '#fff7e6' : '#f0f9ff';
+    const bg   = a.name.includes('TEMU') ? '#fff1f0' : a.name.includes('亚马逊') ? '#fff7e6' : '#f0f9ff';
     const icon = a.name.includes('TEMU') ? '🛒' : a.name.includes('亚马逊') ? '📦' : '🔑';
     return `<div class="accard">
       <div class="achead">
         <div class="acicon" style="background:${bg}">${icon}</div>
         <div style="flex:1"><div class="acname">${a.name}</div>${a.url?`<div class="acurl"><a href="${a.url}" target="_blank" style="color:var(--blue)">${a.url}</a></div>`:''}</div>
+        <button class="copy-btn" style="margin-right:6px" onclick="editAcc('${a.id}')">✏️ 编辑</button>
         <button class="del-btn" onclick="delAcc('${a.id}')">🗑</button>
       </div>
       <div class="acrow"><span class="aclb">账号</span><div style="display:flex;align-items:center"><span class="acval">${a.user}</span><button class="copy-btn" onclick="copyTxt('${a.user}','账号')">复制</button></div></div>
-      <div class="acrow"><span class="aclb">密码</span><div style="display:flex;align-items:center;gap:4px"><span class="acval">${show?a.pwd:'••••••••'}</span><button class="eye-btn" onclick="togglePwd('${a.id}')">${show?'🙈':'👁'}</button><button class="copy-btn" onclick="copyTxt('${a.pwd}','密码')">复制</button></div></div>
+      <div class="acrow"><span class="aclb">密码</span><div style="display:flex;align-items:center;gap:4px"><span class="acval" style="color:var(--text)">${a.pwd}</span><button class="copy-btn" onclick="copyTxt('${a.pwd}','密码')">复制</button></div></div>
       ${a.note?`<div class="acrow"><span class="aclb">备注</span><span class="acval" style="color:var(--hint)">${a.note}</span></div>`:''}
     </div>`;
   }).join('');
 }
 
-function togglePwd(id) { pwdVis[id] = !pwdVis[id]; renderAccList(); }
+function editAcc(id) {
+  const s = getLocal();
+  const a = s.accounts.find(x => x.id === id);
+  if (!a) return;
+  // 填入表单
+  switchForm('account');
+  document.getElementById('f-a-name').value  = a.name;
+  document.getElementById('f-a-url').value   = a.url  || '';
+  document.getElementById('f-a-user').value  = a.user;
+  document.getElementById('f-a-pwd').value   = a.pwd;
+  document.getElementById('f-a-note').value  = a.note || '';
+  // 标记为编辑模式
+  document.getElementById('modal').dataset.editAccId = id;
+  document.getElementById('modal').classList.add('show');
+  document.getElementById('modalTitle').textContent = '编辑账号';
+}
+
 function copyTxt(t, lb) {
   if (navigator.clipboard) { navigator.clipboard.writeText(t).then(() => toast(lb + '已复制 ✓')); }
   else { const el = document.createElement('textarea'); el.value = t; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); toast(lb + '已复制 ✓'); }
@@ -951,7 +966,7 @@ function openModal() {
   switchForm(fm[curPage] || 'task');
   document.getElementById('modal').classList.add('show');
 }
-function closeModal() { document.getElementById('modal').classList.remove('show'); clearForms(); }
+function closeModal() { delete document.getElementById('modal').dataset.editAccId; document.getElementById('modal').classList.remove('show'); clearForms(); }
 
 function switchForm(type) {
   curForm = type;
@@ -1011,11 +1026,22 @@ function saveRecord() {
   } else if (curForm === 'account') {
     const name = document.getElementById('f-a-name').value.trim();
     const user = document.getElementById('f-a-user').value.trim();
-    const pwd = document.getElementById('f-a-pwd').value.trim();
+    const pwd  = document.getElementById('f-a-pwd').value.trim();
     if (!name || !user || !pwd) { toast('请填写平台名称、账号和密码'); return; }
-    s.accounts.unshift({ id:'a'+Date.now(), name, url:document.getElementById('f-a-url').value.trim(), user, pwd, note:document.getElementById('f-a-note').value.trim(), by:CU });
-    addAct('添加了平台账号「' + name + '」', 'g');
-    toast('账号已保存 ✓');
+    const editId = document.getElementById('modal').dataset.editAccId;
+    if (editId) {
+      // 编辑模式：更新已有账号
+      const acc = s.accounts.find(a => a.id === editId);
+      if (acc) { acc.name = name; acc.url = document.getElementById('f-a-url').value.trim(); acc.user = user; acc.pwd = pwd; acc.note = document.getElementById('f-a-note').value.trim(); }
+      delete document.getElementById('modal').dataset.editAccId;
+      addAct('更新了平台账号「' + name + '」', 'g');
+      toast('账号已更新 ✓');
+    } else {
+      // 新增模式
+      s.accounts.unshift({ id:'a'+Date.now(), name, url:document.getElementById('f-a-url').value.trim(), user, pwd, note:document.getElementById('f-a-note').value.trim(), by:CU });
+      addAct('添加了平台账号「' + name + '」', 'g');
+      toast('账号已保存 ✓');
+    }
   }
 
   setLocal(s); renderAll(); closeModal();
