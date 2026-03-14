@@ -3,6 +3,29 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<script>
+// ── 手机调试用：全局错误捕获，把报错显示在屏幕上 ──
+window.__errs = [];
+function __showErr(msg) {
+  window.__errs.push(msg);
+  var box = document.getElementById('__errBox');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = '__errBox';
+    box.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#1a1a2e;color:#ff6b6b;font-size:13px;padding:20px;z-index:99999;overflow:auto;word-break:break-all;white-space:pre-wrap;font-family:monospace';
+    box.innerHTML = '<b style="color:#fff;font-size:15px">⚠️ JS 错误（调试用）</b>\n\n';
+    document.body ? document.body.appendChild(box) : document.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(box); });
+  }
+  box.innerHTML += msg + '\n\n';
+}
+window.onerror = function(msg, src, line, col, err) {
+  __showErr('❌ ' + msg + '\n   ' + src + ':' + line + ':' + col + (err ? '\n   ' + err.stack : ''));
+  return false;
+};
+window.addEventListener('unhandledrejection', function(e) {
+  __showErr('❌ Promise rejected: ' + (e.reason ? (e.reason.stack || e.reason) : e));
+});
+</script>
 <title>StartupLog · 创业工作台</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
