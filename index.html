@@ -602,13 +602,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
         <div class="frow" style="margin:0"><label>时间段</label><input id="f-m-dur" placeholder="09:00-10:30"/></div>
       </div>
       <div class="frow"><label>日期</label><input id="f-m-date" type="date"/></div>
-      <div class="frow"><label>会议议题（每行一条）</label>
-        <textarea id="f-m-topics" placeholder="议题1&#10;议题2&#10;..."></textarea>
-        <button onclick="aiPolish('f-m-topics','meeting-topics')" class="ai-btn" id="ai-f-m-topics">✨ AI 整理议题</button>
+      <div class="frow">
+        <label>会议议题</label>
+        <div id="topics-list" style="display:flex;flex-direction:column;gap:6px"></div>
+        <button type="button" onclick="addTopicRow()" style="margin-top:6px;font-size:12px;color:var(--blue);background:none;border:1px dashed var(--blue);border-radius:6px;padding:4px 12px;cursor:pointer;width:100%">＋ 添加议题</button>
       </div>
-      <div class="frow"><label>结论 / 行动项</label>
-        <textarea id="f-m-conclusion" placeholder="达成的共识或下一步..."></textarea>
-        <button onclick="aiPolish('f-m-conclusion','meeting-conclusion')" class="ai-btn" id="ai-f-m-conclusion">✨ AI 整理结论</button>
+      <div class="frow">
+        <label>结论 / 行动项</label>
+        <div id="conclusion-list" style="display:flex;flex-direction:column;gap:6px"></div>
+        <button type="button" onclick="addConclusionRow()" style="margin-top:6px;font-size:12px;color:var(--blue);background:none;border:1px dashed var(--blue);border-radius:6px;padding:4px 12px;cursor:pointer;width:100%">＋ 添加结论</button>
       </div>
     </div>
 
@@ -801,7 +803,7 @@ function defaultData() {
       {id:'p1',name:'羽毛球手胶（黑色3条装）',platform:'TEMU',status:'在售',cost:3.5,price:12.9,sales:0,refund:0,url:'',note:'首选品，标准化高，物流费低，复购率高。差异化：3条装性价比包装。',date:'2026-03-14',by:'jiashuo'}
     ],
     meetings: [
-      {id:'m1',title:'创业对齐会 #001',platform:'腾讯视频',duration:'09:00 - 10:30',date:'2026-03-14',topics:['WorkBuddy工具使用心得分享','TEMU选品策略讨论','羽毛球手胶方向确认','第一个产品发布计划'],conclusion:'确定首选品为羽毛球手胶，本周完成TEMU首品上架。',by:'jiashuo'}
+      {id:'m1',title:'创业对齐会 #001',platform:'腾讯视频',duration:'09:00 - 10:30',date:'2026-03-14',topics:['WorkBuddy工具使用心得分享','TEMU选品策略讨论','羽毛球手胶方向确认','第一个产品发布计划'],conclusions:['确定首选品为羽毛球手胶','本周完成TEMU首品上架'],conclusion:'确定首选品为羽毛球手胶\n本周完成TEMU首品上架',by:'jiashuo'}
     ],
     insights: [
       {id:'i1',title:'WorkBuddy 使用心得',cat:'WorkBuddy使用',content:'WorkBuddy在日常创业中能大幅提效，无论是选品分析、文案生成还是代码开发。关键在于把需求清晰表达给AI。建议每天用它整理工作日志，梳理思路。',author:'jiashuo',date:'2026-03-14'},
@@ -1710,8 +1712,11 @@ function renderHomeMeetings() {
 function meetingHTML(m) {
   const topicsHtml = m.topics && m.topics.length
     ? `<div class="msec-t">议题</div><ul class="blist">${m.topics.map(t=>`<li>${t}</li>`).join('')}</ul>` : '';
-  const conclusionHtml = m.conclusion
-    ? `<div class="msec-t">结论</div><div class="msec-p">${m.conclusion}</div>` : '';
+  // 兼容旧字符串 conclusion 和新数组 conclusions
+  const concs = Array.isArray(m.conclusions) && m.conclusions.length ? m.conclusions
+    : (m.conclusion ? m.conclusion.split('\n').filter(Boolean) : []);
+  const conclusionHtml = concs.length
+    ? `<div class="msec-t">结论 / 行动项</div><ul class="blist">${concs.map(c=>`<li>${c}</li>`).join('')}</ul>` : '';
   return `<div class="mcard">
     <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 0;-webkit-tap-highlight-color:transparent" onclick="toggleMeeting('${m.id}')">
       <div style="flex:1;min-width:0">
@@ -1753,6 +1758,38 @@ function delMeeting(id) {
   });
 }
 
+// ── 逐条输入：议题 & 结论辅助函数 ──
+function _makeListRow(listId, placeholder, value) {
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;align-items:center;gap:6px';
+  const inp = document.createElement('input');
+  inp.placeholder = placeholder;
+  inp.value = value || '';
+  inp.style.cssText = 'flex:1;font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)';
+  const del = document.createElement('button');
+  del.type = 'button';
+  del.textContent = '✕';
+  del.style.cssText = 'flex-shrink:0;color:var(--hint);background:none;border:none;font-size:14px;cursor:pointer;padding:0 4px';
+  del.onclick = () => row.remove();
+  row.appendChild(inp);
+  row.appendChild(del);
+  document.getElementById(listId).appendChild(row);
+}
+function addTopicRow(value)      { _makeListRow('topics-list',    '议题内容...', value); }
+function addConclusionRow(value) { _makeListRow('conclusion-list','结论或行动项...', value); }
+function _getListValues(listId)  { return [...document.querySelectorAll(`#${listId} input`)].map(i=>i.value.trim()).filter(Boolean); }
+function _initMeetingLists(topics, conclusions) {
+  document.getElementById('topics-list').innerHTML = '';
+  document.getElementById('conclusion-list').innerHTML = '';
+  (topics || []).forEach(t => addTopicRow(t));
+  if (!topics || !topics.length) addTopicRow();
+  const concs = typeof conclusions === 'string'
+    ? (conclusions ? conclusions.split('\n').filter(Boolean) : [])
+    : (conclusions || []);
+  concs.forEach(c => addConclusionRow(c));
+  if (!concs.length) addConclusionRow();
+}
+
 function editMeeting(id) {
   const s = getLocal(), m = s.meetings.find(x => x.id === id); if (!m) return;
   switchForm('meeting');
@@ -1760,8 +1797,10 @@ function editMeeting(id) {
   document.getElementById('f-m-platform').value   = m.platform || '腾讯会议';
   document.getElementById('f-m-dur').value        = m.duration || '';
   document.getElementById('f-m-date').value       = m.date || '';
-  document.getElementById('f-m-topics').value     = (m.topics || []).join('\n');
-  document.getElementById('f-m-conclusion').value = m.conclusion || '';
+  // conclusion 可能是旧的字符串格式或新的数组格式
+  const conclusions = Array.isArray(m.conclusions) ? m.conclusions
+    : (m.conclusion ? m.conclusion.split('\n').filter(Boolean) : []);
+  _initMeetingLists(m.topics || [], conclusions);
   document.getElementById('modal').dataset.editMeetingId = id;
   document.getElementById('modal').classList.add('show');
   document.getElementById('modalTitle').textContent = '编辑会议';
@@ -2130,6 +2169,10 @@ function switchForm(type) {
   });
   const tt = { task:'添加任务', product:'添加选品', meeting:'记录会议', insight:'记录心得', account:'添加账号' };
   setEl('modalTitle', tt[type] || '添加');
+  // 新建会议时初始化逐条输入列表
+  if (type === 'meeting' && !document.getElementById('modal').dataset.editMeetingId) {
+    _initMeetingLists([], []);
+  }
 }
 
 function clearForms() {
@@ -2216,26 +2259,27 @@ function saveRecord() {
   } else if (curForm === 'meeting') {
     const title = document.getElementById('f-m-title').value.trim();
     if (!title) { toast('请输入会议主题'); return; }
-    const raw = document.getElementById('f-m-topics').value.trim();
+    const topics      = _getListValues('topics-list');
+    const conclusions = _getListValues('conclusion-list');
     const dur = document.getElementById('f-m-dur').value.trim() || '-';
     const mDate = document.getElementById('f-m-date').value || today;
-    const conclusion = document.getElementById('f-m-conclusion').value.trim();
-    const topics = raw ? raw.split('\n').filter(l=>l.trim()) : [];
     const editId = modal.dataset.editMeetingId;
     if (editId) {
       const m = s.meetings.find(x => x.id === editId);
       if (m) {
-        m.title      = title;
-        m.platform   = document.getElementById('f-m-platform').value.trim() || '腾讯会议';
-        m.duration   = dur;
-        m.date       = mDate;
-        m.topics     = topics;
-        m.conclusion = conclusion;
+        m.title       = title;
+        m.platform    = document.getElementById('f-m-platform').value.trim() || '腾讯会议';
+        m.duration    = dur;
+        m.date        = mDate;
+        m.topics      = topics;
+        m.conclusions = conclusions;
+        m.conclusion  = conclusions.join('\n'); // 保留旧字段兼容
       }
       addAct('更新了会议「' + title + '」', 'b');
       toast('会议已更新 ✓');
     } else {
-      const newMeeting = { id:'m'+Date.now(), title, platform:document.getElementById('f-m-platform').value.trim()||'腾讯会议', duration:dur, date:mDate, topics, conclusion, by:CU };
+      const conclusion = conclusions.join('\n');
+      const newMeeting = { id:'m'+Date.now(), title, platform:document.getElementById('f-m-platform').value.trim()||'腾讯会议', duration:dur, date:mDate, topics, conclusions, conclusion, by:CU };
       s.meetings.unshift(newMeeting);
       // 先生成 fallback 动态并保存
       const actId = 'act_' + Date.now();
