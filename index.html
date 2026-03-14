@@ -81,11 +81,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 
 /* ── BOTTOM NAV ── */
 .bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 24px rgba(0,0,0,0.06)}
-.btab{flex:1;padding:8px 4px 10px;text-align:center;cursor:pointer;-webkit-user-select:none;user-select:none;transition:opacity .15s}
-.btab .bi{font-size:22px;display:block;margin-bottom:2px;transition:transform .15s}
-.btab.on .bi{transform:scale(1.1)}
-.btab .bl{font-size:10px;color:var(--hint);font-weight:500}
+.btab{flex:1;padding:8px 4px 10px;text-align:center;cursor:pointer;-webkit-user-select:none;user-select:none;transition:opacity .15s;position:relative}
+.btab .bi{font-size:20px;display:block;margin-bottom:2px;transition:transform .15s}
+.btab.on .bi{transform:scale(1.12)}
+.btab .bl{font-size:10px;color:var(--hint);font-weight:500;transition:color .15s}
 .btab.on .bl{color:var(--blue);font-weight:700}
+.btab.on::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:28px;height:3px;background:var(--blue);border-radius:3px 3px 0 0}
 
 /* ── PAGES ── */
 .pg{display:none;padding:14px 14px 10px;animation:fi .18s ease}
@@ -95,8 +96,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 /* ── CARDS ── */
 .card{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:12px;box-shadow:var(--shadow)}
 .ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.ct{font-size:15px;font-weight:700;letter-spacing:-0.2px}
-.cm{font-size:12px;color:var(--blue);cursor:pointer;font-weight:600}
+.ct{font-size:14px;font-weight:700;letter-spacing:-.1px;color:var(--text)}
+.cm{font-size:12px;color:var(--blue);cursor:pointer;font-weight:600;padding:3px 8px;border-radius:8px;background:#eff6ff;transition:background .15s}
+.cm:active{background:#dbeafe}
 
 /* ── BANNER ── */
 .banner{background:linear-gradient(135deg,#1677ff 0%,#4f46e5 60%,#7c3aed 100%);border-radius:var(--r);padding:22px;margin-bottom:12px;color:#fff;position:relative;overflow:hidden}
@@ -211,9 +213,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 .pf-nm{font-size:18px;font-weight:800;margin-bottom:3px}
 .pf-rl{font-size:13px;opacity:.8}
 
+/* 快捷工具入口 */
+.shortcut-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.shortcut-item{background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;cursor:pointer;transition:transform .15s,box-shadow .15s;border:1px solid transparent}
+.shortcut-item:active{transform:scale(.97);box-shadow:0 1px 6px rgba(0,0,0,.08)}
+.shortcut-icon{font-size:24px;flex-shrink:0;line-height:1}
+.shortcut-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.shortcut-sub{font-size:11px;color:var(--hint)}
+
 /* ── FAB ── */
-.fab{position:fixed;bottom:74px;right:16px;width:54px;height:54px;background:linear-gradient(135deg,#1677ff,#4f46e5);color:#fff;border:none;border-radius:50%;font-size:28px;cursor:pointer;box-shadow:0 6px 20px rgba(22,119,255,.45);display:flex;align-items:center;justify-content:center;z-index:49;transition:transform .15s}
-.fab:active{transform:scale(.88)}
+.fab{position:fixed;bottom:80px;right:16px;width:52px;height:52px;background:linear-gradient(135deg,#1677ff,#4f46e5);color:#fff;border:none;border-radius:50%;font-size:26px;cursor:pointer;box-shadow:0 6px 22px rgba(22,119,255,.5);display:flex;align-items:center;justify-content:center;z-index:49;transition:transform .15s,box-shadow .15s}
+.fab:active{transform:scale(.88);box-shadow:0 3px 10px rgba(22,119,255,.35)}
+
+/* ── 统一页头 ── */
+.page-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-top:2px}
+.page-hdr-title{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.page-hdr-action{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:inherit;transition:opacity .15s;display:flex;align-items:center;gap:5px}
+.page-hdr-action:active{opacity:.8}
 
 /* ── MODAL ── */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-end;backdrop-filter:blur(4px)}
@@ -466,6 +482,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 
   <!-- TASKS -->
   <div class="pg" id="pg-tasks">
+    <div class="page-hdr">
+      <div class="page-hdr-title">✅ 任务管理</div>
+    </div>
     <div class="fbar">
       <button class="fbtn on" id="tf-all" onclick="filterTask('all')">全部</button>
       <button class="fbtn" id="tf-todo" onclick="filterTask('todo')">待处理</button>
@@ -477,15 +496,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 
   <!-- MEETINGS 独立页 -->
   <div class="pg" id="pg-meetings">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div style="font-size:16px;font-weight:800;color:var(--text)">📋 会议记录</div>
-      <button class="fbtn" style="border-color:var(--blue);color:var(--blue)" onclick="openModal();switchForm('meeting')">＋ 新会议</button>
+    <div class="page-hdr">
+      <div class="page-hdr-title">📋 会议记录</div>
     </div>
     <div id="meetingList"></div>
   </div>
 
   <!-- PRODUCTS -->
   <div class="pg" id="pg-products">
+    <div class="page-hdr">
+      <div class="page-hdr-title">🛒 选品库</div>
+    </div>
     <div class="fbar">
       <button class="fbtn on" id="pf-all" onclick="filterProd('all')">全部</button>
       <button class="fbtn" id="pf-TEMU" onclick="filterProd('TEMU')">TEMU</button>
@@ -573,28 +594,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
       </div>
     </div>
     <!-- 快捷工具入口 -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-      <div style="background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;cursor:pointer" onclick="goPage('tasks')">
-        <span style="font-size:24px">✅</span>
-        <div><div style="font-size:13px;font-weight:700">任务管理</div><div style="font-size:11px;color:var(--hint)" id="myTaskCount">-</div></div>
+    <div class="shortcut-grid">
+      <div class="shortcut-item" onclick="goPage('tasks')">
+        <span class="shortcut-icon">✅</span>
+        <div><div class="shortcut-title">任务管理</div><div class="shortcut-sub" id="myTaskCount">-</div></div>
       </div>
-      <div style="background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openModal();switchForm('meeting')">
-        <span style="font-size:24px">📋</span>
-        <div><div style="font-size:13px;font-weight:700">记录会议</div><div style="font-size:11px;color:var(--hint)">点击快速记录</div></div>
+      <div class="shortcut-item" onclick="openModal();switchForm('meeting')">
+        <span class="shortcut-icon">📋</span>
+        <div><div class="shortcut-title">记录会议</div><div class="shortcut-sub">点击快速记录</div></div>
       </div>
-      <div style="background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openAddAct()">
-        <span style="font-size:24px">⚡</span>
-        <div><div style="font-size:13px;font-weight:700">记录动态</div><div style="font-size:11px;color:var(--hint)">快速添加动态</div></div>
+      <div class="shortcut-item" onclick="openAddAct()">
+        <span class="shortcut-icon">⚡</span>
+        <div><div class="shortcut-title">记录动态</div><div class="shortcut-sub">快速添加动态</div></div>
       </div>
-      <div style="background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openModal();switchForm('insight')">
-        <span style="font-size:24px">💡</span>
-        <div><div style="font-size:13px;font-weight:700">记录心得</div><div style="font-size:11px;color:var(--hint)">分享创业思考</div></div>
+      <div class="shortcut-item" onclick="openModal();switchForm('insight')">
+        <span class="shortcut-icon">💡</span>
+        <div><div class="shortcut-title">记录心得</div><div class="shortcut-sub">分享创业思考</div></div>
       </div>
     </div>
     <div class="card">
       <div class="ch">
         <div class="ct">🔑 平台账号</div>
-        <div class="cm" onclick="openModal();switchForm('account')">+ 添加</div>
+        <div class="cm" onclick="openAddAcc()">+ 添加</div>
       </div>
       <div id="accList"></div>
     </div>
@@ -657,7 +678,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
       <button class="tsw-btn" id="ft-product" onclick="switchForm('product')">🛒 选品</button>
       <button class="tsw-btn" id="ft-meeting" onclick="switchForm('meeting')">📋 会议</button>
       <button class="tsw-btn" id="ft-insight" onclick="switchForm('insight')">💡 心得</button>
-      <button class="tsw-btn" id="ft-account" onclick="switchForm('account')">🔑 账号</button>
     </div>
 
     <div id="form-task">
@@ -1337,8 +1357,8 @@ function initApp() {
   document.getElementById('f-m-date').value = now.toISOString().split('T')[0];
   renderAll();
   goPage('home');
-  // 确保 FAB 初始绑定
-  document.getElementById('fab').onclick = openModal;
+  // 确保 FAB 初始绑定（首页 → 添加动态）
+  document.getElementById('fab').onclick = openAddAct;
   fetchDailySoup();
 }
 
@@ -2446,6 +2466,13 @@ function openModal() {
   document.getElementById('modal').classList.add('show');
 }
 
+// 专用：我的页面直接添加平台账号（不显示 tab 切换）
+function openAddAcc() {
+  document.getElementById('tsw').style.display = 'none';
+  switchForm('account');
+  document.getElementById('modal').classList.add('show');
+}
+
 function closeModal() {
   const m = document.getElementById('modal');
   delete m.dataset.editAccId;
@@ -2461,7 +2488,8 @@ function switchForm(type) {
   curForm = type;
   ['task','product','meeting','insight','account'].forEach(t => {
     document.getElementById('form-' + t).style.display = t === type ? 'block' : 'none';
-    document.getElementById('ft-' + t).classList.toggle('on', t === type);
+    const tabEl = document.getElementById('ft-' + t);
+    if (tabEl) tabEl.classList.toggle('on', t === type);
   });
   const tt = { task:'添加任务', product:'添加选品', meeting:'记录会议', insight:'记录心得', account:'添加账号' };
   setEl('modalTitle', tt[type] || '添加');
@@ -2490,14 +2518,20 @@ function goPage(p) {
   if (pg) pg.classList.add('on');
   const bt = document.getElementById('bt-' + p); if (bt) bt.classList.add('on');
   curPage = p;
-  // 游戏账号页：FAB 显示并直接添加账号
+  // FAB 按导航顺序精确绑定
   const fab = document.getElementById('fab');
-  if (p === 'gameacc' && isAdmin()) {
-    fab.style.display = 'flex';
-    fab.onclick = openAddGameAcc;
+  if (!isAdmin()) {
+    fab.style.display = 'none';
   } else {
-    fab.onclick = openModal;
-    fab.style.display = (p === 'profile' || !isAdmin()) ? 'none' : 'flex';
+    const fabMap = {
+      home:     () => { fab.style.display='flex'; fab.onclick = openAddAct; },
+      meetings: () => { fab.style.display='flex'; fab.onclick = () => { openModal(); switchForm('meeting'); }; },
+      tasks:    () => { fab.style.display='flex'; fab.onclick = () => { openModal(); switchForm('task'); }; },
+      products: () => { fab.style.display='flex'; fab.onclick = () => { openModal(); switchForm('product'); }; },
+      gameacc:  () => { fab.style.display='flex'; fab.onclick = openAddGameAcc; },
+      profile:  () => { fab.style.display='none'; },
+    };
+    (fabMap[p] || (() => { fab.style.display='none'; }))();
   }
   applyReadOnly();
 }
@@ -2644,7 +2678,7 @@ function saveRecord() {
   closeModal();
   // 保存后强制推送到云端（不经过确认，因为用户点了「保存并同步」）
   forcePushAndPull();
-  const pm = { task:'tasks', product:'products', meeting:'home', insight:'profile', account:'profile' };
+  const pm = { task:'tasks', product:'products', meeting:'home', insight:'profile' };
   goPage(pm[curForm] || 'home');
 }
 
