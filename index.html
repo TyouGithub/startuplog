@@ -1085,6 +1085,15 @@ function getLocal() {
 function setLocal(d) {
   localStorage.setItem(SYNC_KEY, JSON.stringify(d));
 }
+// 写入云端数据前合并本地默认字段，防止手机首次访问时关键数据丢失
+function mergeAndSetLocal(remote) {
+  if (!remote) return;
+  const def = defaultData();
+  if (!remote.roadmap || !remote.roadmap.length)           remote.roadmap       = def.roadmap;
+  if (!remote.gameAccounts || !remote.gameAccounts.length) remote.gameAccounts  = def.gameAccounts;
+  if (!remote.incomeRecords|| !remote.incomeRecords.length)remote.incomeRecords = def.incomeRecords;
+  setLocal(remote);
+}
 
 // ══════════════════════════════════════════════
 //  云同步核心 — 以服务端 updated_at 为基准
@@ -1116,7 +1125,7 @@ async function pullIfNewer(silent = false) {
   const lastSeen = localStorage.getItem(LAST_SYNC_AT) || '';
   const cloudAt  = result.updatedAt || '';
   if (cloudAt !== lastSeen) {
-    setLocal(result.value);
+    mergeAndSetLocal(result.value);
     localStorage.setItem(LAST_SYNC_AT, cloudAt);
     renderAll();
     if (!silent) toast('☁️ 已更新最新数据');
@@ -1209,7 +1218,7 @@ async function enterApp(uid) {
   try {
     const result = await sbFetch();
     if (result) {
-      setLocal(result.value);
+      mergeAndSetLocal(result.value);
       localStorage.setItem(LAST_SYNC_AT, result.updatedAt || '');
     }
   } catch(e) {}
@@ -1233,7 +1242,7 @@ function login() {
     sbFetch().then(result => {
       if (result && result.value && result.value.users && result.value.users[CU]) {
         if (pw === result.value.users[CU].pwd) {
-          setLocal(result.value);
+          mergeAndSetLocal(result.value);
           localStorage.setItem(LAST_SYNC_AT, result.updatedAt || '');
           localStorage.setItem(SESSION_KEY, CU);
           document.getElementById('pwdIn').value = '';
