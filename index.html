@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>StartupLog · 创业工作台</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --blue:#1677ff;--green:#22c55e;--orange:#f59e0b;--red:#ef4444;--purple:#8b5cf6;
+  --bg:#f1f5f9;--card:#fff;--border:#e2e8f0;--text:#1e293b;--sub:#64748b;--hint:#94a3b8;
+  --r:14px;--shadow:0 1px 8px rgba(0,0,0,0.08);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+
+/* ── 同步状态栏 ── */
+.sync-bar{position:fixed;top:0;left:0;right:0;height:3px;background:transparent;z-index:200;transition:background .3s}
+.sync-bar.syncing{background:linear-gradient(90deg,transparent,var(--blue),transparent);background-size:200% 100%;animation:syncAnim 1.2s infinite}
+.sync-bar.error{background:var(--red)}
+.sync-bar.ok{background:var(--green);animation:fadeBar .8s forwards}
+@keyframes syncAnim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes fadeBar{0%{opacity:1}100%{opacity:0}}
+
+/* ── 离线提示 ── */
+.offline-tip{display:none;background:#fef3c7;border-bottom:1px solid #fcd34d;padding:7px 16px;font-size:12px;color:#92400e;text-align:center}
+.offline-tip.show{display:block}
+
+/* ── LOGIN ── */
+#loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(145deg,#1e3a8a,#1677ff,#7c3aed);padding:20px}
+.lcard{background:#fff;border-radius:24px;padding:36px 28px 32px;width:100%;max-width:360px;box-shadow:0 24px 64px rgba(0,0,0,0.22)}
+.llogo{text-align:center;margin-bottom:28px}
+.llogo .icon{font-size:52px;display:block;margin-bottom:10px}
+.llogo h1{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
+.llogo p{font-size:13px;color:var(--hint);margin-top:4px}
+.ulabel{font-size:12px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.urow{display:flex;gap:10px;margin-bottom:20px}
+.ubtn{flex:1;border:2px solid var(--border);border-radius:12px;padding:14px 8px;text-align:center;cursor:pointer;background:#fff;transition:all .2s;-webkit-user-select:none;user-select:none}
+.ubtn .av{width:40px;height:40px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff}
+.ubtn .nm{font-size:13px;font-weight:700;color:var(--text)}
+.ubtn .rl{font-size:11px;color:var(--hint);margin-top:2px}
+.ubtn.sel{border-color:var(--blue);background:#eff6ff}.ubtn.sel .nm{color:var(--blue)}
+.finp{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:11px;font-size:15px;outline:none;background:#f8fafc;font-family:inherit;color:var(--text);transition:border-color .2s;margin-bottom:14px}
+.finp:focus{border-color:var(--blue);background:#fff}
+.lbtn{width:100%;padding:15px;background:linear-gradient(135deg,#1677ff,#0d47a1);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit}
+.lbtn:active{opacity:.88}
+.lerr{color:var(--red);font-size:12px;text-align:center;margin-top:10px;min-height:18px}
+
+/* ── APP ── */
+#app{display:none;min-height:100vh;padding-bottom:64px;padding-top:3px}
+.hdr{background:linear-gradient(135deg,#1677ff,#0d47a1);position:sticky;top:3px;z-index:50}
+.hdr-in{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+.hdr-brand{font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.hdr-date{font-size:11px;color:rgba(255,255,255,.7);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.sync-icon{font-size:16px;cursor:pointer;opacity:.8}
+.hdr-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;border:2px solid rgba(255,255,255,.45);cursor:pointer}
+.hdr-nm{font-size:13px;color:rgba(255,255,255,.9);font-weight:600}
+
+/* ── BOTTOM NAV ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+.btab{flex:1;padding:8px 4px 10px;text-align:center;cursor:pointer;-webkit-user-select:none;user-select:none}
+.btab .bi{font-size:20px;display:block;margin-bottom:2px}
+.btab .bl{font-size:10px;color:var(--hint);font-weight:500}
+.btab.on .bl{color:var(--blue)}
+
+/* ── PAGES ── */
+.pg{display:none;padding:14px 14px 10px;animation:fi .18s ease}
+.pg.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── CARDS ── */
+.card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.ct{font-size:15px;font-weight:700}
+.cm{font-size:12px;color:var(--blue);cursor:pointer}
+
+/* ── BANNER ── */
+.banner{background:linear-gradient(135deg,#1677ff,#7c3aed);border-radius:var(--r);padding:20px;margin-bottom:12px;color:#fff}
+.banner h2{font-size:17px;font-weight:800;margin-bottom:5px}
+.banner p{font-size:13px;opacity:.85;line-height:1.55}
+.tag{display:inline-block;background:rgba(255,255,255,.18);border-radius:20px;padding:3px 10px;font-size:11px;margin-top:8px;margin-right:5px}
+
+/* ── STATS ── */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.scard{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);text-align:center}
+.snum{font-size:26px;font-weight:800;line-height:1;margin-bottom:4px}
+.slb{font-size:11px;color:var(--hint)}
+
+/* ── PROGRESS ── */
+.pbar{background:#f0f4f8;border-radius:10px;height:7px;overflow:hidden;margin-top:6px}
+.pfill{height:100%;border-radius:10px;background:linear-gradient(90deg,#1677ff,#22c55e);transition:width .5s}
+
+/* ── TIMELINE ── */
+.tl{padding-left:22px;position:relative}
+.tl::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:var(--border)}
+.tli{position:relative;margin-bottom:14px}
+.tldot{position:absolute;left:-20px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--blue);border:2px solid #fff;box-shadow:0 0 0 2px var(--blue)}
+.tldot.g{background:var(--green);box-shadow:0 0 0 2px var(--green)}
+.tldot.o{background:var(--orange);box-shadow:0 0 0 2px var(--orange)}
+.tldot.p{background:var(--purple);box-shadow:0 0 0 2px var(--purple)}
+.tlt{font-size:11px;color:var(--hint);margin-bottom:3px}
+.tlc{font-size:13px;color:var(--text);line-height:1.5}
+
+/* ── TASK ── */
+.titem{display:flex;align-items:flex-start;gap:11px;padding:12px 0;border-bottom:1px solid #f5f7fa}
+.titem:last-child{border-bottom:none}
+.tchk{width:22px;height:22px;border:2px solid var(--border);border-radius:50%;cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .2s}
+.tchk.doing{background:var(--orange);border-color:var(--orange);color:#fff}
+.tchk.done{background:var(--green);border-color:var(--green);color:#fff}
+.tcon{flex:1;min-width:0}
+.ttl{font-size:14px;font-weight:500;margin-bottom:4px;line-height:1.4}
+.ttl.stk{text-decoration:line-through;color:var(--hint)}
+.tmeta{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.del-btn{background:none;border:none;font-size:15px;cursor:pointer;padding:4px;border-radius:6px;line-height:1;opacity:.45}
+.del-btn:active{opacity:1;background:#fee2e2}
+
+/* ── BADGE ── */
+.bdg{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.b-todo{background:#f1f5f9;color:var(--hint)}
+.b-doing{background:#fef3c7;color:#d97706}
+.b-done{background:#dcfce7;color:#16a34a}
+.b-blue{background:#dbeafe;color:#1d4ed8}
+.b-purple{background:#ede9fe;color:#7c3aed}
+
+/* ── MEETING ── */
+.mcard{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);border-left:4px solid var(--blue)}
+.mt{font-size:15px;font-weight:700}
+.mtime{font-size:12px;color:var(--hint);margin-top:3px}
+.mdur{background:#dbeafe;color:#1d4ed8;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;margin-left:8px;flex-shrink:0}
+.msec-t{font-size:11px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.5px;margin:10px 0 5px}
+.msec-p{font-size:13px;color:var(--text);line-height:1.65}
+.blist{padding-left:14px}
+.blist li{font-size:13px;color:var(--text);padding:2px 0;line-height:1.5}
+
+/* ── INSIGHT ── */
+.icard{background:#faf5ff;border:1px solid #e9d5ff;border-radius:var(--r);padding:16px;margin-bottom:12px}
+.ihead{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.iav{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
+.iau{font-size:13px;font-weight:700}
+.iac{font-size:11px;color:var(--hint);margin-top:2px}
+.ico{font-size:13px;color:var(--text);line-height:1.7}
+
+/* ── PRODUCT ── */
+.pcard{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.pcard-h{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.pimg{width:56px;height:56px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.pname{font-size:15px;font-weight:700;margin-bottom:4px}
+.pcat{font-size:12px;color:var(--hint)}
+.prow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.pfield{background:#f8fafc;border-radius:8px;padding:9px 11px}
+.pflab{font-size:11px;color:var(--hint);margin-bottom:2px;font-weight:600}
+.pfval{font-size:13px;font-weight:700;color:var(--text)}
+.pfval.green{color:#16a34a}
+.pfval.orange{color:#d97706}
+.pfval.red{color:#dc2626}
+.pfull{background:#f8fafc;border-radius:8px;padding:9px 11px;margin-bottom:8px}
+
+/* ── ACCOUNT ── */
+.accard{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.achead{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.acicon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.acname{font-size:15px;font-weight:700}
+.acurl{font-size:12px;color:var(--hint);margin-top:2px}
+.acrow{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f7fa}
+.acrow:last-child{border-bottom:none}
+.aclb{font-size:12px;color:var(--hint);font-weight:600;flex-shrink:0}
+.acval{font-size:13px;font-weight:600;color:var(--text);font-family:monospace;word-break:break-all;text-align:right;max-width:55%}
+.copy-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;color:var(--sub);font-family:inherit;margin-left:6px;flex-shrink:0}
+.copy-btn:active{background:#eff6ff;border-color:var(--blue);color:var(--blue)}
+.eye-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:2px 4px;opacity:.5;flex-shrink:0}
+
+/* ── PROFILE ── */
+.pf-card{background:linear-gradient(135deg,#1677ff,#7c3aed);border-radius:var(--r);padding:22px;margin-bottom:12px;color:#fff;display:flex;align-items:center;gap:14px}
+.pf-av{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;border:3px solid rgba(255,255,255,.35);flex-shrink:0}
+.pf-nm{font-size:18px;font-weight:800;margin-bottom:3px}
+.pf-rl{font-size:13px;opacity:.8}
+
+/* ── FAB ── */
+.fab{position:fixed;bottom:74px;right:16px;width:52px;height:52px;background:linear-gradient(135deg,#1677ff,#0d47a1);color:#fff;border:none;border-radius:50%;font-size:26px;cursor:pointer;box-shadow:0 4px 16px rgba(22,119,255,.42);display:flex;align-items:center;justify-content:center;z-index:49;transition:transform .15s}
+.fab:active{transform:scale(.9)}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:100;align-items:flex-end}
+.overlay.show{display:flex}
+.sheet{background:#fff;border-radius:22px 22px 0 0;padding:18px 18px 36px;width:100%;max-height:88vh;overflow-y:auto}
+.handle{width:38px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 14px}
+.stitle{font-size:17px;font-weight:800;margin-bottom:18px}
+.frow{margin-bottom:13px}
+.frow label{display:block;font-size:11px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.frow input,.frow select,.frow textarea{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:#f8fafc;color:var(--text);transition:border-color .2s}
+.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--blue);background:#fff}
+.frow textarea{resize:vertical;min-height:78px;line-height:1.5}
+.frow2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mact{display:flex;gap:10px;margin-top:18px}
+.btn{flex:1;padding:13px;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn:active{opacity:.82}
+.btn-p{background:linear-gradient(135deg,#1677ff,#0d47a1);color:#fff}
+.btn-c{background:#f1f5f9;color:var(--sub)}
+
+/* ── TYPE SWITCHER ── */
+.tsw{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap}
+.tsw-btn{padding:7px 15px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--sub);font-family:inherit;transition:all .15s}
+.tsw-btn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* ── FILTER ── */
+.fbar{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.fbar::-webkit-scrollbar{display:none}
+.fbtn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--sub);white-space:nowrap;font-family:inherit;transition:all .15s}
+.fbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:40px 20px;color:var(--hint)}
+.empty .ei{font-size:44px;margin-bottom:10px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,.85);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:300;pointer-events:none;animation:tfi .25s ease;white-space:nowrap}
+@keyframes tfi{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* ── LOADING ── */
+.loading-screen{position:fixed;inset:0;background:linear-gradient(145deg,#1e3a8a,#1677ff,#7c3aed);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;color:#fff}
+.loading-screen .spin{font-size:52px;animation:spin 1.5s linear infinite;margin-bottom:16px}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.loading-screen p{font-size:14px;opacity:.8}
+</style>
+</head>
+<body>
+
+<div class="sync-bar" id="syncBar"></div>
+
+<!-- 离线提示 -->
+<div class="offline-tip" id="offlineTip">⚠️ 当前离线，数据将在恢复网络后自动同步</div>
+
+<!-- 加载屏 -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="spin">🚀</div>
+  <p>正在连接云端数据库...</p>
+</div>
+
+<!-- LOGIN -->
+<div id="loginPage" style="display:none">
+  <div class="lcard">
+    <div class="llogo">
+      <span class="icon">🚀</span>
+      <h1>StartupLog</h1>
+      <p>佳硕 & 一新 · 共创工作台</p>
+    </div>
+    <div class="ulabel">选择身份</div>
+    <div class="urow">
+      <div class="ubtn sel" id="ubtn-jiashuo" onclick="selUser('jiashuo')">
+        <div class="av" style="background:linear-gradient(135deg,#1677ff,#0d47a1)">佳</div>
+        <div class="nm">佳硕</div><div class="rl">创始人</div>
+      </div>
+      <div class="ubtn" id="ubtn-yixin" onclick="selUser('yixin')">
+        <div class="av" style="background:linear-gradient(135deg,#7c3aed,#db2777)">新</div>
+        <div class="nm">一新</div><div class="rl">联合创始人</div>
+      </div>
+    </div>
+    <input class="finp" type="password" id="pwdIn" placeholder="输入密码" onkeydown="if(event.key==='Enter')login()"/>
+    <button class="lbtn" onclick="login()">进入工作台</button>
+    <div class="lerr" id="lerr"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-in">
+      <div>
+        <div class="hdr-brand">🚀 StartupLog</div>
+        <div class="hdr-date" id="hdrDate"></div>
+      </div>
+      <div class="hdr-right">
+        <span class="sync-icon" id="syncIcon" onclick="syncNow()" title="手动同步">☁️</span>
+        <div style="display:flex;align-items:center;gap:7px;cursor:pointer" onclick="goPage('profile')">
+          <div class="hdr-av" id="hdrAv"></div>
+          <div class="hdr-nm" id="hdrNm"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="pg on" id="pg-home">
+    <div class="banner">
+      <h2 id="bnrTitle">你好 👋</h2>
+      <p>今天是 <span id="bnrDate"></span>，继续加油！</p>
+      <span class="tag">🛒 TEMU</span><span class="tag">🏸 羽毛球手胶</span><span class="tag">🌏 跨境电商</span>
+    </div>
+    <div class="sgrid">
+      <div class="scard"><div class="snum" style="color:var(--blue)" id="sOpen">-</div><div class="slb">待完成任务</div></div>
+      <div class="scard"><div class="snum" style="color:var(--green)" id="sDone">-</div><div class="slb">已完成任务</div></div>
+      <div class="scard"><div class="snum" style="color:var(--orange)" id="sProd">-</div><div class="slb">在售商品</div></div>
+      <div class="scard"><div class="snum" style="color:var(--purple)" id="sProfit">-</div><div class="slb">月利润预估</div></div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">📈 今日完成进度</div><div id="pctLb" style="font-size:13px;color:var(--hint);font-weight:700">0%</div></div>
+      <div class="pbar"><div class="pfill" id="pfill" style="width:0%"></div></div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">⚡ 最近动态</div><div class="cm" id="syncStatus" style="font-size:11px"></div></div>
+      <div class="tl" id="actList"></div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">🔥 进行中任务</div><div class="cm" onclick="goPage('tasks')">全部 →</div></div>
+      <div id="homeTasks"></div>
+    </div>
+  </div>
+
+  <!-- TASKS -->
+  <div class="pg" id="pg-tasks">
+    <div class="fbar">
+      <button class="fbtn on" id="tf-all" onclick="filterTask('all')">全部</button>
+      <button class="fbtn" id="tf-todo" onclick="filterTask('todo')">待处理</button>
+      <button class="fbtn" id="tf-doing" onclick="filterTask('doing')">进行中</button>
+      <button class="fbtn" id="tf-done" onclick="filterTask('done')">已完成</button>
+    </div>
+    <div class="card"><div id="taskList"></div></div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="pg" id="pg-products">
+    <div class="fbar">
+      <button class="fbtn on" id="pf-all" onclick="filterProd('all')">全部</button>
+      <button class="fbtn" id="pf-TEMU" onclick="filterProd('TEMU')">TEMU</button>
+      <button class="fbtn" id="pf-亚马逊" onclick="filterProd('亚马逊')">亚马逊</button>
+    </div>
+    <div id="prodList"></div>
+  </div>
+
+  <!-- ACCOUNTS -->
+  <div class="pg" id="pg-accounts">
+    <div id="accList"></div>
+    <div style="text-align:center;margin-top:8px">
+      <button class="fbtn" onclick="openModal();switchForm('account')" style="border-color:var(--blue);color:var(--blue)">＋ 添加平台账号</button>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="pg" id="pg-profile">
+    <div class="pf-card">
+      <div class="pf-av" id="pfAv"></div>
+      <div>
+        <div class="pf-nm" id="pfNm"></div>
+        <div class="pf-rl" id="pfRl"></div>
+        <div style="font-size:12px;opacity:.7;margin-top:3px">与搭档共同创业中 ☁️ 数据云端同步</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct" style="margin-bottom:12px">🌏 创业路线</div>
+      <div class="tl">
+        <div class="tli"><div class="tldot g"></div><div class="tlt">当前重点</div><div class="tlc">TEMU 跨境电商 · 羽毛球手胶</div></div>
+        <div class="tli"><div class="tldot o"></div><div class="tlt">规划中</div><div class="tlc">亚马逊平台拓展 · 多品类扩展</div></div>
+        <div class="tli"><div class="tldot p"></div><div class="tlt">工具赋能</div><div class="tlc">WorkBuddy AI 工具提效</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct" style="margin-bottom:12px">🔐 修改密码</div>
+      <div class="frow"><label>新密码（6位以上）</label><input type="password" id="npwd" placeholder="输入新密码"/></div>
+      <div class="frow"><label>确认密码</label><input type="password" id="cpwd" placeholder="再次确认"/></div>
+      <button class="btn btn-p" style="width:100%;margin-top:4px" onclick="changePwd()">更新密码</button>
+    </div>
+    <div style="background:#fff;border-radius:var(--r);padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow)">
+      <div class="ct" style="margin-bottom:10px">☁️ 同步状态</div>
+      <div style="font-size:13px;color:var(--sub)" id="lastSyncTime">上次同步：-</div>
+      <button class="btn btn-p" style="width:100%;margin-top:12px" onclick="syncNow()">立即同步</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#fff5f5;border:1px solid #fecaca;border-radius:var(--r);padding:14px 16px;cursor:pointer;margin-bottom:12px" onclick="logout()">
+      <span style="font-size:18px">🚪</span><span style="color:var(--red);font-weight:600;font-size:14px">退出登录</span>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <div class="btab on" id="bt-home" onclick="goPage('home')"><span class="bi">🏠</span><span class="bl">首页</span></div>
+    <div class="btab" id="bt-tasks" onclick="goPage('tasks')"><span class="bi">✅</span><span class="bl">任务</span></div>
+    <div class="btab" id="bt-products" onclick="goPage('products')"><span class="bi">🛒</span><span class="bl">选品库</span></div>
+    <div class="btab" id="bt-accounts" onclick="goPage('accounts')"><span class="bi">🔑</span><span class="bl">账号</span></div>
+    <div class="btab" id="bt-profile" onclick="goPage('profile')"><span class="bi">👤</span><span class="bl">我的</span></div>
+  </div>
+  <button class="fab" id="fab" onclick="openModal()">＋</button>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="stitle" id="modalTitle">添加记录</div>
+    <div class="tsw" id="tsw">
+      <button class="tsw-btn on" id="ft-task" onclick="switchForm('task')">✅ 任务</button>
+      <button class="tsw-btn" id="ft-product" onclick="switchForm('product')">🛒 选品</button>
+      <button class="tsw-btn" id="ft-meeting" onclick="switchForm('meeting')">📋 会议</button>
+      <button class="tsw-btn" id="ft-insight" onclick="switchForm('insight')">💡 心得</button>
+      <button class="tsw-btn" id="ft-account" onclick="switchForm('account')">🔑 账号</button>
+    </div>
+
+    <div id="form-task">
+      <div class="frow"><label>任务名称 *</label><input id="f-t-title" placeholder="描述这个任务..."/></div>
+      <div class="frow2">
+        <div class="frow" style="margin:0"><label>分类</label>
+          <select id="f-t-cat"><option>TEMU选品</option><option>亚马逊</option><option>WorkBuddy</option><option>产品运营</option><option>其他</option></select>
+        </div>
+        <div class="frow" style="margin:0"><label>负责人</label>
+          <select id="f-t-owner"><option>佳硕</option><option>一新</option><option>共同</option></select>
+        </div>
+      </div>
+      <div class="frow"><label>状态</label>
+        <select id="f-t-status"><option value="todo">待处理</option><option value="doing">进行中</option><option value="done">已完成</option></select>
+      </div>
+      <div class="frow"><label>备注</label><textarea id="f-t-note" placeholder="补充说明..."></textarea></div>
+    </div>
+
+    <div id="form-product" style="display:none">
+      <div class="frow"><label>商品名称 *</label><input id="f-p-name" placeholder="如：羽毛球手胶（黑色款）"/></div>
+      <div class="frow2">
+        <div class="frow" style="margin:0"><label>平台</label>
+          <select id="f-p-platform"><option>TEMU</option><option>亚马逊</option><option>速卖通</option><option>其他</option></select>
+        </div>
+        <div class="frow" style="margin:0"><label>状态</label>
+          <select id="f-p-status"><option value="选品中">选品中</option><option value="备货中">备货中</option><option value="在售">在售</option><option value="下架">下架</option></select>
+        </div>
+      </div>
+      <div class="frow2">
+        <div class="frow" style="margin:0"><label>采购价(¥)</label><input id="f-p-cost" type="number" placeholder="0.00" step="0.01"/></div>
+        <div class="frow" style="margin:0"><label>定价(¥)</label><input id="f-p-price" type="number" placeholder="0.00" step="0.01"/></div>
+      </div>
+      <div class="frow2">
+        <div class="frow" style="margin:0"><label>月销量(件)</label><input id="f-p-sales" type="number" placeholder="0"/></div>
+        <div class="frow" style="margin:0"><label>退款率(%)</label><input id="f-p-refund" type="number" placeholder="0" step="0.1"/></div>
+      </div>
+      <div class="frow"><label>商品链接</label><input id="f-p-url" placeholder="https://..."/></div>
+      <div class="frow"><label>备注 / 选品理由</label><textarea id="f-p-note" placeholder="为什么选这个品？竞品分析、差异化..."></textarea></div>
+    </div>
+
+    <div id="form-meeting" style="display:none">
+      <div class="frow"><label>会议主题 *</label><input id="f-m-title" placeholder="会议主题..."/></div>
+      <div class="frow2">
+        <div class="frow" style="margin:0"><label>平台</label><input id="f-m-platform" placeholder="腾讯视频..."/></div>
+        <div class="frow" style="margin:0"><label>时间段</label><input id="f-m-dur" placeholder="09:00-10:30"/></div>
+      </div>
+      <div class="frow"><label>日期</label><input id="f-m-date" type="date"/></div>
+      <div class="frow"><label>会议议题（每行一条）</label><textarea id="f-m-topics" placeholder="议题1&#10;议题2&#10;..."></textarea></div>
+      <div class="frow"><label>结论 / 行动项</label><textarea id="f-m-conclusion" placeholder="达成的共识或下一步..."></textarea></div>
+    </div>
+
+    <div id="form-insight" style="display:none">
+      <div class="frow"><label>标题 *</label><input id="f-i-title" placeholder="心得主题..."/></div>
+      <div class="frow"><label>分类</label>
+        <select id="f-i-cat"><option>WorkBuddy使用</option><option>TEMU选品</option><option>亚马逊运营</option><option>产品方向</option><option>创业感悟</option></select>
+      </div>
+      <div class="frow"><label>内容 *</label><textarea id="f-i-content" placeholder="记录你的思考..." style="min-height:110px"></textarea></div>
+    </div>
+
+    <div id="form-account" style="display:none">
+      <div class="frow"><label>平台名称 *</label><input id="f-a-name" placeholder="如：TEMU卖家后台"/></div>
+      <div class="frow"><label>平台网址</label><input id="f-a-url" placeholder="https://..."/></div>
+      <div class="frow"><label>账号 / 邮箱 *</label><input id="f-a-user" placeholder="登录账号..."/></div>
+      <div class="frow"><label>密码 *</label><input id="f-a-pwd" type="password" placeholder="密码..."/></div>
+      <div class="frow"><label>备注</label><input id="f-a-note" placeholder="补充信息..."/></div>
+    </div>
+
+    <div class="mact">
+      <button class="btn btn-c" onclick="closeModal()">取消</button>
+      <button class="btn btn-p" onclick="saveRecord()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  Supabase 云同步配置
+// ══════════════════════════════════════════════
+const SB_URL  = 'https://kgyregrnrppqkdjhexzs.supabase.co';
+const SB_KEY  = 'sb_publishable_w6tzS-2wUL0xySdIMRZQyA_r08-4TPY';
+const SB_HDR  = { 'Content-Type':'application/json', 'apikey': SB_KEY, 'Authorization':'Bearer '+SB_KEY };
+
+// Supabase REST helpers
+async function sbGet(key) {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/store?key=eq.${encodeURIComponent(key)}&select=value`, { headers: SB_HDR });
+    const j = await r.json();
+    return (j && j[0]) ? j[0].value : null;
+  } catch(e) { return null; }
+}
+async function sbSet(key, value) {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/store`, {
+      method: 'POST',
+      headers: { ...SB_HDR, 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({ key, value, updated_at: new Date().toISOString() })
+    });
+    return r.ok || r.status === 201;
+  } catch(e) { return false; }
+}
+
+const SYNC_KEY = 'sl_v5';       // localStorage key
+const DB_KEY   = 'startuplog';  // Supabase store key
+let syncTimer  = null;
+let lastSyncTs = 0;
+let isOnline   = navigator.onLine;
+let pendingSync = false;
+let isSyncing  = false;
+
+window.addEventListener('online',  () => { isOnline = true;  document.getElementById('offlineTip').classList.remove('show'); if(pendingSync) doSync(); });
+window.addEventListener('offline', () => { isOnline = false; document.getElementById('offlineTip').classList.add('show'); });
+
+// ══════════════════════════════════════════════
+//  数据默认值
+// ══════════════════════════════════════════════
+function defaultData() {
+  const today = '2026-03-14';
+  return {
+    _v: Date.now(),
+    users: {
+      jiashuo: { name:'佳硕', role:'创始人', pwd:'5201314', color:'#1677ff' },
+      yixin:   { name:'一新', role:'联合创始人', pwd:'5201314', color:'#7c3aed' }
+    },
+    tasks: [
+      {id:'t1',title:'完成羽毛球手胶第一个产品上架',cat:'TEMU选品',owner:'共同',status:'doing',note:'首个产品，主攻图片和标题关键词',date:today,by:'jiashuo'},
+      {id:'t2',title:'TEMU卖家账号注册完成',cat:'TEMU选品',owner:'佳硕',status:'done',note:'',date:today,by:'jiashuo'},
+      {id:'t3',title:'研究TEMU选品方法论与竞品分析',cat:'TEMU选品',owner:'共同',status:'todo',note:'',date:today,by:'jiashuo'},
+      {id:'t4',title:'了解亚马逊开店流程和资质要求',cat:'亚马逊',owner:'一新',status:'todo',note:'为下一阶段做准备',date:today,by:'yixin'},
+      {id:'t5',title:'制定跨境电商Q2执行计划',cat:'其他',owner:'共同',status:'todo',note:'',date:today,by:'jiashuo'}
+    ],
+    products: [
+      {id:'p1',name:'羽毛球手胶（黑色3条装）',platform:'TEMU',status:'在售',cost:3.5,price:12.9,sales:0,refund:0,url:'',note:'首选品，标准化高，物流费低，复购率高。差异化：3条装性价比包装。',date:today,by:'jiashuo'}
+    ],
+    meetings: [
+      {id:'m1',title:'创业对齐会 #001',platform:'腾讯视频',duration:'09:00 - 10:30',date:'2026-03-14',topics:['WorkBuddy工具使用心得分享','TEMU选品策略讨论','羽毛球手胶方向确认','第一个产品发布计划'],conclusion:'确定首选品为羽毛球手胶，本周完成TEMU首品上架；佳硕分享WorkBuddy使用心得；后续持续关注跨境机会，逐步拓展亚马逊。',by:'jiashuo'}
+    ],
+    insights: [
+      {id:'i1',title:'WorkBuddy 使用心得',cat:'WorkBuddy使用',content:'WorkBuddy在日常创业中能大幅提效，无论是选品分析、文案生成还是代码开发。关键在于把需求清晰表达给AI。建议每天用它整理工作日志，梳理思路。',author:'jiashuo',date:today},
+      {id:'i2',title:'TEMU选品心得：羽毛球手胶',cat:'TEMU选品',content:'羽毛球手胶切入优势：标准化高、体积小物流费低、运动品类需求稳定、竞争相对分散。图片要专业，标题关键词「羽毛球手胶 防滑 吸汗」要精准，首批备货不要太多，跑通流程为主。',author:'jiashuo',date:today}
+    ],
+    accounts: [
+      {id:'a1',name:'TEMU卖家后台',url:'https://seller.temu.com',user:'待填写',pwd:'待填写',note:'跨境电商主平台',by:'jiashuo'}
+    ],
+    activities: [
+      {time:'2026-03-14 09:00',text:'腾讯视频召开创业对齐会议（09:00-10:30）',type:'b'},
+      {time:'2026-03-14 10:30',text:'确定羽毛球手胶为TEMU首发品类',type:'g'},
+      {time:'2026-03-14 11:00',text:'佳硕完成TEMU卖家账号注册',type:'g'},
+      {time:'2026-03-14 14:00',text:'开始准备第一个产品上架材料',type:'o'}
+    ]
+  };
+}
+
+// ══════════════════════════════════════════════
+//  本地存储
+// ══════════════════════════════════════════════
+function getLocal() {
+  try { return JSON.parse(localStorage.getItem(SYNC_KEY)) || defaultData(); } catch(e) { return defaultData(); }
+}
+function setLocal(d) {
+  d._v = Date.now();
+  localStorage.setItem(SYNC_KEY, JSON.stringify(d));
+}
+
+// ══════════════════════════════════════════════
+//  云同步 — Supabase
+// ══════════════════════════════════════════════
+function mergeData(local, remote) {
+  if (!remote) return local;
+  const base = remote._v >= local._v ? { ...remote } : { ...local };
+  ['tasks','products','meetings','insights','accounts','activities'].forEach(key => {
+    const lArr = local[key] || [], rArr = remote[key] || [];
+    const map = {};
+    [...rArr, ...lArr].forEach(item => { if(item && item.id) map[item.id] = item; });
+    base[key] = Object.values(map);
+    // activities 保持时间倒序，限制20条
+    if (key === 'activities') base[key] = base[key].sort((a,b)=>b.time>a.time?1:-1).slice(0,20);
+  });
+  // 用户密码：版本更新的优先
+  base.users = local._v >= remote._v ? local.users : remote.users;
+  return base;
+}
+
+async function doSync(isWrite = false) {
+  if (!isOnline) { pendingSync = true; return; }
+  if (isSyncing) return;
+  isSyncing = true;
+  setSyncBar('syncing');
+  try {
+    if (isWrite) {
+      // 先拉远端，合并后推上去
+      const remote = await sbGet(DB_KEY);
+      const local  = getLocal();
+      const merged = mergeData(local, remote);
+      setLocal(merged);
+      await sbSet(DB_KEY, merged);
+    } else {
+      // 只拉取
+      const remote = await sbGet(DB_KEY);
+      if (remote) {
+        const local = getLocal();
+        if (remote._v > local._v) {
+          const merged = mergeData(local, remote);
+          setLocal(merged);
+          renderAll();
+          toast('☁️ 已更新对方的最新数据');
+        }
+      } else {
+        // 远端没有数据，把本地数据推上去（初次使用）
+        await sbSet(DB_KEY, getLocal());
+        toast('☁️ 数据已上传云端');
+      }
+    }
+    setSyncBar('ok');
+    updateSyncTime();
+    pendingSync = false;
+  } catch(e) {
+    setSyncBar('error');
+    console.error('Sync error:', e);
+  } finally {
+    isSyncing = false;
+  }
+}
+
+function setSyncBar(state) {
+  const bar  = document.getElementById('syncBar');
+  const icon = document.getElementById('syncIcon');
+  bar.className = 'sync-bar ' + state;
+  if (state === 'syncing') icon.textContent = '🔄';
+  else if (state === 'ok')    { icon.textContent = '☁️'; setTimeout(() => bar.className='sync-bar', 2000); }
+  else if (state === 'error') { icon.textContent = '⚠️'; setTimeout(() => bar.className='sync-bar', 3000); }
+}
+
+function updateSyncTime() {
+  lastSyncTs = Date.now();
+  const d = new Date(lastSyncTs);
+  const t = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  const el = document.getElementById('lastSyncTime');
+  if (el) el.textContent = '上次同步：今天 ' + t;
+  const ss = document.getElementById('syncStatus');
+  if (ss) ss.textContent = '同步于 ' + t;
+}
+
+async function syncNow() { await doSync(false); toast('同步中...'); }
+
+// 定时轮询（每20秒自动拉取一次）
+function startAutoSync() {
+  if (syncTimer) clearInterval(syncTimer);
+  syncTimer = setInterval(() => doSync(false), 20000);
+}
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let CU = null, curPage = 'home', taskFilter = 'all', prodFilter = 'all', curForm = 'task';
+
+// ══════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════
+function selUser(uid) {
+  CU = uid;
+  document.querySelectorAll('.ubtn').forEach(b => b.classList.remove('sel'));
+  document.getElementById('ubtn-' + uid).classList.add('sel');
+  document.getElementById('lerr').textContent = '';
+}
+selUser('jiashuo');
+
+function login() {
+  if (!CU) { document.getElementById('lerr').textContent = '请选择身份'; return; }
+  const pw = document.getElementById('pwdIn').value;
+  const store = getLocal();
+  if (pw === store.users[CU].pwd) {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('pwdIn').value = '';
+    document.getElementById('lerr').textContent = '';
+    initApp();
+    // 登录后立即同步
+    doSync(false);
+    startAutoSync();
+  } else {
+    document.getElementById('lerr').textContent = '密码错误，请重试';
+    document.getElementById('pwdIn').value = '';
+  }
+}
+
+function logout() {
+  if (!confirm('确定退出？')) return;
+  if (syncTimer) clearInterval(syncTimer);
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+  CU = null; selUser('jiashuo');
+}
+
+function changePwd() {
+  const np = document.getElementById('npwd').value;
+  const cp = document.getElementById('cpwd').value;
+  if (!np || np.length < 6) { toast('密码至少6位'); return; }
+  if (np !== cp) { toast('两次密码不一致'); return; }
+  const s = getLocal(); s.users[CU].pwd = np; setLocal(s);
+  document.getElementById('npwd').value = '';
+  document.getElementById('cpwd').value = '';
+  doSync(true);
+  toast('密码已更新 ✓');
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+async function initApp() {
+  const s = getLocal(), u = s.users[CU];
+  const init = u.name.charAt(0);
+
+  setEl('hdrAv', init); document.getElementById('hdrAv').style.background = u.color;
+  setEl('hdrNm', u.name);
+
+  const now = new Date();
+  const days = ['周日','周一','周二','周三','周四','周五','周六'];
+  setEl('hdrDate', `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 ${days[now.getDay()]}`);
+
+  const h = now.getHours();
+  const greet = h < 12 ? '早上好' : h < 18 ? '下午好' : '晚上好';
+  setEl('bnrTitle', `${greet}，${u.name} 👋`);
+  setEl('bnrDate', `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`);
+  setEl('pfAv', init); document.getElementById('pfAv').style.background = u.color;
+  setEl('pfNm', u.name); setEl('pfRl', u.role);
+
+  document.getElementById('f-m-date').value = now.toISOString().split('T')[0];
+  renderAll();
+  goPage('home');
+}
+
+function setEl(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
+
+function renderAll() {
+  renderStats(); renderActs(); renderHomeTasks();
+  renderTaskList(); renderProdList(); renderAccList();
+}
+
+// ══════════════════════════════════════════════
+//  STATS
+// ══════════════════════════════════════════════
+function renderStats() {
+  const s = getLocal();
+  const open = s.tasks.filter(t => t.status !== 'done').length;
+  const done = s.tasks.filter(t => t.status === 'done').length;
+  const total = s.tasks.length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  const profit = s.products.filter(p => p.status === '在售').reduce((acc, p) => {
+    return acc + (p.price - p.cost) * (p.sales || 0) * (1 - (p.refund || 0) / 100);
+  }, 0);
+
+  setEl('sOpen', open); setEl('sDone', done);
+  setEl('sProd', s.products.filter(p => p.status === '在售').length);
+  document.getElementById('sProfit').textContent = '¥' + Math.round(profit);
+  setEl('pctLb', pct + '%');
+  document.getElementById('pfill').style.width = pct + '%';
+}
+
+// ══════════════════════════════════════════════
+//  ACTIVITIES
+// ══════════════════════════════════════════════
+function fmtTime(raw) {
+  if (!raw) return '';
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const m = raw.match(/^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})$/);
+  if (m) {
+    if (m[1] === todayStr) return '今天 ' + m[2];
+    const p = m[1].split('-');
+    return `${parseInt(p[1])}月${parseInt(p[2])}日 ${m[2]}`;
+  }
+  return raw;
+}
+
+function renderActs() {
+  const s = getLocal();
+  const el = document.getElementById('actList');
+  if (!s.activities.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态</div>'; return; }
+  const map = { b: '', g: 'g', o: 'o', p: 'p' };
+  el.innerHTML = s.activities.slice(0, 6).map(a => `
+    <div class="tli"><div class="tldot ${map[a.type]||''}"></div>
+    <div class="tlt">${fmtTime(a.time)}</div><div class="tlc">${a.text}</div></div>`).join('');
+}
+
+function renderHomeTasks() {
+  const s = getLocal();
+  const list = s.tasks.filter(t => t.status !== 'done').slice(0, 4);
+  const el = document.getElementById('homeTasks');
+  if (!list.length) { el.innerHTML = '<div class="empty"><div class="ei">🎉</div>所有任务已完成！</div>'; return; }
+  el.innerHTML = list.map(t => taskHTML(t, true)).join('');
+}
+
+// ══════════════════════════════════════════════
+//  TASKS
+// ══════════════════════════════════════════════
+function taskHTML(t, compact) {
+  const sc = { todo: '', doing: 'doing', done: 'done' };
+  const si = { todo: '', doing: '⏳', done: '✓' };
+  const bc = { todo: 'b-todo', doing: 'b-doing', done: 'b-done' };
+  const sl = { todo: '待处理', doing: '进行中', done: '已完成' };
+  return `<div class="titem">
+    <div class="tchk ${sc[t.status]}" onclick="cycleTask('${t.id}')">${si[t.status]}</div>
+    <div class="tcon">
+      <div class="ttl ${t.status==='done'?'stk':''}">${t.title}</div>
+      <div class="tmeta">
+        <span class="bdg ${bc[t.status]}">${sl[t.status]}</span>
+        <span class="bdg b-blue">${t.cat}</span>
+        <span style="font-size:11px;color:var(--hint)">@${t.owner}</span>
+      </div>
+      ${t.note ? `<div style="font-size:12px;color:var(--hint);margin-top:4px">${t.note}</div>` : ''}
+    </div>
+    ${!compact ? `<button class="del-btn" onclick="delTask('${t.id}')">🗑</button>` : ''}
+  </div>`;
+}
+
+function renderTaskList() {
+  const s = getLocal();
+  let list = s.tasks;
+  if (taskFilter !== 'all') list = list.filter(t => t.status === taskFilter);
+  const el = document.getElementById('taskList');
+  if (!list.length) { el.innerHTML = '<div class="empty"><div class="ei">📭</div>暂无任务</div>'; return; }
+  el.innerHTML = list.map(t => taskHTML(t, false)).join('');
+}
+
+function filterTask(f) {
+  taskFilter = f;
+  ['all','todo','doing','done'].forEach(k => document.getElementById('tf-'+k).classList.toggle('on', k===f));
+  renderTaskList();
+}
+
+function cycleTask(id) {
+  const s = getLocal(), t = s.tasks.find(x => x.id === id); if (!t) return;
+  const cyc = { todo: 'doing', doing: 'done', done: 'todo' };
+  t.status = cyc[t.status];
+  const lb = { todo: '重置为待处理', doing: '开始进行', done: '标记完成' };
+  addAct(`「${t.title}」${lb[t.status]}`, t.status === 'done' ? 'g' : 'o');
+  setLocal(s); renderAll();
+  doSync(true);
+  toast(t.status === 'done' ? '任务完成 🎉' : t.status === 'doing' ? '进行中' : '已重置');
+}
+
+function delTask(id) {
+  if (!confirm('删除此任务？')) return;
+  const s = getLocal(); s.tasks = s.tasks.filter(t => t.id !== id);
+  setLocal(s); renderAll(); doSync(true); toast('已删除');
+}
+
+// ══════════════════════════════════════════════
+//  PRODUCTS
+// ══════════════════════════════════════════════
+function prodHTML(p) {
+  const profit = p.price && p.cost ? (p.price - p.cost).toFixed(2) : '-';
+  const rate = p.price && p.cost ? Math.round((p.price - p.cost) / p.price * 100) : 0;
+  const monthly = p.price && p.cost && p.sales ? Math.round((p.price - p.cost) * p.sales * (1 - (p.refund||0)/100)) : 0;
+  const em = { TEMU:'🛒', 亚马逊:'📦', 速卖通:'🌐', 其他:'📌' };
+  const sc = { 选品中:'b-purple', 备货中:'b-todo', 在售:'b-done', 下架:'b-todo' };
+  return `<div class="pcard">
+    <div class="pcard-h">
+      <div class="pimg">${em[p.platform]||'📦'}</div>
+      <div style="flex:1;min-width:0">
+        <div class="pname">${p.name}</div>
+        <div class="pcat">${p.platform} · ${p.date}</div>
+      </div>
+      <span class="bdg ${sc[p.status]||'b-todo'}">${p.status}</span>
+    </div>
+    <div class="prow">
+      <div class="pfield"><div class="pflab">采购价</div><div class="pfval">¥${p.cost||'-'}</div></div>
+      <div class="pfield"><div class="pflab">定价</div><div class="pfval">¥${p.price||'-'}</div></div>
+      <div class="pfield"><div class="pflab">每件利润</div><div class="pfval ${rate>30?'green':rate>15?'orange':'red'}">¥${profit} (${rate}%)</div></div>
+      <div class="pfield"><div class="pflab">月销量</div><div class="pfval">${p.sales||0}件</div></div>
+    </div>
+    ${p.sales > 0 ? `<div class="prow">
+      <div class="pfield"><div class="pflab">月利润预估</div><div class="pfval green">¥${monthly}</div></div>
+      <div class="pfield"><div class="pflab">退款率</div><div class="pfval ${(p.refund||0)>5?'red':'green'}">${p.refund||0}%</div></div>
+    </div>` : ''}
+    ${p.note ? `<div class="pfull"><div class="pflab">选品备注</div><div style="font-size:13px;color:var(--text);margin-top:3px;line-height:1.6">${p.note}</div></div>` : ''}
+    ${p.url ? `<div style="margin-top:6px"><a href="${p.url}" target="_blank" style="font-size:12px;color:var(--blue)">🔗 商品链接</a></div>` : ''}
+    <div style="display:flex;justify-content:flex-end;margin-top:8px">
+      <button class="del-btn" onclick="delProd('${p.id}')">🗑 删除</button>
+    </div>
+  </div>`;
+}
+
+function renderProdList() {
+  const s = getLocal();
+  let list = s.products;
+  if (prodFilter !== 'all') list = list.filter(p => p.platform === prodFilter);
+  const el = document.getElementById('prodList');
+  if (!list.length) { el.innerHTML = '<div class="empty"><div class="ei">📦</div>暂无选品</div>'; return; }
+  el.innerHTML = list.map(p => prodHTML(p)).join('');
+}
+
+function filterProd(f) {
+  prodFilter = f;
+  document.querySelectorAll('[id^="pf-"]').forEach(b => b.classList.remove('on'));
+  (document.getElementById('pf-' + f) || document.getElementById('pf-all')).classList.add('on');
+  renderProdList();
+}
+
+function delProd(id) {
+  if (!confirm('删除此选品？')) return;
+  const s = getLocal(); s.products = s.products.filter(p => p.id !== id);
+  setLocal(s); renderAll(); doSync(true); toast('已删除');
+}
+
+// ══════════════════════════════════════════════
+//  ACCOUNTS
+// ══════════════════════════════════════════════
+const pwdVis = {};
+function renderAccList() {
+  const s = getLocal();
+  const el = document.getElementById('accList');
+  if (!s.accounts.length) { el.innerHTML = '<div class="empty"><div class="ei">🔑</div>暂无账号</div>'; return; }
+  el.innerHTML = s.accounts.map(a => {
+    const show = pwdVis[a.id];
+    const bg = a.name.includes('TEMU') ? '#fff1f0' : a.name.includes('亚马逊') ? '#fff7e6' : '#f0f9ff';
+    const icon = a.name.includes('TEMU') ? '🛒' : a.name.includes('亚马逊') ? '📦' : '🔑';
+    return `<div class="accard">
+      <div class="achead">
+        <div class="acicon" style="background:${bg}">${icon}</div>
+        <div style="flex:1"><div class="acname">${a.name}</div>${a.url?`<div class="acurl"><a href="${a.url}" target="_blank" style="color:var(--blue)">${a.url}</a></div>`:''}</div>
+        <button class="del-btn" onclick="delAcc('${a.id}')">🗑</button>
+      </div>
+      <div class="acrow"><span class="aclb">账号</span><div style="display:flex;align-items:center"><span class="acval">${a.user}</span><button class="copy-btn" onclick="copyTxt('${a.user}','账号')">复制</button></div></div>
+      <div class="acrow"><span class="aclb">密码</span><div style="display:flex;align-items:center;gap:4px"><span class="acval">${show?a.pwd:'••••••••'}</span><button class="eye-btn" onclick="togglePwd('${a.id}')">${show?'🙈':'👁'}</button><button class="copy-btn" onclick="copyTxt('${a.pwd}','密码')">复制</button></div></div>
+      ${a.note?`<div class="acrow"><span class="aclb">备注</span><span class="acval" style="color:var(--hint)">${a.note}</span></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function togglePwd(id) { pwdVis[id] = !pwdVis[id]; renderAccList(); }
+function copyTxt(t, lb) {
+  if (navigator.clipboard) { navigator.clipboard.writeText(t).then(() => toast(lb + '已复制 ✓')); }
+  else { const el = document.createElement('textarea'); el.value = t; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); toast(lb + '已复制 ✓'); }
+}
+function delAcc(id) {
+  if (!confirm('删除此账号？')) return;
+  const s = getLocal(); s.accounts = s.accounts.filter(a => a.id !== id);
+  setLocal(s); renderAccList(); doSync(true); toast('已删除');
+}
+
+// ══════════════════════════════════════════════
+//  PAGE NAV
+// ══════════════════════════════════════════════
+function goPage(p) {
+  document.querySelectorAll('.pg').forEach(e => e.classList.remove('on'));
+  document.querySelectorAll('.btab').forEach(e => e.classList.remove('on'));
+  document.getElementById('pg-' + p).classList.add('on');
+  const bt = document.getElementById('bt-' + p); if (bt) bt.classList.add('on');
+  curPage = p;
+  document.getElementById('fab').style.display = p === 'profile' ? 'none' : 'flex';
+}
+
+// ══════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════
+function openModal() {
+  const fm = { home:'task', tasks:'task', products:'product', accounts:'account', profile:'task' };
+  switchForm(fm[curPage] || 'task');
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); clearForms(); }
+
+function switchForm(type) {
+  curForm = type;
+  ['task','product','meeting','insight','account'].forEach(t => {
+    document.getElementById('form-' + t).style.display = t === type ? 'block' : 'none';
+    document.getElementById('ft-' + t).classList.toggle('on', t === type);
+  });
+  const tt = { task:'添加任务', product:'添加选品', meeting:'记录会议', insight:'记录心得', account:'添加账号' };
+  setEl('modalTitle', tt[type] || '添加');
+}
+
+function clearForms() {
+  document.querySelectorAll('.sheet input,.sheet textarea').forEach(e => { if(e.type!=='date') e.value=''; });
+  document.getElementById('f-m-date').value = new Date().toISOString().split('T')[0];
+}
+
+function addAct(text, type) {
+  const s = getLocal();
+  const now = new Date();
+  const ds = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  s.activities.unshift({ time: `${ds} ${ts}`, text, type: type || 'b' });
+  if (s.activities.length > 20) s.activities = s.activities.slice(0, 20);
+  setLocal(s);
+}
+
+function saveRecord() {
+  const s = getLocal();
+  const today = new Date().toISOString().split('T')[0];
+
+  if (curForm === 'task') {
+    const title = document.getElementById('f-t-title').value.trim();
+    if (!title) { toast('请输入任务名称'); return; }
+    s.tasks.unshift({ id:'t'+Date.now(), title, cat:document.getElementById('f-t-cat').value, owner:document.getElementById('f-t-owner').value, status:document.getElementById('f-t-status').value, note:document.getElementById('f-t-note').value.trim(), date:today, by:CU });
+    addAct('新增任务「' + title + '」', 'o');
+    toast('任务已添加 ✓');
+  } else if (curForm === 'product') {
+    const name = document.getElementById('f-p-name').value.trim();
+    if (!name) { toast('请输入商品名称'); return; }
+    s.products.unshift({ id:'p'+Date.now(), name, platform:document.getElementById('f-p-platform').value, status:document.getElementById('f-p-status').value, cost:parseFloat(document.getElementById('f-p-cost').value)||0, price:parseFloat(document.getElementById('f-p-price').value)||0, sales:parseInt(document.getElementById('f-p-sales').value)||0, refund:parseFloat(document.getElementById('f-p-refund').value)||0, url:document.getElementById('f-p-url').value.trim(), note:document.getElementById('f-p-note').value.trim(), date:today, by:CU });
+    addAct('新增选品「' + name + '」', 'p');
+    toast('选品已添加 ✓');
+  } else if (curForm === 'meeting') {
+    const title = document.getElementById('f-m-title').value.trim();
+    if (!title) { toast('请输入会议主题'); return; }
+    const raw = document.getElementById('f-m-topics').value.trim();
+    s.meetings.unshift({ id:'m'+Date.now(), title, platform:document.getElementById('f-m-platform').value.trim()||'未知', duration:document.getElementById('f-m-dur').value.trim()||'-', date:document.getElementById('f-m-date').value||today, topics:raw?raw.split('\n').filter(l=>l.trim()):[], conclusion:document.getElementById('f-m-conclusion').value.trim(), by:CU });
+    addAct('记录了会议「' + title + '」', 'b');
+    toast('会议已记录 ✓');
+  } else if (curForm === 'insight') {
+    const title = document.getElementById('f-i-title').value.trim();
+    const content = document.getElementById('f-i-content').value.trim();
+    if (!title || !content) { toast('请填写标题和内容'); return; }
+    s.insights.unshift({ id:'i'+Date.now(), title, cat:document.getElementById('f-i-cat').value, content, author:CU, date:today });
+    addAct('分享了心得「' + title + '」', 'p');
+    toast('心得已记录 ✓');
+  } else if (curForm === 'account') {
+    const name = document.getElementById('f-a-name').value.trim();
+    const user = document.getElementById('f-a-user').value.trim();
+    const pwd = document.getElementById('f-a-pwd').value.trim();
+    if (!name || !user || !pwd) { toast('请填写平台名称、账号和密码'); return; }
+    s.accounts.unshift({ id:'a'+Date.now(), name, url:document.getElementById('f-a-url').value.trim(), user, pwd, note:document.getElementById('f-a-note').value.trim(), by:CU });
+    addAct('添加了平台账号「' + name + '」', 'g');
+    toast('账号已保存 ✓');
+  }
+
+  setLocal(s); renderAll(); closeModal();
+  doSync(true); // 立即推送到云端
+  const pm = { task:'tasks', product:'products', meeting:'home', insight:'home', account:'accounts' };
+  goPage(pm[curForm] || 'home');
+}
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+function toast(msg) {
+  document.querySelectorAll('.toast').forEach(e => e.remove());
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2400);
+}
+
+// ══════════════════════════════════════════════
+//  启动：先显示加载页，初始化完成后进入登录
+// ══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  await new Promise(r => setTimeout(r, 600));
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+});
+</script>
+</body>
+</html>
