@@ -960,10 +960,13 @@ const DB_KEY = 'startuplog';
 
 async function sbFetch() {
   try {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 8000);
     const r = await fetch(
       `${SB_URL}/rest/v1/store?key=eq.${encodeURIComponent(DB_KEY)}&select=value,updated_at`,
-      { headers: SB_HDR, cache: 'no-store' }
+      { headers: SB_HDR, cache: 'no-store', signal: ctrl.signal }
     );
+    clearTimeout(tid);
     const j = await r.json();
     if (j && j[0]) return { value: j[0].value, updatedAt: j[0].updated_at };
     return null;
@@ -973,11 +976,15 @@ async function sbFetch() {
 // 推送并返回服务端最新 updated_at，避免推送后二次 fetch
 async function sbPush(value) {
   try {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 8000);
     const r = await fetch(`${SB_URL}/rest/v1/store`, {
       method: 'POST',
       headers: { ...SB_HDR, 'Prefer': 'resolution=merge-duplicates,return=representation' },
-      body: JSON.stringify({ key: DB_KEY, value })
+      body: JSON.stringify({ key: DB_KEY, value }),
+      signal: ctrl.signal
     });
+    clearTimeout(tid);
     if (!r.ok && r.status !== 201) return false;
     try {
       const j = await r.json();
@@ -1239,13 +1246,10 @@ async function enterApp(uid) {
   document.getElementById('app').style.display = 'block';
   initApp();
   startAutoSync();
-  // 后台静默同步，不阻塞页面显示
+  // 后台静默同步，不阻塞页面显示（sbFetch 自带 8s 超时）
   setSyncBar('syncing');
   try {
-    const result = await Promise.race([
-      sbFetch(),
-      new Promise(r => setTimeout(() => r(null), 6000))
-    ]);
+    const result = await sbFetch();
     if (result) {
       mergeAndSetLocal(result.value);
       localStorage.setItem(LAST_SYNC_AT, result.updatedAt || '');
@@ -2963,13 +2967,9 @@ async function delIncome(id) {
 // ══════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
   const savedUser = localStorage.getItem(SESSION_KEY);
-  // 先尝试从云端拉取，确保密码和数据是最新的（最多等 6 秒，超时直接用本地数据）
+  // 先尝试从云端拉取，确保密码和数据是最新的（sbFetch 自带 8s 超时兜底）
   try {
-    const fetchWithTimeout = Promise.race([
-      sbFetch(),
-      new Promise(r => setTimeout(() => r(null), 6000))
-    ]);
-    const result = await fetchWithTimeout;
+    const result = await sbFetch();
     if (result) {
       mergeAndSetLocal(result.value);
       localStorage.setItem(LAST_SYNC_AT, result.updatedAt || '');
