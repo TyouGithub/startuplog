@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-047';
+  var VER = '20260314-048';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -237,7 +237,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .slb{font-size:11px;color:var(--hint);font-weight:500}
 
 /* ── PROGRESS ── */
-.pbar{background:#edf2f7;border-radius:10px;height:6px;overflow:hidden;margin-top:6px}
+.pbar{background:rgba(255,255,255,0.08);border-radius:10px;height:6px;overflow:hidden;margin-top:6px}
 .pfill{height:100%;border-radius:10px;background:linear-gradient(90deg,#1677ff,#22d3ee);transition:width .5s}
 
 /* ── TIMELINE ── */
@@ -262,7 +262,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .ttl.stk{text-decoration:line-through;color:var(--hint)}
 .tmeta{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
 .del-btn{background:none;border:none;font-size:15px;cursor:pointer;padding:4px;border-radius:6px;line-height:1;opacity:.4}
-.del-btn:active{opacity:1;background:#fee2e2}
+.del-btn:active{opacity:1;background:rgba(220,38,38,0.2)}
 .edit-btn{background:none;border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;color:var(--sub);font-family:inherit;transition:all .15s}
 .edit-btn:active{background:rgba(37,99,235,0.15);border-color:var(--blue);color:#93c5fd}
 
@@ -297,7 +297,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 /* ── PRODUCT ── */
 .pcard{background:var(--card);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.06)}
 .pcard-h{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
-.pimg{width:50px;height:50px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.pimg{width:50px;height:50px;border-radius:10px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
 .pname{font-size:14px;font-weight:700;margin-bottom:4px;line-height:1.35}
 .pcat{font-size:12px;color:var(--hint)}
 .prow{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
@@ -567,7 +567,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .igtool-card-name{font-size:14px;font-weight:800;color:var(--text);margin-bottom:3px}
 .igtool-card-desc{font-size:12px;color:var(--sub);line-height:1.5;margin-bottom:5px}
 .igtool-card-tags{display:flex;flex-wrap:wrap;gap:4px}
-.igtool-card-tags span{background:#f1f5f9;color:var(--sub);font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px}
+.igtool-card-tags span{background:rgba(255,255,255,0.07);color:var(--sub);font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px}
 
 /* 游戏账号卡片 */
 .ga-card{background:rgba(20,24,32,0.9);border-radius:12px;padding:0;margin-bottom:8px;box-shadow:var(--shadow);overflow:hidden;border:1px solid rgba(255,255,255,0.06)}
@@ -585,9 +585,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .ga-meta{font-size:12px;color:var(--hint);line-height:1.5}
 .ga-actions{display:flex;flex-direction:column;gap:5px;flex-shrink:0}
 .ga-btn-edit{background:var(--blue-lt);color:var(--blue);border:none;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
-.ga-btn-edit:active{background:#dbeafe}
+.ga-btn-edit:active{background:rgba(37,99,235,0.2)}
 .ga-btn-del{background:var(--red-lt);color:var(--red);border:none;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
-.ga-btn-del:active{background:#fee2e2}
+.ga-btn-del:active{background:rgba(220,38,38,0.2)}
 .ga-btn-status{border:none;border-radius:8px;padding:5px 9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;letter-spacing:.1px}
 .ga-btn-status:active{filter:brightness(.92);transform:scale(.96)}
 .ga-pwd-row{display:flex;align-items:center;gap:4px}
@@ -945,22 +945,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
           <div><label style="font-size:11px;color:var(--hint);font-weight:600;display:block;margin-bottom:4px">采购价 (¥)</label>
             <input id="calc-cost" type="number" placeholder="0.00" step="0.01" oninput="calcProfit()"
-              style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;background:#f8fafc;outline:none"/></div>
+              style="width:100%;padding:9px 11px;border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;font-size:14px;font-family:inherit;background:rgba(255,255,255,0.05);color:var(--text);outline:none"/></div>
           <div><label style="font-size:11px;color:var(--hint);font-weight:600;display:block;margin-bottom:4px">售价 (¥)</label>
             <input id="calc-price" type="number" placeholder="0.00" step="0.01" oninput="calcProfit()"
-              style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;background:#f8fafc;outline:none"/></div>
+              style="width:100%;padding:9px 11px;border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;font-size:14px;font-family:inherit;background:rgba(255,255,255,0.05);color:var(--text);outline:none"/></div>
           <div><label style="font-size:11px;color:var(--hint);font-weight:600;display:block;margin-bottom:4px">平台佣金 (%)</label>
             <input id="calc-fee" type="number" placeholder="15" step="0.1" oninput="calcProfit()" value="15"
-              style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;background:#f8fafc;outline:none"/></div>
+              style="width:100%;padding:9px 11px;border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;font-size:14px;font-family:inherit;background:rgba(255,255,255,0.05);color:var(--text);outline:none"/></div>
           <div><label style="font-size:11px;color:var(--hint);font-weight:600;display:block;margin-bottom:4px">物流费 (¥)</label>
             <input id="calc-ship" type="number" placeholder="0.00" step="0.01" oninput="calcProfit()" value="0"
-              style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;background:#f8fafc;outline:none"/></div>
+              style="width:100%;padding:9px 11px;border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;font-size:14px;font-family:inherit;background:rgba(255,255,255,0.05);color:var(--text);outline:none"/></div>
         </div>
-        <div id="calcResult" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:12px;padding:14px;display:none">
+        <div id="calcResult" style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:12px;padding:14px;display:none">
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
-            <div><div style="font-size:20px;font-weight:800;color:#16a34a" id="cr-profit">-</div><div style="font-size:11px;color:var(--hint)">单件利润</div></div>
-            <div><div style="font-size:20px;font-weight:800;color:#1677ff" id="cr-rate">-</div><div style="font-size:11px;color:var(--hint)">利润率</div></div>
-            <div><div style="font-size:20px;font-weight:800;color:#7c3aed" id="cr-roi">-</div><div style="font-size:11px;color:var(--hint)">ROI</div></div>
+            <div><div style="font-size:20px;font-weight:800;color:#4ade80" id="cr-profit">-</div><div style="font-size:11px;color:var(--hint)">单件利润</div></div>
+            <div><div style="font-size:20px;font-weight:800;color:#60a5fa" id="cr-rate">-</div><div style="font-size:11px;color:var(--hint)">利润率</div></div>
+            <div><div style="font-size:20px;font-weight:800;color:#a78bfa" id="cr-roi">-</div><div style="font-size:11px;color:var(--hint)">ROI</div></div>
           </div>
         </div>
       </div>
@@ -1538,7 +1538,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div class="frow"><label>姓名 *</label><input id="am-name" placeholder="成员姓名"/></div>
     <div class="frow"><label>职位 / 角色</label><input id="am-role" placeholder="如：运营、设计..."/></div>
     <div class="frow"><label>初始密码 *（6位以上）</label><input type="password" id="am-pwd" placeholder="设置初始密码"/></div>
-    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px;font-size:12px;color:#92400e;margin-bottom:14px">
+    <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:10px;padding:12px;font-size:12px;color:rgba(212,175,55,0.85);margin-bottom:14px">
       普通成员只有<b>只读</b>权限，无法添加、修改或删除任何数据。
     </div>
     <div class="mact">
@@ -1554,7 +1554,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div class="handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
       <div class="stitle" style="margin-bottom:0">编辑成员信息</div>
-      <button onclick="closeEditMember()" style="width:32px;height:32px;border-radius:50%;background:#f1f5f9;border:none;cursor:pointer;font-size:18px;color:var(--sub);display:flex;align-items:center;justify-content:center;flex-shrink:0">×</button>
+      <button onclick="closeEditMember()" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.07);border:none;cursor:pointer;font-size:18px;color:var(--sub);display:flex;align-items:center;justify-content:center;flex-shrink:0">×</button>
     </div>
     <input type="hidden" id="em-uid"/>
     <div class="frow"><label>姓名 *</label><input id="em-name" placeholder="成员姓名"/></div>
@@ -1686,9 +1686,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div class="handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
       <div class="stitle" style="margin-bottom:0">手机号绑定详情</div>
-      <button onclick="closePhoneBindModal()" style="width:32px;height:32px;border-radius:50%;background:#f1f5f9;border:none;cursor:pointer;font-size:18px;color:var(--sub);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s" onmouseenter="this.style.background='#e2e8f0'" onmouseleave="this.style.background='#f1f5f9'">×</button>
+      <button onclick="closePhoneBindModal()" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.07);border:none;cursor:pointer;font-size:18px;color:var(--sub);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s" onmouseenter="this.style.background='rgba(255,255,255,0.12)'" onmouseleave="this.style.background='rgba(255,255,255,0.07)'">×</button>
     </div>
-    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:14px;line-height:1.6">
+    <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:10px;padding:10px 14px;font-size:12px;color:rgba(212,175,55,0.85);margin-bottom:14px;line-height:1.6">
       每个手机号最多绑定 <b>5</b> 个游戏账号。以下展示各手机号的有效绑定情况（<b>已出售</b>和<b>被找回</b>的账号不占用绑定名额）。
     </div>
     <div id="phoneBindList"></div>
@@ -1708,7 +1708,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div style="font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px">商品图工具箱</div>
         <div style="font-size:12px;color:var(--hint);margin-top:3px">精选跨境电商商品图制作工具，点击直接打开</div>
       </div>
-      <button onclick="closeImgGen()" style="width:32px;height:32px;border-radius:50%;background:#f1f5f9;border:none;cursor:pointer;font-size:18px;color:var(--sub);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s">×</button>
+      <button onclick="closeImgGen()" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.07);border:none;cursor:pointer;font-size:18px;color:var(--sub);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s">×</button>
     </div>
 
     <!-- 主推工具：Pic Copilot -->
@@ -1793,7 +1793,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     </div>
 
     <!-- 使用提示 -->
-    <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 14px;margin-top:14px;font-size:12px;color:#92400e;line-height:1.7">
+    <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:12px;padding:12px 14px;margin-top:14px;font-size:12px;color:rgba(212,175,55,0.85);line-height:1.7">
       <b>推荐工作流：</b>用 <b>Pic Copilot</b> 一站式搞定（抠图+换背景+翻译）；需要极致抠图精度用 <b>Remove.bg</b>；做整体设计排版用 <b>Canva</b>
     </div>
   </div>
@@ -2757,7 +2757,7 @@ function renderProfileActs() {
   const map = { b:'', g:'g', o:'o', p:'p' };
   el.innerHTML = acts.map((a) => {
     const uname = a.author && s.users && s.users[a.author] ? s.users[a.author].name : (a.author || '');
-    const authorTag = uname ? `<span style="font-size:11px;color:var(--hint);background:#f1f5f9;border-radius:10px;padding:1px 7px;margin-left:5px">@${uname}</span>` : '';
+    const authorTag = uname ? `<span style="font-size:11px;color:var(--hint);background:rgba(255,255,255,0.06);border-radius:10px;padding:1px 7px;margin-left:5px">@${uname}</span>` : '';
     const canEdit = isAdmin() || a.author === CU;
     // 找到在原始数组中的真实下标（用于编辑/删除）
     const realIdx = s.activities.findIndex(x => x === a || (x.id && x.id === a.id));
@@ -3215,17 +3215,17 @@ function renderRoadmapEditor() {
     return `<option value="${d}">${lb}</option>`;
   }).join('');
   el.innerHTML = roadmapDraft.map((r, i) => `
-    <div style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:10px">
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px;margin-bottom:10px">
       <div style="display:flex;gap:8px;margin-bottom:8px">
-        <select style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit" onchange="roadmapDraft[${i}].dot=this.value">
+        <select class="form-select" style="flex:1;margin-bottom:0;padding:8px 32px 8px 10px;font-size:13px" onchange="roadmapDraft[${i}].dot=this.value">
           ${['g','o','p','b',''].map(d => `<option value="${d}" ${r.dot===d?'selected':''}>${{g:'绿·当前',o:'橙·规划',p:'紫·工具',b:'蓝·其他','':'灰·默认'}[d]}</option>`).join('')}
         </select>
-        <button onclick="roadmapDraft.splice(${i},1);renderRoadmapEditor()" style="background:#fee2e2;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px">删除</button>
+        <button onclick="roadmapDraft.splice(${i},1);renderRoadmapEditor()" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.25);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px;color:#f87171;white-space:nowrap">删除</button>
       </div>
       <input value="${r.label}" placeholder="标签（如：当前重点）" oninput="roadmapDraft[${i}].label=this.value"
-        style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:6px;background:#fff"/>
+        class="form-input" style="margin-bottom:6px;font-size:13px;padding:8px 10px"/>
       <input value="${r.text}" placeholder="内容..." oninput="roadmapDraft[${i}].text=this.value"
-        style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff"/>
+        class="form-input" style="margin-bottom:0;font-size:13px;padding:8px 10px"/>
     </div>`).join('');
 }
 function addRoadmapItem() {
@@ -5063,7 +5063,7 @@ function renderPhoneBindList() {
         </div>
       </div>`;
     }).join('');
-    return `<div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid ${overLimit?'#fecaca':'var(--border)'}">
+    return `<div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,.2);border:1px solid ${overLimit?'rgba(239,68,68,0.3)':'rgba(255,255,255,0.08)'}">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div>
           <div style="font-size:14px;font-weight:800;letter-spacing:.5px;color:var(--text);font-family:monospace">${phone}</div>
@@ -5076,7 +5076,7 @@ function renderPhoneBindList() {
           ${Object.entries(statusCountMap).map(([st,n])=>`${st}×${n}`).join('<br>')}
         </div>
       </div>
-      <div style="background:#f0f4f8;border-radius:8px;height:6px;overflow:hidden;margin-bottom:10px">
+      <div style="background:rgba(255,255,255,0.08);border-radius:8px;height:6px;overflow:hidden;margin-bottom:10px">
         <div style="height:100%;width:${barPct}%;background:${barColor};border-radius:8px;transition:width .5s"></div>
       </div>
       <div>${accRows}</div>
