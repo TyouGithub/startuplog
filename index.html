@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-019';
+  var VER = '20260314-020';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -262,9 +262,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .page-hdr-action:active{opacity:.8}
 
 /* ── MODAL ── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:flex-end;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.overlay.show{display:flex}
-.sheet{background:#fff;border-radius:22px 22px 0 0;padding:18px 16px 36px;width:100%;max-height:90vh;overflow-y:auto}
+.overlay{display:flex;position:fixed;inset:0;background:rgba(0,0,0,0);z-index:100;align-items:flex-end;backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);pointer-events:none;transition:background .25s,backdrop-filter .25s}
+.overlay.show{background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);pointer-events:auto}
+.sheet{background:#fff;border-radius:22px 22px 0 0;padding:18px 16px 36px;width:100%;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .32s cubic-bezier(.32,1,.32,1)}
+.overlay.show .sheet{transform:translateY(0)}
 .handle{width:36px;height:4px;background:#dee5ed;border-radius:4px;margin:0 auto 14px}
 .stitle{font-size:17px;font-weight:800;margin-bottom:16px;letter-spacing:-0.3px;color:var(--text)}
 .frow{margin-bottom:12px}
@@ -716,7 +717,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
   <div class="pg" id="pg-gameacc">
     <!-- 英雄区：数据看板 -->
     <div class="ga-hero">
-      <div class="ga-hero-title">🎮 游戏账号管理</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="ga-hero-title" style="margin-bottom:0">🎮 游戏账号管理</div>
+        <button onclick="openPhoneBindDetail()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.2px;font-family:inherit;display:flex;align-items:center;gap:4px;transition:background .15s;-webkit-tap-highlight-color:transparent" onmouseenter="this.style.background='rgba(255,255,255,.25)'" onmouseleave="this.style.background='rgba(255,255,255,.15)'">📱 绑定详情</button>
+      </div>
       <div class="ga-kpi-grid" id="gameaccDashboard"></div>
     </div>
 
@@ -727,7 +731,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       <button class="fbtn"    id="gaf-frozen"   onclick="filterGameAcc('frozen')">⚠️ 冻结</button>
       <button class="fbtn"    id="gaf-sold"     onclick="filterGameAcc('sold')">🔒 已出售</button>
       <button class="fbtn"    id="gaf-returned" onclick="filterGameAcc('returned')">❌ 被找回</button>
-      <button class="fbtn"    onclick="openPhoneBindDetail()" style="flex-shrink:0">📱 手机绑定详情</button>
     </div>
 
     <!-- 账号列表（折叠卡片） -->
@@ -1201,12 +1204,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 <div class="overlay" id="phoneBindModal" onclick="if(event.target===this)closePhoneBindModal()">
   <div class="sheet" style="max-height:92vh;overflow-y:auto;padding-bottom:32px">
     <div class="handle"></div>
-    <div class="stitle">📱 手机号绑定详情</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="stitle" style="margin-bottom:0">📱 手机号绑定详情</div>
+      <button onclick="closePhoneBindModal()" style="width:32px;height:32px;border-radius:50%;background:#f1f5f9;border:none;cursor:pointer;font-size:18px;color:var(--sub);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s" onmouseenter="this.style.background='#e2e8f0'" onmouseleave="this.style.background='#f1f5f9'">×</button>
+    </div>
     <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:14px;line-height:1.6">
       ⚠️ 每个手机号最多绑定 <b>5</b> 个游戏账号。以下展示各手机号的有效绑定情况（<b>已出售</b>和<b>被找回</b>的账号不占用绑定名额）。
     </div>
     <div id="phoneBindList"></div>
-    <span class="cancel-link" onclick="closePhoneBindModal()">关闭</span>
   </div>
 </div>
 
