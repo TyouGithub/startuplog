@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-029';
+  var VER = '20260314-030';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -289,10 +289,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .ac2actions{display:flex;gap:6px;margin-top:4px}
 
 /* ── PROFILE ── */
-.pf-card{background:linear-gradient(135deg,#0a0c18,#0f1628 50%,#111028);border-radius:var(--r);padding:22px 18px;margin-bottom:10px;color:#fff;display:flex;align-items:center;gap:16px;border:1px solid rgba(212,160,23,0.2);box-shadow:0 0 0 1px rgba(255,255,255,0.04),0 8px 32px rgba(0,0,0,0.5)}
-.pf-av{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;border:2.5px solid rgba(212,160,23,.4);flex-shrink:0;box-shadow:0 0 0 4px rgba(212,160,23,0.08),0 0 18px rgba(212,160,23,0.2)}
-.pf-nm{font-size:28px;font-weight:400;margin-bottom:2px;font-family:'Ma Shan Zheng',cursive;letter-spacing:4px;background:linear-gradient(135deg,#fff 0%,#fde68a 60%,#d4a017 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1}
-.pf-rl{font-size:12px;opacity:.75;letter-spacing:.5px}
+.pf-card{background:linear-gradient(145deg,#09090f 0%,#0f1628 45%,#131026 75%,#0a0814 100%);border-radius:var(--r-lg);padding:0;margin-bottom:12px;color:#fff;position:relative;overflow:hidden;border:1px solid rgba(212,160,23,0.25);box-shadow:0 0 0 1px rgba(255,255,255,0.04),0 12px 48px rgba(0,0,0,0.6)}
+.pf-card::before{content:'';position:absolute;top:-80px;right:-80px;width:260px;height:260px;background:radial-gradient(circle,rgba(212,160,23,0.12) 0%,transparent 70%);border-radius:50%;pointer-events:none}
+.pf-card::after{content:'';position:absolute;bottom:-60px;left:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(37,99,235,0.1) 0%,transparent 70%);border-radius:50%;pointer-events:none}
+.pf-card-inner{position:relative;z-index:1;display:flex;align-items:center;gap:18px;padding:24px 20px 20px}
+.pf-av{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;flex-shrink:0;position:relative}
+.pf-av::before{content:'';position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(from 0deg,#d4a017,#fde68a,#b8860b,#ffd700,#d4a017);opacity:.7}
+.pf-av::after{content:'';position:absolute;inset:-5px;border-radius:50%;background:rgba(212,160,23,0.15);filter:blur(6px)}
+.pf-av-inner{position:relative;z-index:1;width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff}
+.pf-info{flex:1;min-width:0}
+.pf-en-name{font-size:22px;font-weight:300;letter-spacing:2px;color:#fff;line-height:1;margin-bottom:2px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.pf-en-name strong{font-weight:700;letter-spacing:1px}
+.pf-nm{font-size:14px;font-weight:400;font-family:'Ma Shan Zheng',cursive;letter-spacing:6px;background:linear-gradient(135deg,#fde68a 0%,#d4a017 60%,#b8860b 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.3;margin-bottom:6px}
+.pf-rl{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:rgba(253,230,138,0.85);letter-spacing:1.5px;text-transform:uppercase;background:rgba(212,160,23,0.12);border:1px solid rgba(212,160,23,0.25);border-radius:20px;padding:3px 10px}
+.pf-card-bottom{border-top:1px solid rgba(255,255,255,0.06);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.pf-card-bottom-left{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:.3px}
+.pf-founder-badge{display:flex;align-items:center;gap:6px;background:rgba(212,160,23,0.15);border:1px solid rgba(212,160,23,0.3);border-radius:20px;padding:4px 12px}
+.pf-founder-badge-icon{font-size:12px;line-height:1}
+.pf-founder-badge-text{font-size:10px;font-weight:800;color:#fde68a;letter-spacing:1.5px}
 
 /* 头部右上角用户区 */
 .hdr-user-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 8px 4px 4px;border-radius:20px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);backdrop-filter:blur(8px);transition:all .2s;-webkit-tap-highlight-color:transparent}
@@ -489,6 +503,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .ga-pwd-text{font-family:monospace;font-size:12px;letter-spacing:1px;color:var(--text)}
 .ga-eye-btn{background:none;border:none;color:var(--blue);font-size:12px;cursor:pointer;padding:0;line-height:1;opacity:.7;transition:opacity .15s}
 .ga-eye-btn:active{opacity:1}
+
+/* 游戏分组折叠层（第二层） */
+.ga-game-group{background:rgba(15,20,30,0.7);border-radius:14px;margin-bottom:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.06)}
+.ga-game-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;transition:background .15s}
+.ga-game-group-hdr:active{background:rgba(255,255,255,0.04)}
+.ga-game-group-left{display:flex;align-items:center;gap:10px}
+.ga-game-group-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:linear-gradient(135deg,rgba(37,99,235,0.3),rgba(124,58,237,0.3));border:1px solid rgba(255,255,255,0.1)}
+.ga-game-group-name{font-size:14px;font-weight:700;color:var(--text)}
+.ga-game-group-meta{font-size:11px;color:var(--hint);margin-top:2px}
+.ga-game-group-right{display:flex;align-items:center;gap:8px}
+.ga-game-count-badge{background:rgba(37,99,235,0.15);color:#60a5fa;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
+.ga-game-arrow{font-size:11px;color:var(--hint);transition:transform .22s;display:inline-block;line-height:1}
+.ga-game-arrow.open{transform:rotate(180deg);color:#60a5fa}
+.ga-game-group-body{display:none;padding:0 12px 12px}
+.ga-game-group-body.open{display:block}
+
+/* 统一操作按钮 - 替代旧的 income-add-btn 和 page-hdr-action */
+.action-btn-ghost{display:inline-flex;align-items:center;gap:4px;padding:6px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:var(--sub);font-family:inherit;transition:all .15s;white-space:nowrap}
+.action-btn-ghost:active{background:rgba(37,99,235,0.15);border-color:rgba(37,99,235,0.4);color:#93c5fd}
 
 /* 收入区块 */
 .income-section{margin-top:16px}
@@ -734,9 +767,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div class="coll-card" id="taskListCard">
       <div class="coll-hdr" onclick="toggleColl('taskListCard')">
         <div class="coll-title">📋 任务列表</div>
-        <span class="coll-arrow" id="taskListCard-arrow">▼</span>
+        <span class="coll-arrow open" id="taskListCard-arrow">▼</span>
       </div>
-      <div class="coll-body" id="taskListCard-body">
+      <div class="coll-body open" id="taskListCard-body">
         <div id="taskList"></div>
       </div>
     </div>
@@ -834,7 +867,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       <div class="coll-hdr" onclick="toggleColl('gameaccListCard')">
         <div class="coll-title">🎮 账号列表</div>
         <div class="coll-actions">
-          <button class="page-hdr-action" style="font-size:12px;padding:5px 12px" onclick="event.stopPropagation();openAddGameAcc()">＋ 新增</button>
+          <button class="action-btn-ghost" onclick="event.stopPropagation();openAddGameAcc()">＋ 新增</button>
           <span class="coll-arrow" id="gameaccListCard-arrow">▼</span>
         </div>
       </div>
@@ -848,7 +881,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       <div class="coll-hdr" onclick="toggleColl('incomeCard')">
         <div class="coll-title">💵 收入记录</div>
         <div class="coll-actions">
-          <button class="income-add-btn" onclick="event.stopPropagation();openAddIncome()">＋ 记录收入</button>
+          <button class="action-btn-ghost" onclick="event.stopPropagation();openAddIncome()">＋ 记录收入</button>
           <span class="coll-arrow" id="incomeCard-arrow">▼</span>
         </div>
       </div>
@@ -864,17 +897,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
   <!-- PROFILE -->
   <div class="pg" id="pg-profile">
     <div class="pf-card">
-      <div class="pf-av" id="pfAv"></div>
-      <div style="flex:1;min-width:0">
-        <div class="pf-nm" id="pfNm"></div>
-        <div class="pf-rl" id="pfRl"></div>
-        <div id="pfSubline" style="font-size:12px;opacity:.7;margin-top:3px">与搭档共同创业中 ☁️ 数据云端同步</div>
-      </div>
-      <div id="pfFounderBadge" style="display:none;flex-shrink:0;text-align:center">
-        <div style="background:rgba(255,215,0,0.2);border:1.5px solid rgba(255,215,0,0.5);border-radius:12px;padding:6px 10px">
-          <div style="font-size:18px;line-height:1">👑</div>
-          <div style="font-size:9px;font-weight:800;color:#fde68a;letter-spacing:1px;margin-top:2px">FOUNDER</div>
+      <div class="pf-card-inner">
+        <div class="pf-av">
+          <div class="pf-av-inner" id="pfAv"></div>
         </div>
+        <div class="pf-info">
+          <div class="pf-en-name" id="pfEnName"></div>
+          <div class="pf-nm" id="pfNm"></div>
+          <div class="pf-rl" id="pfRl"></div>
+        </div>
+        <div id="pfFounderBadge" style="display:none;flex-shrink:0">
+          <div class="pf-founder-badge">
+            <span class="pf-founder-badge-icon">👑</span>
+            <span class="pf-founder-badge-text">FOUNDER</span>
+          </div>
+        </div>
+      </div>
+      <div class="pf-card-bottom">
+        <div class="pf-card-bottom-left" id="pfSubline">与搭档共同创业中 · 云端同步</div>
+        <div style="font-size:10px;color:rgba(212,160,23,0.5);letter-spacing:.5px;font-weight:600">StartupLog</div>
       </div>
     </div>
     <!-- 快捷工具入口 -->
@@ -900,7 +941,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       <div class="coll-hdr" onclick="toggleColl('accCard')">
         <div class="coll-title">🔑 平台账号</div>
         <div class="coll-actions">
-          <span class="cm" onclick="event.stopPropagation();openAddAcc()">+ 添加</span>
+          <span class="action-btn-ghost" onclick="event.stopPropagation();openAddAcc()">+ 添加</span>
           <span class="coll-arrow" id="accCard-arrow">▼</span>
         </div>
       </div>
@@ -928,7 +969,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       <div class="coll-hdr" onclick="toggleColl('gameaccListCard2')">
         <div class="coll-title">🎮 账号列表</div>
         <div class="coll-actions">
-          <button class="page-hdr-action" style="font-size:12px;padding:5px 12px" onclick="event.stopPropagation();openAddGameAcc()">＋ 新增</button>
+          <button class="action-btn-ghost" onclick="event.stopPropagation();openAddGameAcc()">＋ 新增</button>
           <span class="coll-arrow" id="gameaccListCard2-arrow">▼</span>
         </div>
       </div>
@@ -940,7 +981,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       <div class="coll-hdr" onclick="toggleColl('incomeCard2')">
         <div class="coll-title">💵 收入记录</div>
         <div class="coll-actions">
-          <button class="income-add-btn" onclick="event.stopPropagation();openAddIncome()">＋ 记录收入</button>
+          <button class="action-btn-ghost" onclick="event.stopPropagation();openAddIncome()">＋ 记录收入</button>
           <span class="coll-arrow" id="incomeCard2-arrow">▼</span>
         </div>
       </div>
@@ -2122,7 +2163,16 @@ function initApp() {
   setEl('bnrTitle', titleText);
   setEl('bnrDate', `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`);
   setEl('pfAv', init); document.getElementById('pfAv').style.background = u.color;
-  setEl('pfNm', u.name); setEl('pfRl', u.role);
+  // 英文名 + 汉字连笔名
+  const _pfEnName = document.getElementById('pfEnName');
+  const _pfNm = document.getElementById('pfNm');
+  if (_pfEnName) {
+    if (CU === 'jiashuo') { _pfEnName.innerHTML = 'Zhang <strong>Jiashuo</strong>'; }
+    else if (CU === 'yixin') { _pfEnName.innerHTML = 'Zhu <strong>Yixin</strong>'; }
+    else { _pfEnName.innerHTML = u.name; }
+  }
+  if (_pfNm) { _pfNm.textContent = CU === 'jiashuo' ? '张佳硕' : CU === 'yixin' ? '朱一新' : u.name; }
+  setEl('pfRl', u.role);
   // 创始人专属：FOUNDER 徽章 + 专属副标题（佳硕 & 一新都有，去掉 StartupLog 前缀）
   const _pfBadge = document.getElementById('pfFounderBadge');
   const _pfSub = document.getElementById('pfSubline');
@@ -2154,7 +2204,15 @@ function renderAll() {
     if (_sub) _sub.textContent = CU === 'jiashuo' ? '👑 创始人' : CU === 'yixin' ? '👑 联创' : u.role;
     setEl('pfAv', u.name.charAt(0));
     if (document.getElementById('pfAv')) document.getElementById('pfAv').style.background = u.color;
-    setEl('pfNm', u.name); setEl('pfRl', u.role);
+    const _pfen = document.getElementById('pfEnName');
+    if (_pfen) {
+      if (CU === 'jiashuo') _pfen.innerHTML = 'Zhang <strong>Jiashuo</strong>';
+      else if (CU === 'yixin') _pfen.innerHTML = 'Zhu <strong>Yixin</strong>';
+      else _pfen.textContent = u.name;
+    }
+    const _pfn = document.getElementById('pfNm');
+    if (_pfn) _pfn.textContent = CU === 'jiashuo' ? '张佳硕' : CU === 'yixin' ? '朱一新' : u.name;
+    setEl('pfRl', u.role);
   }
   renderStats(); renderActs(); renderHomeTasks(); renderHomeMeetings();
   renderTaskList(); renderProdList(); renderInsightList(); renderAccList();
@@ -2429,7 +2487,7 @@ function renderNewsTicker() {
     inner.addEventListener('mouseleave', () => { paused = false; }, { passive: true });
 
     // 60px/s 匀速，约每帧移 1px（60fps）
-    const PX_PER_MS = 0.055; // 越小越慢，可调
+    const PX_PER_MS = 0.022; // 越小越慢，可调
     let lastTime = null;
 
     function step(ts) {
@@ -3791,6 +3849,15 @@ function toggleColl(cardId) {
   }
 }
 
+// 游戏账号分组折叠切换
+function toggleGameGroup(groupId) {
+  const body  = document.getElementById(groupId + '-body');
+  const arrow = document.getElementById(groupId + '-arrow');
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  if (arrow) arrow.classList.toggle('open', open);
+}
+
 // ══════════════════════════════════════════════
 //  TOAST
 // ══════════════════════════════════════════════
@@ -3931,13 +3998,24 @@ function _renderGameAccToEl(elId, filter) {
     return;
   }
   const STATUS_STYLE = {
-    '正常':  { bg:'#dcfce7', color:'#15803d', dot:'#22c55e' },
-    '冻结':  { bg:'#fef3c7', color:'#b45309', dot:'#f59e0b' },
-    '已出售':{ bg:'#f1f5f9', color:'#475569', dot:'#94a3b8' },
-    '被找回':{ bg:'#fee2e2', color:'#dc2626', dot:'#ef4444' }
+    '正常':  { bg:'rgba(21,128,61,0.15)',  color:'#4ade80',  dot:'#22c55e' },
+    '冻结':  { bg:'rgba(180,83,9,0.15)',   color:'#fbbf24',  dot:'#f59e0b' },
+    '已出售':{ bg:'rgba(71,85,105,0.15)',  color:'#94a3b8',  dot:'#94a3b8' },
+    '被找回':{ bg:'rgba(220,38,38,0.15)',  color:'#f87171',  dot:'#ef4444' }
   };
-  el.innerHTML = acc.map(a => {
-    const ss = STATUS_STYLE[a.status] || { bg:'#f1f5f9', color:'#64748b', dot:'#94a3b8' };
+  // 按游戏分组
+  const gameGroups = {};
+  acc.forEach(a => {
+    const g = a.game || '未知游戏';
+    if (!gameGroups[g]) gameGroups[g] = [];
+    gameGroups[g].push(a);
+  });
+  const gameIconMap = {
+    '王者荣耀': '🏆', '和平精英': '🎯', '原神': '🌟', '英雄联盟': '⚔️',
+    '我的世界': '🧱', '绝地求生': '🔫', '斗罗大陆': '🔮', '梦幻西游': '🐉'
+  };
+  const buildAccCard = (a) => {
+    const ss = STATUS_STYLE[a.status] || { bg:'rgba(71,85,105,0.15)', color:'#94a3b8', dot:'#94a3b8' };
     const profit = (a.status === '已出售' || a.status === '被找回') && a.sellPrice != null
       ? (a.sellPrice - a.cost) : null;
     const profitHtml = profit !== null
@@ -3951,7 +4029,7 @@ function _renderGameAccToEl(elId, filter) {
             <span class="ga-status-tag" style="background:${ss.bg};color:${ss.color}">${statusLabel}</span>
             ${profitHtml}
           </div>
-          <div class="ga-meta">${a.game} &nbsp;·&nbsp; ${a.os === '苹果' ? '🍎' : '🤖'} ${a.os} &nbsp;·&nbsp; ${a.region || 'QQ区'}</div>
+          <div class="ga-meta">${a.os === '苹果' ? '🍎' : '🤖'} ${a.os} &nbsp;·&nbsp; ${a.region || 'QQ区'}${a.note ? ' &nbsp;·&nbsp; ' + a.note.slice(0,16) : ''}</div>
         </div>
         <div class="ga-actions">
           <button class="ga-btn-status" style="background:${ss.bg};color:${ss.color}" onclick="cycleGameAccStatus('${a.id}')" title="点击切换状态">${statusLabel}</button>
@@ -3980,6 +4058,37 @@ function _renderGameAccToEl(elId, filter) {
           <span class="ga-card-bottom-val" style="color:var(--text)">¥${a.cost||0}${a.sellPrice!=null?` → ¥${a.sellPrice}`:''}</span>
         </div>
         ${a.note ? `<div class="ga-card-bottom-item" style="grid-column:1/-1"><span class="ga-card-bottom-label">备注</span><span style="font-size:12px;color:var(--sub)">${a.note}</span></div>` : ''}
+      </div>
+    </div>`;
+  };
+  const groupKeys = Object.keys(gameGroups);
+  el.innerHTML = groupKeys.map((game, gi) => {
+    const groupAcc = gameGroups[game];
+    const normalCount = groupAcc.filter(a => a.status === '正常').length;
+    const frozenCount = groupAcc.filter(a => a.status === '冻结').length;
+    const icon = gameIconMap[game] || '🎮';
+    const groupId = elId + '_game_' + gi;
+    const metaParts = [];
+    if (normalCount) metaParts.push(`✅ ${normalCount}个正常`);
+    if (frozenCount) metaParts.push(`⚠️ ${frozenCount}冻结`);
+    const soldCount = groupAcc.filter(a => a.status === '已出售').length;
+    if (soldCount) metaParts.push(`🔒 ${soldCount}已售`);
+    return `<div class="ga-game-group">
+      <div class="ga-game-group-hdr" onclick="toggleGameGroup('${groupId}')">
+        <div class="ga-game-group-left">
+          <div class="ga-game-group-icon">${icon}</div>
+          <div>
+            <div class="ga-game-group-name">${game}</div>
+            <div class="ga-game-group-meta">${metaParts.join(' · ') || '共 ' + groupAcc.length + ' 个账号'}</div>
+          </div>
+        </div>
+        <div class="ga-game-group-right">
+          <span class="ga-game-count-badge">${groupAcc.length} 个</span>
+          <span class="ga-game-arrow" id="${groupId}-arrow">▼</span>
+        </div>
+      </div>
+      <div class="ga-game-group-body" id="${groupId}-body">
+        ${groupAcc.map(buildAccCard).join('')}
       </div>
     </div>`;
   }).join('');
