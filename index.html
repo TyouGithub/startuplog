@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-043';
+  var VER = '20260314-044';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -2069,19 +2069,18 @@ function getLocal() {
     if (d.roadmap === undefined)       { d.roadmap = def.roadmap; dirty = true; }
     if (d.gameAccounts === undefined)  { d.gameAccounts = def.gameAccounts; dirty = true; }
     if (d.incomeRecords === undefined) { d.incomeRecords = def.incomeRecords; dirty = true; }
-    // 核心成员数据迁移：确保三位核心成员始终存在且字段正确
+    // 核心成员数据迁移：仅在成员完全不存在时补全，已有数据一律不覆盖（用户可自由修改）
     if (!d.users) d.users = {};
     const _defUsers = def.users;
     ['jiashuo','yixin','lingling'].forEach(uid => {
       if (!d.users[uid]) { d.users[uid] = _defUsers[uid]; dirty = true; }
       else {
-        // 强制同步不可修改的字段（全名、颜色、只读标志）
-        const _fix = { jiashuo:{name:'佳硕',color:'#1a1f2e'}, yixin:{name:'一新',color:'#141820'}, lingling:{name:'张灵灵',color:'#1a1f2e',isReadOnly:true} };
-        const fix = _fix[uid];
-        if (fix) {
-          let changed = false;
-          Object.keys(fix).forEach(k => { if (d.users[uid][k] !== fix[k]) { d.users[uid][k] = fix[k]; changed = true; } });
-          if (changed) dirty = true;
+        // 只补全缺失的结构字段（color/isReadOnly），绝不覆盖 name/role/pwd 等用户可编辑字段
+        if (uid === 'lingling' && d.users[uid].isReadOnly === undefined) {
+          d.users[uid].isReadOnly = true; dirty = true;
+        }
+        if (!d.users[uid].color) {
+          d.users[uid].color = _defUsers[uid].color; dirty = true;
         }
       }
     });
@@ -2449,12 +2448,12 @@ function initApp() {
     else { _pfEnName.textContent = (u.role || 'MEMBER').toUpperCase(); }
   }
   if (_pfCnName) {
-    if (CU === 'jiashuo') { _pfCnName.innerHTML = '张<em>佳硕</em>'; }
-    else if (CU === 'yixin') { _pfCnName.innerHTML = '朱<em>一新</em>'; }
-    else if (CU === 'lingling') { _pfCnName.innerHTML = '张<em>灵灵</em>'; }
+    if (CU === 'jiashuo') { _pfCnName.innerHTML = u.name ? `${u.name.slice(0,1)}<em>${u.name.slice(1)}</em>` : '张<em>佳硕</em>'; }
+    else if (CU === 'yixin') { _pfCnName.innerHTML = u.name ? `${u.name.slice(0,1)}<em>${u.name.slice(1)}</em>` : '朱<em>一新</em>'; }
+    else if (CU === 'lingling') { _pfCnName.innerHTML = u.name ? `${u.name.slice(0,2)}<em>${u.name.slice(2)}</em>` : '张<em>灵灵</em>'; }
     else { _pfCnName.textContent = u.name; }
   }
-  if (_pfNm) { _pfNm.textContent = CU === 'jiashuo' ? '张佳硕' : CU === 'yixin' ? '朱一新' : CU === 'lingling' ? '张灵灵' : u.name; }
+  if (_pfNm) { _pfNm.textContent = u.name || (CU === 'jiashuo' ? '张佳硕' : CU === 'yixin' ? '朱一新' : CU === 'lingling' ? '张灵灵' : ''); }
   setEl('pfRl', u.role);
   // 创始人专属：FOUNDER 徽章 + 专属副标题（佳硕 & 一新都有，去掉 StartupLog 前缀）
   const _pfBadge = document.getElementById('pfFounderBadge');
@@ -2515,13 +2514,13 @@ function renderAll() {
     }
     const _pfcn = document.getElementById('pfCnName');
     if (_pfcn) {
-      if (CU === 'jiashuo') _pfcn.innerHTML = '张<em>佳硕</em>';
-      else if (CU === 'yixin') _pfcn.innerHTML = '朱<em>一新</em>';
-      else if (CU === 'lingling') _pfcn.innerHTML = '张<em>灵灵</em>';
+      if (CU === 'jiashuo') _pfcn.innerHTML = u.name ? `${u.name.slice(0,1)}<em>${u.name.slice(1)}</em>` : '张<em>佳硕</em>';
+      else if (CU === 'yixin') _pfcn.innerHTML = u.name ? `${u.name.slice(0,1)}<em>${u.name.slice(1)}</em>` : '朱<em>一新</em>';
+      else if (CU === 'lingling') _pfcn.innerHTML = u.name ? `${u.name.slice(0,2)}<em>${u.name.slice(2)}</em>` : '张<em>灵灵</em>';
       else _pfcn.textContent = u.name;
     }
     const _pfn = document.getElementById('pfNm');
-    if (_pfn) _pfn.textContent = CU === 'jiashuo' ? '张佳硕' : CU === 'yixin' ? '朱一新' : CU === 'lingling' ? '张灵灵' : u.name;
+    if (_pfn) _pfn.textContent = u.name || '';
     setEl('pfRl', u.role);
   }
   renderStats(); renderActs(); renderHomeTasks(); renderHomeMeetings();
