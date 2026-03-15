@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-009';
+  var VER = '20260314-010';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -357,6 +357,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 .ga-btn-edit:active{background:#dbeafe}
 .ga-btn-del{background:#fff0f0;color:var(--red);border:none;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
 .ga-btn-del:active{background:#fee2e2}
+.ga-btn-status{border:none;border-radius:8px;padding:5px 9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;letter-spacing:.1px}
+.ga-btn-status:active{filter:brightness(.92);transform:scale(.96)}
 .ga-pwd-row{display:flex;align-items:center;gap:4px}
 .ga-pwd-text{font-family:monospace;font-size:12px;letter-spacing:1px;color:var(--text)}
 .ga-eye-btn{background:none;border:none;color:var(--blue);font-size:12px;cursor:pointer;padding:0;line-height:1;opacity:.7;transition:opacity .15s}
@@ -1035,7 +1037,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div class="handle"></div>
     <div class="stitle">📱 手机号绑定详情</div>
     <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:14px;line-height:1.6">
-      ⚠️ 每个手机号最多绑定 <b>5</b> 个游戏账号。以下展示各手机号的绑定使用情况。
+      ⚠️ 每个手机号最多绑定 <b>5</b> 个游戏账号。以下展示各手机号的有效绑定情况（<b>已出售</b>和<b>被找回</b>的账号不占用绑定名额）。
     </div>
     <div id="phoneBindList"></div>
     <span class="cancel-link" onclick="closePhoneBindModal()">关闭</span>
@@ -3084,6 +3086,7 @@ function renderGameAccList() {
           <div class="ga-meta">${a.game} &nbsp;·&nbsp; ${a.os === '苹果' ? '🍎' : '🤖'} ${a.os} &nbsp;·&nbsp; ${a.region || 'QQ区'}</div>
         </div>
         <div class="ga-actions">
+          <button class="ga-btn-status" style="background:${ss.bg};color:${ss.color}" onclick="cycleGameAccStatus('${a.id}')" title="点击切换状态">${statusLabel}</button>
           <button class="ga-btn-edit" onclick="editGameAcc('${a.id}')">编辑</button>
           <button class="ga-btn-del" onclick="delGameAcc('${a.id}')">删除</button>
         </div>
@@ -3244,6 +3247,20 @@ async function delGameAcc(id) {
   s.gameAccounts = softDelete(s.gameAccounts, id);
   setLocal(s); renderGameAccPage(); forcePushAndPull();
   toast('已删除 ✓');
+}
+
+// 快速切换账号状态（正常 → 冻结 → 已出售 → 被找回 → 正常）
+function cycleGameAccStatus(id) {
+  const CYCLE = ['正常', '冻结', '已出售', '被找回'];
+  const s = getLocal();
+  const idx = (s.gameAccounts||[]).findIndex(x => x.id === id);
+  if (idx === -1) return;
+  const cur = s.gameAccounts[idx].status || '正常';
+  const next = CYCLE[(CYCLE.indexOf(cur) + 1) % CYCLE.length];
+  s.gameAccounts[idx] = stampNow({ ...s.gameAccounts[idx], status: next });
+  setLocal(s); renderGameAccPage(); forcePushAndPull();
+  const LABEL = { '正常':'✅ 正常', '冻结':'⚠️ 冻结', '已出售':'🔒 已出售', '被找回':'❌ 被找回' };
+  toast(`状态已更新：${LABEL[next]} ✓`);
 }
 
 // 收入相关
@@ -3407,7 +3424,9 @@ function renderPhoneBindList() {
 
   el.innerHTML = phones.map(phone => {
     const list = phoneMap[phone];
-    const count = list.length;
+    // 只有「正常」和「冻结」的账号算占用绑定名额
+    const activeList = list.filter(a => a.status === '正常' || a.status === '冻结');
+    const count = activeList.length;
     const remaining = 5 - count;
     const overLimit = count > 5;
     const barColor = overLimit ? '#ef4444' : count >= 4 ? '#f59e0b' : '#22c55e';
@@ -3417,9 +3436,10 @@ function renderPhoneBindList() {
     const accRows = list.map(a => {
       const ss = STATUS_STYLE[a.status] || { bg:'#f1f5f9', color:'#64748b' };
       const statusLabel = { '正常':'✅ 正常', '冻结':'⚠️ 冻结', '已出售':'🔒 已出售', '被找回':'❌ 被找回' }[a.status] || a.status;
-      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f5f7fa">
+      const isInactive = a.status === '已出售' || a.status === '被找回';
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f5f7fa;opacity:${isInactive?'0.5':'1'}">
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:700;color:var(--text)">${a.name}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">${a.name}${isInactive?' <span style="font-size:10px;color:var(--hint);font-weight:400">(不占绑定名额)</span>':''}</div>
           <div style="font-size:11px;color:var(--hint);margin-top:1px">${a.game} · QQ:${a.qq||'-'}</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
@@ -3433,7 +3453,7 @@ function renderPhoneBindList() {
         <div>
           <div style="font-size:14px;font-weight:800;letter-spacing:.5px;color:var(--text);font-family:monospace">${phone}</div>
           <div style="font-size:11px;color:var(--hint);margin-top:2px">
-            已绑定 <b style="color:${barColor}">${count}</b> 个 / 上限 5 个
+            有效绑定 <b style="color:${barColor}">${count}</b> 个（正常+冻结）/ 上限 5 个
             ${!overLimit ? `· 还可绑定 <b style="color:${barColor}">${remaining}</b> 个` : ' · <b style="color:#ef4444">⚠️ 已超上限</b>'}
           </div>
         </div>
