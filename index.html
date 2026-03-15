@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-017';
+  var VER = '20260314-018';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -444,6 +444,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 .save-btn{width:100%;padding:15px;background:linear-gradient(135deg,#1677ff,#4f46e5);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:16px;letter-spacing:.2px;box-shadow:0 4px 16px rgba(22,119,255,.3);transition:all .15s}
 .save-btn:active{transform:scale(.98);opacity:.9}
 .cancel-link{display:block;text-align:center;font-size:13px;color:var(--hint);cursor:pointer;margin-top:12px;padding:6px}
+
+/* ── 折叠卡片 ── */
+.coll-card{background:var(--card);border-radius:var(--r);margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
+.coll-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.coll-hdr:active{background:#f8fafc}
+.coll-title{font-size:14px;font-weight:700;letter-spacing:-.1px;color:var(--text);display:flex;align-items:center;gap:6px}
+.coll-actions{display:flex;align-items:center;gap:8px}
+.coll-arrow{font-size:13px;color:var(--hint);transition:transform .22s;display:inline-block;line-height:1;flex-shrink:0}
+.coll-arrow.open{transform:rotate(180deg);color:var(--blue)}
+.coll-body{display:none;padding:0 18px 16px;border-top:1px solid var(--border)}
+.coll-body.open{display:block}
+.coll-body-notop{display:none;padding:0 18px 16px}
+.coll-body-notop.open{display:block}
+
+/* ── 商品状态快切按钮 ── */
+.prod-status-btn{border:none;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;letter-spacing:.1px}
+.prod-status-btn:active{filter:brightness(.92);transform:scale(.96)}
 </style>
 </head>
 <body>
@@ -528,24 +545,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
         <span id="bnrRefreshBtn" onclick="fetchDailySoup(true)" style="font-size:11px;opacity:.7;margin-left:8px;cursor:pointer;background:rgba(255,255,255,0.2);border-radius:8px;padding:2px 8px;-webkit-user-select:none;user-select:none;transition:opacity .15s" title="换一句">↻ 换一句</span>
       </div>
     </div>
-    <div class="card">
-      <div class="ch"><div class="ct">📋 最近会议</div><div class="cm" onclick="goPage('meetings')">全部 →</div></div>
-      <div id="homeMeetings"></div>
+    <div class="coll-card">
+      <div class="coll-hdr" onclick="toggleColl('homeMeetingsCard')">
+        <div class="coll-title">📋 最近会议</div>
+        <div class="coll-actions">
+          <span class="cm" onclick="event.stopPropagation();goPage('meetings')">全部 →</span>
+          <span class="coll-arrow open" id="homeMeetingsCard-arrow">▼</span>
+        </div>
+      </div>
+      <div class="coll-body open" id="homeMeetingsCard-body">
+        <div id="homeMeetings"></div>
+      </div>
     </div>
-    <div class="card">
-      <div class="ch"><div class="ct">🔥 进行中任务</div><div class="cm" onclick="goPage('tasks')">全部 →</div></div>
-      <div id="homeTasks"></div>
+    <div class="coll-card">
+      <div class="coll-hdr" onclick="toggleColl('homeTasksCard')">
+        <div class="coll-title">🔥 进行中任务</div>
+        <div class="coll-actions">
+          <span class="cm" onclick="event.stopPropagation();goPage('tasks')">全部 →</span>
+          <span class="coll-arrow open" id="homeTasksCard-arrow">▼</span>
+        </div>
+      </div>
+      <div class="coll-body open" id="homeTasksCard-body">
+        <div id="homeTasks"></div>
+      </div>
     </div>
     <!-- 数据脉搏 -->
     <div id="homePulse" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px"></div>
-    <div class="card">
-      <div class="ch"><div class="ct">⚡ 动态记录</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <div class="cm" onclick="openAddAct()">+ 添加</div>
-          <div class="cm" id="syncStatus" style="font-size:11px"></div>
+    <div class="coll-card">
+      <div class="coll-hdr" onclick="toggleColl('actCard')">
+        <div class="coll-title">⚡ 动态记录</div>
+        <div class="coll-actions">
+          <span class="cm" onclick="event.stopPropagation();openAddAct()">+ 添加</span>
+          <span class="cm" id="syncStatus" style="font-size:11px"></span>
+          <span class="coll-arrow open" id="actCard-arrow">▼</span>
         </div>
       </div>
-      <div class="tl" id="actList"></div>
+      <div class="coll-body open" id="actCard-body">
+        <div class="tl" id="actList"></div>
+      </div>
     </div>
   </div>
 
@@ -560,7 +597,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
       <button class="fbtn" id="tf-doing" onclick="filterTask('doing')">进行中</button>
       <button class="fbtn" id="tf-done" onclick="filterTask('done')">已完成</button>
     </div>
-    <div class="card"><div id="taskList"></div></div>
+    <div class="coll-card" id="taskListCard">
+      <div class="coll-hdr" onclick="toggleColl('taskListCard')">
+        <div class="coll-title">📋 任务列表</div>
+        <span class="coll-arrow open" id="taskListCard-arrow">▼</span>
+      </div>
+      <div class="coll-body open" id="taskListCard-body">
+        <div id="taskList"></div>
+      </div>
+    </div>
   </div>
 
   <!-- MEETINGS 独立页 -->
@@ -652,12 +697,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div id="gameaccList"></div>
 
     <!-- 收入记录 -->
-    <div class="income-section">
-      <div class="income-section-hd">
-        <div class="income-section-title">💵 收入记录</div>
-        <button class="income-add-btn" onclick="openAddIncome()">＋ 记录收入</button>
+    <div class="coll-card" style="margin-top:4px">
+      <div class="coll-hdr" onclick="toggleColl('incomeCard')">
+        <div class="coll-title">💵 收入记录</div>
+        <div class="coll-actions">
+          <button class="income-add-btn" onclick="event.stopPropagation();openAddIncome()">＋ 记录收入</button>
+          <span class="coll-arrow open" id="incomeCard-arrow">▼</span>
+        </div>
       </div>
-      <div id="incomeList"></div>
+      <div class="coll-body open" id="incomeCard-body">
+        <div id="incomeList"></div>
+      </div>
     </div>
   </div>
 
@@ -693,27 +743,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
         <div><div class="shortcut-title">记录心得</div><div class="shortcut-sub">分享创业思考</div></div>
       </div>
     </div>
-    <div class="card">
-      <div class="ch">
-        <div class="ct">🔑 平台账号</div>
-        <div class="cm" onclick="openAddAcc()">+ 添加</div>
+    <div class="coll-card">
+      <div class="coll-hdr" onclick="toggleColl('accCard')">
+        <div class="coll-title">🔑 平台账号</div>
+        <div class="coll-actions">
+          <span class="cm" onclick="event.stopPropagation();openAddAcc()">+ 添加</span>
+          <span class="coll-arrow open" id="accCard-arrow">▼</span>
+        </div>
       </div>
-      <div id="accList"></div>
+      <div class="coll-body open" id="accCard-body">
+        <div id="accList"></div>
+      </div>
     </div>
-    <div class="card">
-      <div class="ch">
-        <div class="ct">🌏 创业路线</div>
-        <div class="cm" onclick="openRoadmapEdit()">编辑</div>
+    <div class="coll-card">
+      <div class="coll-hdr" onclick="toggleColl('roadmapCard')">
+        <div class="coll-title">🌏 创业路线</div>
+        <div class="coll-actions">
+          <span class="cm" onclick="event.stopPropagation();openRoadmapEdit()">编辑</span>
+          <span class="coll-arrow open" id="roadmapCard-arrow">▼</span>
+        </div>
       </div>
-      <div class="tl" id="roadmapList"></div>
+      <div class="coll-body open" id="roadmapCard-body">
+        <div class="tl" id="roadmapList"></div>
+      </div>
     </div>
-    <div class="card">
-      <div class="ch">
-        <div class="ct">💡 全团队心得</div>
-        <div class="cm" onclick="openModal();switchForm('insight')">+ 添加</div>
+    <div class="coll-card">
+      <div class="coll-hdr" onclick="toggleColl('insightCard')">
+        <div class="coll-title">💡 全团队心得</div>
+        <div class="coll-actions">
+          <span class="cm" onclick="event.stopPropagation();openModal();switchForm('insight')">+ 添加</span>
+          <span class="coll-arrow open" id="insightCard-arrow">▼</span>
+        </div>
       </div>
-      <!-- 全员公开可读 -->
-      <div id="profileInsightList"></div>
+      <div class="coll-body open" id="insightCard-body">
+        <!-- 全员公开可读 -->
+        <div id="profileInsightList"></div>
+      </div>
     </div>
     <!-- 成员管理：仅管理员可见 -->
     <div class="card" id="memberMgmtCard" style="display:none">
@@ -1865,15 +1930,22 @@ function nowBJStr() {
 function renderActs() {
   const s = getLocal();
   const el = document.getElementById('actList');
-  const acts = alive(s.activities);
+  // 按时间降序，最新在最上面
+  const acts = alive(s.activities).slice().sort((a, b) => {
+    const ta = new Date(b.time || b.updatedAt || 0).getTime() || 0;
+    const tb = new Date(a.time || a.updatedAt || 0).getTime() || 0;
+    return ta - tb;
+  });
   if (!acts.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态，点「+ 添加」记录第一条</div>'; return; }
   const map = { b:'', g:'g', o:'o', p:'p' };
   el.innerHTML = acts.slice(0,8).map((a, idx) => {
     const uname = a.author && s.users && s.users[a.author] ? s.users[a.author].name : (a.author || '');
     const authorTag = uname ? `<span style="font-size:11px;color:var(--hint);background:#f1f5f9;border-radius:10px;padding:1px 7px;margin-left:5px">@${uname}</span>` : '';
     const canEdit = isAdmin() || a.author === CU;
-    const editBtn = canEdit ? `<button class="edit-btn" style="flex-shrink:0;padding:2px 8px" onclick="openEditActByIdx(${idx})">编辑</button>` : '';
-    const delBtn  = canEdit ? `<button class="del-btn" style="font-size:13px;opacity:.4;flex-shrink:0" onclick="delAct(${idx})">🗑</button>` : '';
+    // 找真实下标
+    const realIdx = s.activities.findIndex(x => x === a || (x.id && x.id === a.id));
+    const editBtn = canEdit ? `<button class="edit-btn" style="flex-shrink:0;padding:2px 8px" onclick="openEditActByIdx(${realIdx})">编辑</button>` : '';
+    const delBtn  = canEdit ? `<button class="del-btn" style="font-size:13px;opacity:.4;flex-shrink:0" onclick="delAct(${realIdx})">🗑</button>` : '';
     return `<div class="tli"><div class="tldot ${map[a.type]||''}"></div>
     <div class="tlt">${fmtTime(a.time)}</div>
     <div style="display:flex;align-items:flex-start;gap:6px">
@@ -1947,7 +2019,12 @@ function renderProfileInsights() {
   const s = getLocal();
   const el = document.getElementById('profileInsightList');
   if (!el) return;
-  const list = alive(s.insights);
+  // 按日期降序，最新在最上面
+  const list = alive(s.insights).slice().sort((a, b) => {
+    const ta = new Date(b.updatedAt || b.date || 0).getTime();
+    const tb = new Date(a.updatedAt || a.date || 0).getTime();
+    return ta - tb;
+  });
   const users = s.users || {};
   if (!list.length) {
     el.innerHTML = '<div style="color:var(--hint);font-size:13px">还没有心得，点「+ 添加」记录第一条</div>';
@@ -1972,15 +2049,20 @@ function renderProfileActs() {
   const s = getLocal();
   const el = document.getElementById('profileActList');
   if (!el) return;
-  const acts = alive(s.activities);
+  // 按时间降序
+  const acts = alive(s.activities).slice().sort((a, b) => {
+    const ta = new Date(b.time || b.updatedAt || 0).getTime() || 0;
+    const tb = new Date(a.time || a.updatedAt || 0).getTime() || 0;
+    return ta - tb;
+  });
   if (!acts.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态</div>'; return; }
   const map = { b:'', g:'g', o:'o', p:'p' };
-  el.innerHTML = acts.map((a, idx) => {
+  el.innerHTML = acts.map((a) => {
     const uname = a.author && s.users && s.users[a.author] ? s.users[a.author].name : (a.author || '');
     const authorTag = uname ? `<span style="font-size:11px;color:var(--hint);background:#f1f5f9;border-radius:10px;padding:1px 7px;margin-left:5px">@${uname}</span>` : '';
     const canEdit = isAdmin() || a.author === CU;
     // 找到在原始数组中的真实下标（用于编辑/删除）
-    const realIdx = s.activities.findIndex(x => x.id === a.id);
+    const realIdx = s.activities.findIndex(x => x === a || (x.id && x.id === a.id));
     return `<div class="tli">
       <div class="tldot ${map[a.type]||''}"></div>
       <div class="tlt">${fmtTime(a.time)}</div>
@@ -2612,6 +2694,12 @@ function renderTaskList() {
   const s = getLocal();
   let list = alive(s.tasks);
   if (taskFilter !== 'all') list = list.filter(t => t.status === taskFilter);
+  // 按 updatedAt/date 降序，最新在最上面
+  list = list.slice().sort((a, b) => {
+    const ta = new Date(b.updatedAt || b.date || 0).getTime();
+    const tb = new Date(a.updatedAt || a.date || 0).getTime();
+    return ta - tb;
+  });
   const el = document.getElementById('taskList');
   if (!list.length) { el.innerHTML = '<div class="empty"><div class="ei">📭</div>暂无任务</div>'; return; }
   el.innerHTML = list.map(t => taskHTML(t, false)).join('');
@@ -2775,41 +2863,53 @@ function prodHTML(p) {
   const rate   = p.price && p.cost ? Math.round((p.price - p.cost) / p.price * 100) : 0;
   const monthly = p.price && p.cost && p.sales ? Math.round((p.price - p.cost) * p.sales * (1 - (p.refund||0)/100)) : 0;
   const em = { TEMU:'🛒', 亚马逊:'📦', 速卖通:'🌐', 其他:'📌' };
-  const sc = { 选品中:'b-purple', 备货中:'b-todo', 在售:'b-done', 下架:'b-todo' };
+  const PROD_STATUS_STYLE = {
+    '选品中': { bg:'#ede9fe', color:'#7c3aed' },
+    '备货中': { bg:'#f1f5f9', color:'#475569' },
+    '在售':   { bg:'#dcfce7', color:'#15803d' },
+    '下架':   { bg:'#f1f5f9', color:'#94a3b8' }
+  };
+  const ss = PROD_STATUS_STYLE[p.status] || { bg:'#f1f5f9', color:'#64748b' };
   const imgsHtml = p.imgs && p.imgs.length
     ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${p.imgs.map((src,i)=>`<div class="prod-img-item" style="display:inline-block"><img src="${src}" onclick="openImgLightboxFromProd('${p.id}',${i})" title="点击放大" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1.5px solid var(--border);cursor:pointer"></div>`).join('')}</div>` : '';
   const keywordsHtml = p.keywords ? `<div class="pfull"><div class="pflab">关键词</div><div style="font-size:13px;color:var(--text);margin-top:3px">${p.keywords}</div></div>` : '';
   const skuHtml = p.sku ? `<div class="pfull"><div class="pflab">SKU / 变体</div><div style="font-size:13px;color:var(--text);margin-top:3px">${p.sku}</div></div>` : '';
-  return `<div class="pcard">
-    <div class="pcard-h">
-      <div class="pimg">${em[p.platform]||'📦'}</div>
-      <div style="flex:1;min-width:0">
-        <div class="pname">${p.name}</div>
-        <div class="pcat">${p.platform}${p.cat?' · '+p.cat:''} · ${p.date}</div>
+  const cardId = 'prod-coll-' + p.id;
+  return `<div class="coll-card">
+    <div class="coll-hdr" onclick="toggleColl('${cardId}')">
+      <div class="coll-title" style="flex:1;min-width:0;gap:8px">
+        <span style="font-size:18px;flex-shrink:0">${em[p.platform]||'📦'}</span>
+        <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px">${p.name}</span>
       </div>
-      <span class="bdg ${sc[p.status]||'b-todo'}">${p.status}</span>
+      <div class="coll-actions" style="gap:6px">
+        <button class="prod-status-btn" style="background:${ss.bg};color:${ss.color}" onclick="event.stopPropagation();cycleProdStatus('${p.id}')" title="点击切换状态">${p.status}</button>
+        <span class="coll-arrow" id="${cardId}-arrow">▼</span>
+      </div>
     </div>
-    ${imgsHtml}
-    <div class="prow">
-      <div class="pfield"><div class="pflab">采购价</div><div class="pfval">¥${p.cost||'-'}</div></div>
-      <div class="pfield"><div class="pflab">定价</div><div class="pfval">¥${p.price||'-'}</div></div>
-      <div class="pfield"><div class="pflab">每件利润</div><div class="pfval ${rate>30?'green':rate>15?'orange':'red'}">¥${profit} (${rate}%)</div></div>
-      <div class="pfield"><div class="pflab">月销量</div><div class="pfval">${p.sales||0}件</div></div>
-    </div>
-    ${p.sales > 0 ? `<div class="prow">
-      <div class="pfield"><div class="pflab">月利润预估</div><div class="pfval green">¥${monthly}</div></div>
-      <div class="pfield"><div class="pflab">退款率</div><div class="pfval ${(p.refund||0)>5?'red':'green'}">${p.refund||0}%</div></div>
-    </div>` : ''}
-    ${(p.weight||p.size) ? `<div class="prow">
-      ${p.weight ? `<div class="pfield"><div class="pflab">重量</div><div class="pfval">${p.weight}g</div></div>` : ''}
-      ${p.size ? `<div class="pfield"><div class="pflab">尺寸</div><div class="pfval">${p.size}</div></div>` : ''}
-    </div>` : ''}
-    ${keywordsHtml}${skuHtml}
-    ${p.note ? `<div class="pfull"><div class="pflab">选品备注</div><div style="font-size:13px;color:var(--text);margin-top:3px;line-height:1.6">${p.note}</div></div>` : ''}
-    ${p.url ? `<div style="margin-top:6px"><a href="${p.url}" target="_blank" style="font-size:12px;color:var(--blue)">🔗 商品链接</a></div>` : ''}
-    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
-      <button class="edit-btn" onclick="editProd('${p.id}')">编辑</button>
-      <button class="del-btn" onclick="delProd('${p.id}')">🗑 删除</button>
+    <div class="coll-body" id="${cardId}-body">
+      <div style="font-size:11px;color:var(--hint);margin-bottom:10px">${p.platform}${p.cat?' · '+p.cat:''} · ${p.date}</div>
+      ${imgsHtml}
+      <div class="prow">
+        <div class="pfield"><div class="pflab">采购价</div><div class="pfval">¥${p.cost||'-'}</div></div>
+        <div class="pfield"><div class="pflab">定价</div><div class="pfval">¥${p.price||'-'}</div></div>
+        <div class="pfield"><div class="pflab">每件利润</div><div class="pfval ${rate>30?'green':rate>15?'orange':'red'}">¥${profit} (${rate}%)</div></div>
+        <div class="pfield"><div class="pflab">月销量</div><div class="pfval">${p.sales||0}件</div></div>
+      </div>
+      ${p.sales > 0 ? `<div class="prow">
+        <div class="pfield"><div class="pflab">月利润预估</div><div class="pfval green">¥${monthly}</div></div>
+        <div class="pfield"><div class="pflab">退款率</div><div class="pfval ${(p.refund||0)>5?'red':'green'}">${p.refund||0}%</div></div>
+      </div>` : ''}
+      ${(p.weight||p.size) ? `<div class="prow">
+        ${p.weight ? `<div class="pfield"><div class="pflab">重量</div><div class="pfval">${p.weight}g</div></div>` : ''}
+        ${p.size ? `<div class="pfield"><div class="pflab">尺寸</div><div class="pfval">${p.size}</div></div>` : ''}
+      </div>` : ''}
+      ${keywordsHtml}${skuHtml}
+      ${p.note ? `<div class="pfull"><div class="pflab">选品备注</div><div style="font-size:13px;color:var(--text);margin-top:3px;line-height:1.6">${p.note}</div></div>` : ''}
+      ${p.url ? `<div style="margin-top:6px"><a href="${p.url}" target="_blank" style="font-size:12px;color:var(--blue)">🔗 商品链接</a></div>` : ''}
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+        <button class="edit-btn" onclick="editProd('${p.id}')">编辑</button>
+        <button class="del-btn" onclick="delProd('${p.id}')">🗑 删除</button>
+      </div>
     </div>
   </div>`;
 }
@@ -2818,6 +2918,12 @@ function renderProdList() {
   const s = getLocal();
   let list = alive(s.products);
   if (prodFilter !== 'all') list = list.filter(p => p.platform === prodFilter);
+  // 按 updatedAt/date 降序，最新在最上面
+  list = list.slice().sort((a, b) => {
+    const ta = new Date(b.updatedAt || b.date || 0).getTime();
+    const tb = new Date(a.updatedAt || a.date || 0).getTime();
+    return ta - tb;
+  });
   const el = document.getElementById('prodList');
   if (!list.length) { el.innerHTML = '<div class="empty"><div class="ei">📦</div>暂无选品</div>'; return; }
   el.innerHTML = list.map(p => prodHTML(p)).join('');
@@ -2866,13 +2972,32 @@ function delProd(id) {
   });
 }
 
+// 商品状态快切（选品中 → 备货中 → 在售 → 下架 → 选品中）
+function cycleProdStatus(id) {
+  const CYCLE = ['选品中', '备货中', '在售', '下架'];
+  const LABEL_MAP = { '选品中':'🔍 选品中', '备货中':'📦 备货中', '在售':'✅ 在售', '下架':'⬇️ 下架' };
+  const s = getLocal();
+  const idx = (s.products||[]).findIndex(x => x.id === id);
+  if (idx === -1) return;
+  const cur = s.products[idx].status || '选品中';
+  const next = CYCLE[(CYCLE.indexOf(cur) + 1) % CYCLE.length];
+  s.products[idx] = stampNow({ ...s.products[idx], status: next });
+  setLocal(s); renderProdList(); forcePushAndPull();
+  toast(`状态已更新：${LABEL_MAP[next] || next} ✓`);
+}
+
 // ══════════════════════════════════════════════
 //  INSIGHTS
 // ══════════════════════════════════════════════
 function renderInsightList() {
   const s = getLocal();
   const el = document.getElementById('insightList');
-  const insights = alive(s.insights);
+  // 按日期降序，最新在最上面
+  const insights = alive(s.insights).slice().sort((a, b) => {
+    const ta = new Date(b.updatedAt || b.date || 0).getTime();
+    const tb = new Date(a.updatedAt || a.date || 0).getTime();
+    return ta - tb;
+  });
   if (!insights.length) {
     el.innerHTML = '<div class="empty"><div class="ei">💡</div>还没有心得，点右下角 + 添加</div>'; return;
   }
@@ -2903,7 +3028,12 @@ function renderMeetingList() {
   const s = getLocal();
   const el = document.getElementById('meetingList');
   if (!el) return;
-  const mtgs = alive(s.meetings);
+  // 按日期降序，最新在最上面
+  const mtgs = alive(s.meetings).slice().sort((a, b) => {
+    const ta = new Date(b.updatedAt || b.date || 0).getTime();
+    const tb = new Date(a.updatedAt || a.date || 0).getTime();
+    return ta - tb;
+  });
   if (!mtgs.length) {
     el.innerHTML = '<div class="empty"><div class="ei">📋</div>暂无会议记录<br><span style="font-size:13px">点右上角「+ 新会议」开始记录</span></div>'; return;
   }
@@ -3231,6 +3361,19 @@ function saveRecord() {
 }
 
 // ══════════════════════════════════════════════
+//  折叠卡片通用切换
+// ══════════════════════════════════════════════
+function toggleColl(cardId) {
+  const body  = document.getElementById(cardId + '-body');
+  const arrow = document.getElementById(cardId + '-arrow');
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  if (arrow) {
+    arrow.classList.toggle('open', open);
+  }
+}
+
+// ══════════════════════════════════════════════
 //  TOAST
 // ══════════════════════════════════════════════
 function toast(msg) {
@@ -3303,6 +3446,12 @@ function renderGameAccList() {
   let acc = alive(s.gameAccounts);
   const fv = filterMap[gaFilter];
   if (fv) acc = acc.filter(a => a.status === fv);
+  // 按 updatedAt/date 降序，最新在最上面
+  acc = acc.slice().sort((a, b) => {
+    const ta = new Date(b.updatedAt || b.date || 0).getTime();
+    const tb = new Date(a.updatedAt || a.date || 0).getTime();
+    return ta - tb;
+  });
   const el = document.getElementById('gameaccList');
   if (!el) return;
   if (!acc.length) {
