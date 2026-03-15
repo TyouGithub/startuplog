@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-014';
+  var VER = '20260314-015';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -2690,15 +2690,36 @@ function initImgUploadZone() {
   }
 }
 
-function handleProdImgs(input) {
-  const files = Array.from(input.files);
-  files.forEach(file => {
+// 用 Canvas 压缩图片：最大边 800px，jpeg 质量 0.75，单张约 80-150KB
+function compressImage(file) {
+  return new Promise(resolve => {
     const reader = new FileReader();
     reader.onload = e => {
-      pendingProdImgs.push(e.target.result);
-      renderProdImgPreview();
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 800;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else       { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.75));
+      };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
+  });
+}
+
+function handleProdImgs(input) {
+  const files = Array.from(input.files);
+  files.forEach(async file => {
+    const compressed = await compressImage(file);
+    pendingProdImgs.push(compressed);
+    renderProdImgPreview();
   });
   input.value = ''; // 清空以允许重复选同一文件
 }
@@ -2728,13 +2749,10 @@ function imgDrop(e) {
   document.getElementById('imgDropZone').classList.remove('drag-over');
   const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
   if (!files.length) return;
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      pendingProdImgs.push(ev.target.result);
-      renderProdImgPreview();
-    };
-    reader.readAsDataURL(file);
+  files.forEach(async file => {
+    const compressed = await compressImage(file);
+    pendingProdImgs.push(compressed);
+    renderProdImgPreview();
   });
 }
 
