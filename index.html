@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-024';
+  var VER = '20260314-025';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -48,6 +48,33 @@ window.addEventListener('unhandledrejection', function(e) {
 <meta name="apple-mobile-web-app-title" content="StartupLog"/>
 <meta name="theme-color" content="#1677ff"/>
 <link rel="manifest" href="manifest.json"/>
+<script>
+// ── Service Worker 注册 + 自动更新检测 ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').then(function(reg) {
+      // 检测到新版本（updatefound）
+      reg.addEventListener('updatefound', function() {
+        var newWorker = reg.installing;
+        newWorker.addEventListener('statechange', function() {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // 有新版本就绪，提示用户刷新
+            var bar = document.createElement('div');
+            bar.id = '__swUpdateBar';
+            bar.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(22,119,255,0.95);color:#fff;padding:12px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(22,119,255,.4);display:flex;align-items:center;gap:10px;white-space:nowrap;backdrop-filter:blur(12px)';
+            bar.innerHTML = '🚀 发现新版本 <span onclick="location.reload(true)" style="background:rgba(255,255,255,0.25);padding:3px 10px;border-radius:12px;cursor:pointer;margin-left:4px">立即更新</span>';
+            document.body && document.body.appendChild(bar);
+            // 10秒后自动消失
+            setTimeout(function(){ bar.remove && bar.remove(); }, 10000);
+          }
+        });
+      });
+    }).catch(function(err) {
+      console.warn('[SW] 注册失败:', err);
+    });
+  });
+}
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
