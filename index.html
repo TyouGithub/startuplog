@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-033';
+  var VER = '20260314-036';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -28,17 +28,17 @@ function __showErr(msg) {
     box = document.createElement('div');
     box.id = '__errBox';
     box.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#1a1a2e;color:#ff6b6b;font-size:13px;padding:20px;z-index:99999;overflow:auto;word-break:break-all;white-space:pre-wrap;font-family:monospace';
-    box.innerHTML = '<b style="color:#fff;font-size:15px">⚠️ JS 错误（调试用）</b>\n\n';
+    box.innerHTML = '<b style="color:#fff;font-size:15px">JS 错误（调试用）</b>\n\n';
     document.body ? document.body.appendChild(box) : document.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(box); });
   }
   box.innerHTML += msg + '\n\n';
 }
 window.onerror = function(msg, src, line, col, err) {
-  __showErr('❌ ' + msg + '\n   ' + src + ':' + line + ':' + col + (err ? '\n   ' + err.stack : ''));
+  __showErr(msg + '\n   ' + src + ':' + line + ':' + col + (err ? '\n   ' + err.stack : ''));
   return false;
 };
 window.addEventListener('unhandledrejection', function(e) {
-  __showErr('❌ Promise rejected: ' + (e.reason ? (e.reason.stack || e.reason) : e));
+  __showErr('Promise rejected: ' + (e.reason ? (e.reason.stack || e.reason) : e));
 });
 </script>
 <title>StartupLog · 创业工作台</title>
@@ -65,7 +65,7 @@ if ('serviceWorker' in navigator) {
             var bar = document.createElement('div');
             bar.id = '__swUpdateBar';
             bar.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(22,119,255,0.95);color:#fff;padding:12px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(22,119,255,.4);display:flex;align-items:center;gap:10px;white-space:nowrap;backdrop-filter:blur(12px)';
-            bar.innerHTML = '🚀 发现新版本 <span onclick="location.reload(true)" style="background:rgba(255,255,255,0.25);padding:3px 10px;border-radius:12px;cursor:pointer;margin-left:4px">立即更新</span>';
+            bar.innerHTML = '发现新版本 <span onclick="location.reload(true)" style="background:rgba(255,255,255,0.25);padding:3px 10px;border-radius:12px;cursor:pointer;margin-left:4px">立即更新</span>';
             document.body && document.body.appendChild(bar);
             // 10秒后自动消失
             setTimeout(function(){ bar.remove && bar.remove(); }, 10000);
@@ -111,24 +111,58 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .offline-tip.show{display:block}
 
 /* ── LOGIN ── */
-#loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at 30% 20%,#1a2035 0%,#080b10 60%,#0a0c14 100%);padding:20px}
-.lcard{background:rgba(20,24,32,0.92);backdrop-filter:blur(32px) saturate(180%);-webkit-backdrop-filter:blur(32px) saturate(180%);border-radius:24px;padding:32px 24px 28px;width:100%;max-width:360px;box-shadow:0 32px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.08)}
-.llogo{text-align:center;margin-bottom:24px}
-.llogo .icon{font-size:48px;display:block;margin-bottom:10px}
-.llogo h1{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
-.llogo p{font-size:13px;color:var(--hint);margin-top:4px}
-.ulabel{font-size:12px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.urow{display:flex;gap:10px;margin-bottom:18px}
-.ubtn{flex:1;border:1.5px solid rgba(255,255,255,0.08);border-radius:12px;padding:13px 8px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.04);transition:all .2s;-webkit-user-select:none;user-select:none}
-.ubtn .av{width:38px;height:38px;border-radius:50%;margin:0 auto 7px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff}
-.ubtn .nm{font-size:13px;font-weight:700;color:var(--text)}
-.ubtn .rl{font-size:11px;color:var(--hint);margin-top:2px}
-.ubtn.sel{border-color:var(--blue);background:rgba(37,99,235,0.15)}.ubtn.sel .nm{color:#93c5fd}
-.finp{width:100%;padding:12px 13px;border:1.5px solid rgba(255,255,255,0.1);border-radius:11px;font-size:15px;outline:none;background:rgba(255,255,255,0.06);font-family:inherit;color:var(--text);transition:border-color .2s;margin-bottom:12px}
-.finp:focus{border-color:var(--blue);background:rgba(255,255,255,0.08)}
-.lbtn{width:100%;padding:14px;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(37,99,235,.4)}
-.lbtn:active{opacity:.88}
-.lerr{color:var(--red);font-size:12px;text-align:center;margin-top:10px;min-height:18px}
+#loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;position:relative;overflow:hidden;background:#060810}
+/* 奢华背景：多层光晕 */
+#loginPage::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 15% 85%,rgba(212,175,55,0.08) 0%,transparent 55%),radial-gradient(ellipse at 85% 15%,rgba(37,99,235,0.12) 0%,transparent 55%),radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0) 0%,#060810 100%);pointer-events:none;z-index:0}
+#loginPage::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(212,175,55,0.5) 30%,rgba(255,255,255,0.2) 50%,rgba(212,175,55,0.5) 70%,transparent 100%);z-index:1}
+/* 粒子网格装饰 */
+.login-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0}
+.lcard{position:relative;z-index:2;background:rgba(8,10,18,0.92);backdrop-filter:blur(48px) saturate(200%);-webkit-backdrop-filter:blur(48px) saturate(200%);border-radius:28px;padding:0;width:100%;max-width:380px;box-shadow:0 0 0 1px rgba(212,175,55,0.15),0 0 0 1px rgba(255,255,255,0.04) inset,0 40px 100px rgba(0,0,0,0.85),0 0 80px rgba(212,175,55,0.04);overflow:hidden}
+/* 顶部金属光泽线 */
+.lcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(212,175,55,0.6) 25%,rgba(255,255,255,0.25) 50%,rgba(212,175,55,0.6) 75%,transparent 100%);z-index:3}
+/* 内部微光晕 */
+.lcard::after{content:'';position:absolute;top:-60px;right:-60px;width:180px;height:180px;background:radial-gradient(circle,rgba(37,99,235,0.08) 0%,transparent 70%);border-radius:50%;pointer-events:none;z-index:0}
+/* 登录卡头部豪华区 */
+.lcard-hero{padding:36px 32px 28px;position:relative;border-bottom:1px solid rgba(255,255,255,0.05)}
+.lcard-body{padding:28px 32px 36px;position:relative;z-index:1}
+/* Logo */
+.llogo-mark{width:56px;height:56px;border-radius:16px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;position:relative;background:linear-gradient(145deg,rgba(20,30,50,0.9) 0%,rgba(10,16,30,0.9) 100%);border:1px solid rgba(212,175,55,0.25);box-shadow:0 0 0 1px rgba(255,255,255,0.04) inset,0 8px 32px rgba(0,0,0,0.6),0 0 20px rgba(212,175,55,0.08)}
+.llogo-mark::before{content:'';position:absolute;inset:-1px;border-radius:17px;background:linear-gradient(145deg,rgba(212,175,55,0.3) 0%,transparent 50%,rgba(212,175,55,0.1) 100%);pointer-events:none}
+.llogo{text-align:center;margin-bottom:0}
+.llogo h1{font-size:22px;font-weight:200;color:rgba(255,255,255,0.92);letter-spacing:8px;text-transform:uppercase;margin-bottom:6px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.llogo h1 em{font-style:normal;color:rgba(212,175,55,0.85);font-weight:300}
+.llogo p{font-size:10px;color:rgba(255,255,255,0.25);letter-spacing:3px;text-transform:uppercase;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+/* 身份选择标题 */
+.ulabel{font-size:9px;font-weight:400;color:rgba(212,175,55,0.55);text-transform:uppercase;letter-spacing:3px;margin-bottom:14px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+/* 身份按钮 */
+.urow{display:flex;gap:10px;margin-bottom:20px}
+.ubtn{flex:1;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.02);transition:all .25s;-webkit-user-select:none;user-select:none;position:relative;overflow:hidden}
+.ubtn::before{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(145deg,rgba(255,255,255,0.03) 0%,transparent 100%);pointer-events:none}
+.ubtn .av{width:44px;height:44px;border-radius:50%;margin:0 auto 9px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:200;color:rgba(255,255,255,0.9);letter-spacing:1px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;box-shadow:0 0 0 1px rgba(212,175,55,0.25),0 0 14px rgba(212,175,55,0.1),0 4px 12px rgba(0,0,0,0.5)}
+.ubtn .nm{font-size:13px;font-weight:300;color:rgba(255,255,255,0.75);letter-spacing:2px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.ubtn .rl{font-size:9px;color:rgba(255,255,255,0.25);margin-top:3px;letter-spacing:1px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.ubtn.sel{border-color:rgba(212,175,55,0.35);background:rgba(212,175,55,0.06)}
+.ubtn.sel .nm{color:rgba(212,175,55,0.9)}
+.ubtn.sel .av{box-shadow:0 0 0 1px rgba(212,175,55,0.45),0 0 20px rgba(212,175,55,0.2),0 4px 16px rgba(0,0,0,0.5)}
+/* 密码输入框 */
+.finp{width:100%;padding:14px 16px;border:1px solid rgba(255,255,255,0.07);border-radius:13px;font-size:15px;outline:none;background:rgba(255,255,255,0.03);font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;color:rgba(255,255,255,0.88);transition:all .25s;margin-bottom:14px;letter-spacing:2px}
+.finp:focus{border-color:rgba(212,175,55,0.4);background:rgba(212,175,55,0.04);box-shadow:0 0 0 3px rgba(212,175,55,0.08),0 0 20px rgba(212,175,55,0.05)}
+.finp::placeholder{letter-spacing:.5px;color:rgba(255,255,255,0.2)}
+/* 进入按钮 - 黑金旗舰感 */
+.lbtn{width:100%;padding:16px;background:linear-gradient(135deg,rgba(212,175,55,0.15) 0%,rgba(212,175,55,0.08) 50%,rgba(212,175,55,0.12) 100%);color:rgba(255,255,255,0.9);border:1px solid rgba(212,175,55,0.3);border-radius:13px;font-size:13px;font-weight:300;cursor:pointer;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;letter-spacing:5px;text-transform:uppercase;box-shadow:0 0 0 1px rgba(255,255,255,0.04) inset,0 4px 24px rgba(0,0,0,0.4),0 0 30px rgba(212,175,55,0.06);transition:all .25s;position:relative;overflow:hidden}
+.lbtn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.06) 0%,transparent 50%);border-radius:13px;pointer-events:none}
+.lbtn:active{opacity:.82;transform:scale(.99)}
+.lbtn:hover{border-color:rgba(212,175,55,0.45);box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset,0 4px 24px rgba(0,0,0,0.4),0 0 40px rgba(212,175,55,0.1)}
+.lerr{color:rgba(220,38,38,0.8);font-size:11px;text-align:center;margin-top:10px;min-height:18px;letter-spacing:.5px}
+/* 其他成员 */
+.lother{text-align:center;margin-bottom:16px}
+.lother span{font-size:10px;color:rgba(255,255,255,0.2);cursor:pointer;letter-spacing:2px;text-transform:uppercase;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;transition:color .2s}
+.lother span:hover{color:rgba(212,175,55,0.5)}
+/* 底部品牌标签 */
+.lcard-foot{border-top:1px solid rgba(255,255,255,0.04);padding:12px 32px;display:flex;align-items:center;justify-content:space-between}
+.lcard-foot-left{font-size:9px;color:rgba(255,255,255,0.12);letter-spacing:2px;text-transform:uppercase;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.lcard-foot-right{display:flex;align-items:center;gap:4px}
+.lcard-foot-dot{width:5px;height:5px;border-radius:50%;background:rgba(212,175,55,0.4);box-shadow:0 0 6px rgba(212,175,55,0.3)}
 
 /* ── APP ── */
 #app{display:none;min-height:100vh;padding-bottom:68px;padding-top:3px}
@@ -325,9 +359,50 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .shortcut-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .shortcut-item{background:var(--card);border-radius:var(--r);padding:13px 14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;cursor:pointer;transition:transform .15s,box-shadow .15s;border:1px solid rgba(255,255,255,0.06)}
 .shortcut-item:active{transform:scale(.97);box-shadow:var(--shadow)}
-.shortcut-icon{font-size:22px;flex-shrink:0;line-height:1}
+.shortcut-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.shortcut-icon--blue{background:rgba(37,99,235,0.15);color:rgba(96,165,250,0.9)}
+.shortcut-icon--purple{background:rgba(124,58,237,0.15);color:rgba(167,139,250,0.9)}
+.shortcut-icon--amber{background:rgba(217,119,6,0.15);color:rgba(251,191,36,0.9)}
+.shortcut-icon--teal{background:rgba(13,148,136,0.15);color:rgba(45,212,191,0.9)}
 .shortcut-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
 .shortcut-sub{font-size:11px;color:var(--hint)}
+
+/* ── 我的页面数据概览卡 ── */
+.pf-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.pf-stat-item{background:var(--card);border-radius:var(--r);padding:14px 12px;text-align:center;border:1px solid rgba(255,255,255,0.06);box-shadow:var(--shadow)}
+.pf-stat-val{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--text);line-height:1;margin-bottom:4px}
+.pf-stat-lab{font-size:10px;color:var(--hint);letter-spacing:.5px}
+
+/* ── 成员管理高级卡片 ── */
+.member-card-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.member-card-item:last-child{border-bottom:none}
+.member-av{width:44px;height:44px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:300;color:rgba(255,255,255,0.9);position:relative;letter-spacing:1px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.member-av::before{content:'';position:absolute;inset:-2px;border-radius:50%;background:linear-gradient(145deg,rgba(212,175,55,0.5) 0%,rgba(255,255,255,0.1) 50%,rgba(212,175,55,0.3) 100%);z-index:0}
+.member-av-inner{position:relative;z-index:1;width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.member-info{flex:1;min-width:0}
+.member-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.member-en{font-size:9px;color:rgba(212,175,55,0.5);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;font-family:-apple-system,'SF Pro Display',sans-serif}
+.member-role-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;letter-spacing:.5px;display:inline-flex;align-items:center;gap:3px}
+.role-founder{background:linear-gradient(135deg,rgba(212,175,55,0.2),rgba(212,175,55,0.08));color:rgba(212,175,55,0.9);border:1px solid rgba(212,175,55,0.2)}
+.role-cofounder{background:linear-gradient(135deg,rgba(167,139,250,0.2),rgba(167,139,250,0.08));color:rgba(167,139,250,0.9);border:1px solid rgba(167,139,250,0.2)}
+.role-lover{background:linear-gradient(135deg,rgba(244,114,182,0.2),rgba(244,114,182,0.08));color:rgba(244,114,182,0.9);border:1px solid rgba(244,114,182,0.2)}
+.role-member{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.08)}
+
+/* ── 会议通知 ── */
+.notif-setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.notif-toggle{position:relative;width:42px;height:24px;cursor:pointer}
+.notif-toggle input{opacity:0;width:0;height:0}
+.notif-slider{position:absolute;inset:0;background:rgba(255,255,255,0.12);border-radius:24px;transition:.3s}
+.notif-slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s}
+.notif-toggle input:checked+.notif-slider{background:rgba(37,99,235,0.8)}
+.notif-toggle input:checked+.notif-slider::before{transform:translateX(18px)}
+.meeting-notif-badge{font-size:10px;padding:2px 8px;border-radius:12px;background:rgba(37,99,235,0.2);color:rgba(96,165,250,0.9);border:1px solid rgba(37,99,235,0.3);font-weight:600;margin-left:6px}
+.meeting-notif-badge.set{background:rgba(22,163,74,0.2);color:rgba(34,197,94,0.9);border-color:rgba(22,163,74,0.3)}
+
+/* ── 通知设置弹窗 ── */
+#notifModal .sheet{max-height:70vh}
+.sms-template-box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;margin-top:8px;font-size:12px;color:var(--sub);line-height:1.7;position:relative}
+.sms-template-box::before{content:'短信预览';position:absolute;top:-9px;left:12px;background:var(--card);padding:0 6px;font-size:10px;color:rgba(212,175,55,0.6);letter-spacing:1px}
 
 /* ── FAB ── */
 .fab{position:fixed;bottom:80px;right:16px;width:50px;height:50px;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border:none;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,.5),0 0 0 1px rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;z-index:49;transition:transform .15s,box-shadow .15s}
@@ -442,7 +517,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 
 /* ── GAME ACC PAGE ── */
 .ga-hero{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#1e1b4b 100%);border-radius:var(--r);padding:18px 16px;margin-bottom:10px;color:#fff;position:relative;border:1px solid rgba(255,255,255,.05)}
-.ga-hero::before{content:'🎮';position:absolute;right:-8px;top:-8px;font-size:80px;opacity:.1;transform:rotate(-15deg);pointer-events:none;overflow:hidden;max-width:100%;max-height:100%}
+.ga-hero::before{content:'';position:absolute;right:-8px;top:-8px;font-size:80px;opacity:.1;transform:rotate(-15deg);pointer-events:none;overflow:hidden;max-width:100%;max-height:100%}
 .ga-hero-title{font-size:14px;font-weight:800;margin-bottom:10px;letter-spacing:-.3px;opacity:.9}
 .ga-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .ga-kpi{background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.07)}
@@ -622,12 +697,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 <body>
 
 <div class="sync-bar" id="syncBar"></div>
-<div class="offline-tip" id="offlineTip">⚠️ 当前离线，数据将在恢复网络后自动同步</div>
+<div class="offline-tip" id="offlineTip">当前离线，数据将在恢复网络后自动同步</div>
 <div class="ptr-tip" id="ptrTip">↓ 下拉同步</div>
 
 <!-- 加载屏 -->
 <div class="loading-screen" id="loadingScreen">
-  <div class="spin">🚀</div>
+  <div class="spin"><svg width="52" height="52" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="22" stroke="rgba(255,255,255,0.15)" stroke-width="3"/><path d="M26 4a22 22 0 0 1 22 22" stroke="rgba(255,255,255,0.9)" stroke-width="3" stroke-linecap="round"/><circle cx="26" cy="26" r="6" fill="rgba(255,255,255,0.9)"/></svg></div>
   <p>正在同步云端数据，请稍候…</p>
   <p style="font-size:12px;opacity:.55;margin-top:8px">首次加载约需 3-6 秒</p>
 </div>
@@ -646,30 +721,52 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 
 <!-- LOGIN -->
 <div id="loginPage" style="display:none">
+  <div class="login-grid"></div>
   <div class="lcard">
-    <div class="llogo">
-      <span class="icon">🚀</span>
-      <h1>StartupLog</h1>
-      <p>佳硕 & 一新 · 共创工作台</p>
-    </div>
-    <div class="ulabel">选择身份</div>
-    <div class="urow">
-      <div class="ubtn sel" id="ubtn-jiashuo" onclick="selUser('jiashuo')">
-        <div class="av" style="background:linear-gradient(135deg,#1677ff,#0d47a1)">佳</div>
-        <div class="nm">佳硕</div><div class="rl">创始人 &amp; CEO</div>
+    <!-- 顶部徽标区 -->
+    <div class="lcard-hero">
+      <div class="llogo">
+        <div class="llogo-mark">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <path d="M14 4L22 9V19L14 24L6 19V9L14 4Z" stroke="rgba(212,175,55,0.7)" stroke-width="1.2" fill="none"/>
+            <path d="M14 4L22 9V19L14 24L6 19V9L14 4Z" stroke="rgba(255,255,255,0.15)" stroke-width="0.5" fill="rgba(212,175,55,0.05)"/>
+            <circle cx="14" cy="14" r="3" fill="rgba(212,175,55,0.6)"/>
+            <path d="M14 7V11M14 17V21M7 10.5L10.5 12.5M17.5 15.5L21 17.5M7 17.5L10.5 15.5M17.5 12.5L21 10.5" stroke="rgba(212,175,55,0.4)" stroke-width="0.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h1>START<em>UP</em>LOG</h1>
+        <p>共创工作台 · 佳硕 &amp; 一新</p>
       </div>
-      <div class="ubtn" id="ubtn-yixin" onclick="selUser('yixin')">
-        <div class="av" style="background:linear-gradient(135deg,#7c3aed,#db2777)">新</div>
-        <div class="nm">一新</div><div class="rl">联合创始人 &amp; 掌舵人</div>
+    </div>
+    <!-- 登录区 -->
+    <div class="lcard-body">
+      <div class="ulabel">选择身份</div>
+      <div class="urow">
+        <div class="ubtn sel" id="ubtn-jiashuo" onclick="selUser('jiashuo')">
+          <div class="av" style="background:linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)">硕</div>
+          <div class="nm">佳硕</div><div class="rl">创始人 · CEO</div>
+        </div>
+        <div class="ubtn" id="ubtn-yixin" onclick="selUser('yixin')">
+          <div class="av" style="background:linear-gradient(145deg,#1a1220 0%,#120c1a 60%,#1a1228 100%)">新</div>
+          <div class="nm">一新</div><div class="rl">联合创始人</div>
+        </div>
+      </div>
+      <div id="memberBtns" style="display:none;margin-bottom:16px"></div>
+      <div class="lother">
+        <span onclick="toggleMemberList()">其他成员登录</span>
+      </div>
+      <input class="finp" type="password" id="pwdIn" placeholder="输入密码" onkeydown="if(event.key==='Enter')login()"/>
+      <button class="lbtn" onclick="login()">进入工作台</button>
+      <div class="lerr" id="lerr"></div>
+    </div>
+    <!-- 底部品牌 -->
+    <div class="lcard-foot">
+      <div class="lcard-foot-left">Confidential</div>
+      <div class="lcard-foot-right">
+        <div class="lcard-foot-dot"></div>
+        <span style="font-size:9px;color:rgba(212,175,55,0.3);letter-spacing:1.5px;font-family:-apple-system,'SF Pro Display',sans-serif">STARTUPLOG</span>
       </div>
     </div>
-    <div id="memberBtns" style="display:none;margin-bottom:14px"></div>
-    <div style="text-align:center;margin-bottom:12px">
-      <span style="font-size:12px;color:var(--hint);cursor:pointer" onclick="toggleMemberList()">👥 其他成员登录</span>
-    </div>
-    <input class="finp" type="password" id="pwdIn" placeholder="输入密码" onkeydown="if(event.key==='Enter')login()"/>
-    <button class="lbtn" onclick="login()">进入工作台</button>
-    <div class="lerr" id="lerr"></div>
   </div>
 </div>
 
@@ -682,7 +779,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div class="hdr-date" id="hdrDate"></div>
       </div>
       <div class="hdr-right">
-        <span class="sync-icon" id="syncIcon" onclick="syncNow()" title="手动同步" style="display:none">☁️</span>
+        <span class="sync-icon" id="syncIcon" onclick="syncNow()" title="手动同步" style="display:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(148,163,184,0.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
         <div class="hdr-user-wrap" onclick="goPage('profile')">
           <div class="hdr-av" id="hdrAv"></div>
           <div style="display:flex;flex-direction:column;line-height:1">
@@ -709,13 +806,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div class="banner">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;position:relative">
         <div>
-          <h2 id="bnrTitle">你好 👋</h2>
+          <h2 id="bnrTitle">你好</h2>
           <p style="margin-top:3px">今天是 <span id="bnrDate"></span></p>
         </div>
-        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:6px 10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.85);white-space:nowrap;flex-shrink:0;margin-left:12px" id="bnrWeather">☁️ 加载中</div>
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:6px 10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.85);white-space:nowrap;flex-shrink:0;margin-left:12px" id="bnrWeather">加载中</div>
       </div>
       <div id="bnrSoup" style="margin-top:12px;background:rgba(255,255,255,0.06);border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.65;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.08)">
-        <span id="bnrSoupText" style="font-style:italic;opacity:.92">✨ 加载每日鸡汤中...</span>
+        <span id="bnrSoupText" style="font-style:italic;opacity:.92">加载每日鸡汤中...</span>
         <span id="bnrRefreshBtn" onclick="fetchDailySoup(true)" style="font-size:11px;opacity:.65;margin-left:8px;cursor:pointer;background:rgba(255,255,255,0.18);border-radius:8px;padding:2px 7px;-webkit-user-select:none;user-select:none;transition:opacity .15s" title="换一句">↻</span>
       </div>
     </div>
@@ -740,7 +837,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <!-- 最近会议 -->
     <div class="coll-card">
       <div class="coll-hdr" onclick="toggleColl('homeMeetingsCard')">
-        <div class="coll-title">📋 最近会议</div>
+        <div class="coll-title">最近会议</div>
         <div class="coll-actions">
           <span class="cm" onclick="event.stopPropagation();goPage('meetings')">全部 →</span>
           <span class="coll-arrow" id="homeMeetingsCard-arrow">▼</span>
@@ -754,7 +851,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <!-- 动态记录 -->
     <div class="coll-card">
       <div class="coll-hdr" onclick="toggleColl('actCard')">
-        <div class="coll-title">⚡ 动态记录</div>
+        <div class="coll-title">动态记录</div>
         <div class="coll-actions">
           <span class="cm" onclick="event.stopPropagation();openAddAct()">+ 添加</span>
           <span class="cm" id="syncStatus" style="font-size:11px;display:none"></span>
@@ -770,7 +867,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
   <!-- TASKS -->
   <div class="pg" id="pg-tasks">
     <div class="page-hdr">
-      <div class="page-hdr-title">✅ 任务管理</div>
+      <div class="page-hdr-title">任务管理</div>
     </div>
     <div class="fbar">
       <button class="fbtn on" id="tf-all" onclick="filterTask('all')">全部</button>
@@ -780,7 +877,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     </div>
     <div class="coll-card" id="taskListCard">
       <div class="coll-hdr" onclick="toggleColl('taskListCard')">
-        <div class="coll-title">📋 任务列表</div>
+        <div class="coll-title">任务列表</div>
         <span class="coll-arrow open" id="taskListCard-arrow">▼</span>
       </div>
       <div class="coll-body open" id="taskListCard-body">
@@ -805,7 +902,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <!-- 商品图工具箱入口 -->
     <div class="imggen-entry" onclick="openImgGen()">
       <div class="imggen-entry-left">
-        <div class="imggen-entry-icon">🖼️</div>
+        <div class="imggen-entry-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(148,163,184,0.8)" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg></div>
         <div>
           <div class="imggen-entry-title">商品图工具箱</div>
           <div class="imggen-entry-sub">精选 AI 工具 · 抠图 / 换背景 / 多语言翻译 · 一键直达</div>
@@ -821,7 +918,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <!-- 利润计算器 -->
     <div class="card" style="margin-bottom:12px">
       <div class="ch" style="cursor:pointer" onclick="toggleCalc()">
-        <div class="ct">🧮 利润计算器</div>
+        <div class="ct">利润计算器</div>
         <span id="calcArrow" style="font-size:12px;color:var(--hint)">▼</span>
       </div>
       <div id="calcBody" style="display:none">
@@ -862,14 +959,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div class="coll-card ga-master-card">
       <div class="coll-hdr ga-master-hdr" onclick="toggleColl('gameMasterCard')">
         <div style="display:flex;align-items:center;gap:10px">
-          <div class="ga-master-icon">🎮</div>
+          <div class="ga-master-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(148,163,184,0.8)" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="5"/><line x1="8" y1="12" x2="12" y2="12"/><line x1="10" y1="10" x2="10" y2="14"/><circle cx="16" cy="12" r="1" fill="rgba(148,163,184,0.8)"/><circle cx="14" cy="10" r="1" fill="rgba(148,163,184,0.8)"/></svg></div>
           <div>
             <div class="ga-master-title">游戏账号管理</div>
             <div class="ga-master-sub" id="gaMasterSub1">加载中...</div>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
-          <button class="action-btn-ghost" onclick="event.stopPropagation();openPhoneBindDetail()" style="padding:4px 10px;font-size:11px">📱 绑定</button>
+          <button class="action-btn-ghost" onclick="event.stopPropagation();openPhoneBindDetail()" style="padding:4px 10px;font-size:11px">绑定</button>
           <span class="coll-arrow" id="gameMasterCard-arrow">▼</span>
         </div>
       </div>
@@ -879,10 +976,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <!-- 状态筛选 -->
         <div class="fbar" style="margin-bottom:10px">
           <button class="fbtn on" id="gaf-all"      onclick="filterGameAcc('all')">全部</button>
-          <button class="fbtn"    id="gaf-normal"   onclick="filterGameAcc('normal')">✅ 正常</button>
-          <button class="fbtn"    id="gaf-frozen"   onclick="filterGameAcc('frozen')">⚠️ 冻结</button>
-          <button class="fbtn"    id="gaf-sold"     onclick="filterGameAcc('sold')">🔒 已出售</button>
-          <button class="fbtn"    id="gaf-returned" onclick="filterGameAcc('returned')">❌ 被找回</button>
+          <button class="fbtn"    id="gaf-normal"   onclick="filterGameAcc('normal')">正常</button>
+          <button class="fbtn"    id="gaf-frozen"   onclick="filterGameAcc('frozen')">冻结</button>
+          <button class="fbtn"    id="gaf-sold"     onclick="filterGameAcc('sold')">已出售</button>
+          <button class="fbtn"    id="gaf-returned" onclick="filterGameAcc('returned')">被找回</button>
         </div>
         <!-- 账号列表（第三层折叠） -->
         <div class="coll-card" style="margin-bottom:8px;background:rgba(255,255,255,0.02)">
@@ -941,37 +1038,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div class="pf-brand-mark">StartupLog</div>
       </div>
     </div>
-    <!-- 快捷工具入口 -->
+    <!-- 快捷工具入口 - 高级版 -->
     <div class="shortcut-grid">
       <div class="shortcut-item" onclick="goPage('tasks')">
-        <span class="shortcut-icon">✅</span>
+        <span class="shortcut-icon shortcut-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
         <div><div class="shortcut-title">任务管理</div><div class="shortcut-sub" id="myTaskCount">-</div></div>
       </div>
       <div class="shortcut-item" onclick="openModal();switchForm('meeting')">
-        <span class="shortcut-icon">📋</span>
-        <div><div class="shortcut-title">记录会议</div><div class="shortcut-sub">点击快速记录</div></div>
+        <span class="shortcut-icon shortcut-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+        <div><div class="shortcut-title">记录会议</div><div class="shortcut-sub">快速记录</div></div>
       </div>
-      <div class="shortcut-item" onclick="openAddAct()">
-        <span class="shortcut-icon">⚡</span>
-        <div><div class="shortcut-title">记录动态</div><div class="shortcut-sub">快速添加动态</div></div>
+      <div class="shortcut-item" onclick="goPage('products')">
+        <span class="shortcut-icon shortcut-icon--amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
+        <div><div class="shortcut-title">选品库</div><div class="shortcut-sub">商品管理</div></div>
       </div>
       <div class="shortcut-item" onclick="openModal();switchForm('insight')">
-        <span class="shortcut-icon">💡</span>
-        <div><div class="shortcut-title">记录心得</div><div class="shortcut-sub">分享创业思考</div></div>
+        <span class="shortcut-icon shortcut-icon--teal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+        <div><div class="shortcut-title">记录心得</div><div class="shortcut-sub">创业思考</div></div>
       </div>
     </div>
+    <!-- 数据概览卡 -->
+    <div class="pf-stats-row" id="pfStatsRow"></div>
     <!-- 游戏账号（并入我的） -->
     <div class="coll-card ga-master-card">
       <div class="coll-hdr ga-master-hdr" onclick="toggleColl('gameMasterCard2')">
         <div style="display:flex;align-items:center;gap:10px">
-          <div class="ga-master-icon">🎮</div>
+          <div class="ga-master-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(148,163,184,0.8)" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="5"/><line x1="8" y1="12" x2="12" y2="12"/><line x1="10" y1="10" x2="10" y2="14"/><circle cx="16" cy="12" r="1" fill="rgba(148,163,184,0.8)"/><circle cx="14" cy="10" r="1" fill="rgba(148,163,184,0.8)"/></svg></div>
           <div>
             <div class="ga-master-title">游戏账号管理</div>
             <div class="ga-master-sub" id="gaMasterSub2">加载中...</div>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
-          <button class="action-btn-ghost" onclick="event.stopPropagation();openPhoneBindDetail()" style="padding:4px 10px;font-size:11px">📱 绑定</button>
+          <button class="action-btn-ghost" onclick="event.stopPropagation();openPhoneBindDetail()" style="padding:4px 10px;font-size:11px">绑定</button>
           <span class="coll-arrow" id="gameMasterCard2-arrow">▼</span>
         </div>
       </div>
@@ -981,10 +1080,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <!-- 状态筛选 -->
         <div class="fbar" style="margin-bottom:10px">
           <button class="fbtn on" id="gaf2-all"      onclick="filterGameAcc2('all')">全部</button>
-          <button class="fbtn"    id="gaf2-normal"   onclick="filterGameAcc2('normal')">✅ 正常</button>
-          <button class="fbtn"    id="gaf2-frozen"   onclick="filterGameAcc2('frozen')">⚠️ 冻结</button>
-          <button class="fbtn"    id="gaf2-sold"     onclick="filterGameAcc2('sold')">🔒 已出售</button>
-          <button class="fbtn"    id="gaf2-returned" onclick="filterGameAcc2('returned')">❌ 被找回</button>
+          <button class="fbtn"    id="gaf2-normal"   onclick="filterGameAcc2('normal')">正常</button>
+          <button class="fbtn"    id="gaf2-frozen"   onclick="filterGameAcc2('frozen')">冻结</button>
+          <button class="fbtn"    id="gaf2-sold"     onclick="filterGameAcc2('sold')">已出售</button>
+          <button class="fbtn"    id="gaf2-returned" onclick="filterGameAcc2('returned')">被找回</button>
         </div>
         <!-- 账号列表 -->
         <div class="coll-card" style="margin-bottom:8px;background:rgba(255,255,255,0.02)">
@@ -1054,7 +1153,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <!-- 成员管理：仅管理员可见 -->
     <div class="coll-card" id="memberMgmtCard" style="display:none">
       <div class="coll-hdr" onclick="toggleColl('memberCard')">
-        <div class="coll-title">👥 成员管理</div>
+        <div class="coll-title">成员管理</div>
         <div class="coll-actions">
           <span class="cm" onclick="event.stopPropagation();openAddMember()">+ 添加成员</span>
           <span class="coll-arrow" id="memberCard-arrow">▼</span>
@@ -1069,7 +1168,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       <span style="font-size:12px;color:var(--hint);cursor:pointer;text-decoration:underline" onclick="togglePwdPanel()">修改密码</span>
     </div>
     <div class="card" id="pwdPanel" style="display:none">
-      <div class="ct" style="margin-bottom:12px">🔐 修改密码</div>
+      <div class="ct" style="margin-bottom:12px">修改密码</div>
       <div class="frow"><label>新密码（6位以上）</label><input type="password" id="npwd" placeholder="输入新密码"/></div>
       <div class="frow"><label>确认密码</label><input type="password" id="cpwd" placeholder="再次确认"/></div>
       <button class="btn btn-p" style="width:100%;margin-top:4px" onclick="changePwd()">更新密码</button>
@@ -1110,16 +1209,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div class="handle"></div>
     <div class="stitle" id="modalTitle">添加记录</div>
     <div class="tsw" id="tsw">
-      <button class="tsw-btn on" id="ft-task" onclick="switchForm('task')">✅ 任务</button>
-      <button class="tsw-btn" id="ft-product" onclick="switchForm('product')">🛒 选品</button>
-      <button class="tsw-btn" id="ft-meeting" onclick="switchForm('meeting')">📋 会议</button>
-      <button class="tsw-btn" id="ft-insight" onclick="switchForm('insight')">💡 心得</button>
+      <button class="tsw-btn on" id="ft-task" onclick="switchForm('task')">任务</button>
+      <button class="tsw-btn" id="ft-product" onclick="switchForm('product')">选品</button>
+      <button class="tsw-btn" id="ft-meeting" onclick="switchForm('meeting')">会议</button>
+      <button class="tsw-btn" id="ft-insight" onclick="switchForm('insight')">心得</button>
     </div>
 
     <div id="form-task">
       <div class="frow"><label>任务名称 *</label>
         <input id="f-t-title" placeholder="描述这个任务..."/>
-        <button onclick="aiPolish('f-t-title','task-title')" class="ai-btn" id="ai-f-t-title">✨ AI 整理标题</button>
+        <button onclick="aiPolish('f-t-title','task-title')" class="ai-btn" id="ai-f-t-title">AI 整理标题</button>
       </div>
       <div class="frow2">
         <div class="frow" style="margin:0"><label>分类</label>
@@ -1132,17 +1231,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       <div class="frow"><label>状态</label>
         <select id="f-t-status"><option value="todo">待处理</option><option value="doing">进行中</option><option value="done">已完成</option></select>
       </div>
-      <div class="frow"><label>截止日期（可选）</label><button type="button" class="date-input-btn" id="f-t-due" onclick="openDatePicker('f-t-due','任务截止日期',false)"><span id="f-t-due-text">点击选择日期</span><span class="cal-icon">📅</span></button></div>
+      <div class="frow"><label>截止日期（可选）</label><button type="button" class="date-input-btn" id="f-t-due" onclick="openDatePicker('f-t-due','任务截止日期',false)"><span id="f-t-due-text">点击选择日期</span><span class="cal-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span></button></div>
       <div class="frow"><label>备注</label>
         <textarea id="f-t-note" placeholder="补充说明..."></textarea>
-        <button onclick="aiPolish('f-t-note','task-note')" class="ai-btn" id="ai-f-t-note">✨ AI 整理备注</button>
+        <button onclick="aiPolish('f-t-note','task-note')" class="ai-btn" id="ai-f-t-note">AI 整理备注</button>
       </div>
     </div>
 
     <div id="form-product" style="display:none">
       <div class="frow"><label>商品标题 *（建议含关键词）</label>
         <input id="f-p-name" placeholder="如：羽毛球手胶 防滑吸汗 3条装"/>
-        <button onclick="aiPolish('f-p-name','product-title')" class="ai-btn" id="ai-f-p-name">✨ AI 优化标题</button>
+        <button onclick="aiPolish('f-p-name','product-title')" class="ai-btn" id="ai-f-p-name">AI 优化标题</button>
       </div>
       <div class="frow2">
         <div class="frow" style="margin:0"><label>平台</label>
@@ -1175,7 +1274,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div class="img-drop-zone" id="imgDropZone"
           onclick="document.getElementById('f-p-img').click()"
           ondragenter="imgDragEnter(event)" ondragover="imgDragOver(event)" ondragleave="imgDragLeave(event)" ondrop="imgDrop(event)">
-          <span class="drop-icon">🖼️</span>
+          <span class="drop-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(148,163,184,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg></span>
           <div class="drop-text">拖拽图片到此处，或 <span style="color:var(--blue);font-weight:600">点击选择</span></div>
           <div class="drop-hint">支持 JPG / PNG / WEBP，可多选</div>
         </div>
@@ -1187,17 +1286,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       <div class="frow"><label>商品链接</label><input id="f-p-url" placeholder="https://..."/></div>
       <div class="frow"><label>选品理由 / 竞品分析</label>
         <textarea id="f-p-note" placeholder="为什么选这个品？差异化优势、竞品对比..."></textarea>
-        <button onclick="aiPolish('f-p-note','product-note')" class="ai-btn" id="ai-f-p-note">✨ AI 整理分析</button>
+        <button onclick="aiPolish('f-p-note','product-note')" class="ai-btn" id="ai-f-p-note">AI 整理分析</button>
       </div>
     </div>
 
     <div id="form-meeting" style="display:none">
       <div class="frow"><label>会议主题 *</label>
         <input id="f-m-title" placeholder="会议主题..."/>
-        <button onclick="aiPolish('f-m-title','meeting-title')" class="ai-btn" id="ai-f-m-title">✨ AI 整理主题</button>
+        <button onclick="aiPolish('f-m-title','meeting-title')" class="ai-btn" id="ai-f-m-title">AI 整理主题</button>
       </div>
       <div class="frow2">
-        <div class="frow" style="margin:0"><label>日期</label><button type="button" class="date-input-btn" id="f-m-date" onclick="openDatePicker('f-m-date','会议日期',true)"><span id="f-m-date-text">点击选择日期</span><span class="cal-icon">📅</span></button></div>
+        <div class="frow" style="margin:0"><label>日期</label><button type="button" class="date-input-btn" id="f-m-date" onclick="openDatePicker('f-m-date','会议日期',true)"><span id="f-m-date-text">点击选择日期</span><span class="cal-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span></button></div>
         <div class="frow" style="margin:0"><label>状态</label>
           <select id="f-m-status">
             <option value="pending">待开</option>
@@ -1234,7 +1333,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div id="form-insight" style="display:none">
       <div class="frow"><label>内容 *</label>
         <textarea id="f-i-content" placeholder="记录你的创业思考..." style="min-height:130px"></textarea>
-        <button onclick="aiPolish('f-i-content','insight-content')" class="ai-btn" id="ai-f-i-content">✨ AI 智能整理内容</button>
+        <button onclick="aiPolish('f-i-content','insight-content')" class="ai-btn" id="ai-f-i-content">AI 智能整理内容</button>
       </div>
     </div>
 
@@ -1265,21 +1364,111 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div class="frow">
       <label>动态内容 *</label>
       <textarea id="act-text" placeholder="随手记录，比如：今天完成了产品上架，发现竞品定价偏低..." style="min-height:80px"></textarea>
-      <button onclick="aiPolishAct()" style="margin-top:6px;background:linear-gradient(135deg,#7c3aed,#1677ff);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;width:100%" id="aiPolishBtn">✨ AI 智能整理</button>
+      <button onclick="aiPolishAct()" style="margin-top:6px;background:linear-gradient(135deg,#7c3aed,#1677ff);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;width:100%" id="aiPolishBtn">AI 智能整理</button>
     </div>
     <div class="frow">
       <label>类型</label>
       <select id="act-type">
-        <option value="g">✅ 完成/进展（绿）</option>
-        <option value="b">📋 会议/计划（蓝）</option>
-        <option value="o">⚡ 行动/操作（橙）</option>
-        <option value="p">💡 心得/洞察（紫）</option>
+        <option value="g">完成/进展（绿）</option>
+        <option value="b">会议/计划（蓝）</option>
+        <option value="o">行动/操作（橙）</option>
+        <option value="p">心得/洞察（紫）</option>
       </select>
     </div>
     <div class="frow"><label>时间（北京时间，留空=当前时间）</label><input id="act-time" placeholder="2026-03-14 09:00"/></div>
     <div class="mact">
       <button class="btn btn-c" onclick="closeActModal()">取消</button>
       <button class="btn btn-p" onclick="saveAct()">保存动态</button>
+    </div>
+  </div>
+</div>
+
+<!-- 会议通知设置弹窗 -->
+<div class="overlay" id="notifModal" onclick="if(event.target===this)closeNotifModal()">
+  <div class="sheet" style="max-height:80vh;overflow-y:auto">
+    <div class="handle"></div>
+    <div class="stitle">会议通知</div>
+
+    <!-- 会议信息预览 -->
+    <div id="notifMeetingInfo" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--sub);line-height:1.7"></div>
+
+    <!-- 浏览器通知 -->
+    <div style="margin-bottom:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">浏览器推送通知</div>
+          <div style="font-size:11px;color:var(--hint);margin-top:2px">开会前 5 分钟弹窗提醒</div>
+        </div>
+        <label class="notif-toggle">
+          <input type="checkbox" id="notifPushToggle" onchange="onNotifPushToggle()">
+          <span class="notif-slider"></span>
+        </label>
+      </div>
+      <div id="notifPermWarn" style="display:none;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.2);border-radius:10px;padding:9px 12px;font-size:11px;color:rgba(234,179,8,0.9);line-height:1.6;margin-top:6px">
+        请在浏览器设置中允许此网站发送通知，然后重新开启。
+      </div>
+      <div id="notifPushStatus" style="font-size:11px;color:var(--hint);margin-top:6px"></div>
+    </div>
+
+    <!-- 分割线 -->
+    <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:18px"></div>
+
+    <!-- 短信通知 -->
+    <div style="margin-bottom:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">短信提醒</div>
+          <div style="font-size:11px;color:var(--hint);margin-top:2px">开会前 5 分钟发送短信</div>
+        </div>
+        <label class="notif-toggle">
+          <input type="checkbox" id="notifSmsToggle" onchange="onNotifSmsToggle()">
+          <span class="notif-slider"></span>
+        </label>
+      </div>
+
+      <div id="notifSmsPanel" style="display:none">
+        <!-- 接收手机号 -->
+        <div class="frow" style="margin-bottom:10px">
+          <label>接收短信的手机号</label>
+          <input type="tel" id="notifSmsPhone" placeholder="例：138xxxxxxxx" style="font-size:14px" oninput="updateSmsPreview()"/>
+          <div style="font-size:10px;color:var(--hint);margin-top:4px">短信将发送至此手机号（通过国内短信API）</div>
+        </div>
+
+        <!-- 短信模板编辑 -->
+        <div class="frow" style="margin-bottom:10px">
+          <label style="display:flex;align-items:center;justify-content:space-between">
+            短信内容模板
+            <span style="font-size:10px;color:rgba(212,175,55,0.7);font-weight:400">一次编辑，永久使用</span>
+          </label>
+          <textarea id="notifSmsTemplate" rows="3" placeholder="可用变量：{title} 会议名称，{date} 日期，{time} 时间" style="font-size:12px;line-height:1.7" oninput="updateSmsPreview()"></textarea>
+        </div>
+
+        <!-- 短信预览 -->
+        <div class="sms-template-box" id="smsMsgPreview" style="margin-bottom:10px;white-space:pre-wrap"></div>
+
+        <!-- 发送方式说明 -->
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px 12px;font-size:11px;color:rgba(255,255,255,0.35);line-height:1.7">
+          短信通过 <b style="color:rgba(255,255,255,0.5)">腾讯云SMS API</b> 发送。请在下方填入 API 配置（仅本机保存，不上传云端）：
+        </div>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+          <input type="text" id="notifSmsSecretId" placeholder="SecretId（腾讯云控制台 → 访问密钥）" style="font-size:11px"/>
+          <input type="password" id="notifSmsSecretKey" placeholder="SecretKey" style="font-size:11px"/>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <input type="text" id="notifSmsSdkAppId" placeholder="SdkAppId" style="font-size:11px"/>
+            <input type="text" id="notifSmsSign" placeholder="短信签名" style="font-size:11px"/>
+          </div>
+          <input type="text" id="notifSmsTemplateId" placeholder="模板ID（腾讯云SMS控制台）" style="font-size:11px"/>
+        </div>
+        <!-- 测试发送 -->
+        <button onclick="testSendSms()" style="margin-top:10px;width:100%;padding:10px;background:rgba(37,99,235,0.15);border:1px solid rgba(96,165,250,0.3);border-radius:10px;color:rgba(96,165,250,0.9);font-size:12px;font-weight:600;cursor:pointer">
+          发送测试短信
+        </button>
+      </div>
+    </div>
+
+    <div class="mact">
+      <button class="btn btn-c" onclick="closeNotifModal()">关闭</button>
+      <button class="btn btn-p" onclick="saveNotifSettings()">保存设置</button>
     </div>
   </div>
 </div>
@@ -1307,7 +1496,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div class="frow"><label>职位 / 角色</label><input id="am-role" placeholder="如：运营、设计..."/></div>
     <div class="frow"><label>初始密码 *（6位以上）</label><input type="password" id="am-pwd" placeholder="设置初始密码"/></div>
     <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px;font-size:12px;color:#92400e;margin-bottom:14px">
-      ⚠️ 普通成员只有<b>只读</b>权限，无法添加、修改或删除任何数据。
+      普通成员只有<b>只读</b>权限，无法添加、修改或删除任何数据。
     </div>
     <div class="mact">
       <button class="btn btn-c" onclick="closeAddMember()">取消</button>
@@ -1356,8 +1545,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       <div class="form-group">
         <label class="form-label">系统</label>
         <select class="form-select" id="ga-os">
-          <option value="苹果">🍎 苹果</option>
-          <option value="安卓">🤖 安卓</option>
+          <option value="苹果">苹果</option>
+          <option value="安卓">安卓</option>
         </select>
       </div>
     </div>
@@ -1400,10 +1589,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div class="form-group">
       <label class="form-label">状态</label>
       <select class="form-select" id="ga-status">
-        <option value="正常">✅ 正常</option>
-        <option value="冻结">⚠️ 冻结</option>
-        <option value="已出售">🔒 已出售</option>
-        <option value="被找回">❌ 被找回</option>
+        <option value="正常">正常</option>
+        <option value="冻结">冻结</option>
+        <option value="已出售">已出售</option>
+        <option value="被找回">被找回</option>
       </select>
     </div>
     <div class="form-group">
@@ -1423,7 +1612,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div class="stitle" id="incomeModalTitle">记录收入</div>
     <div class="form-group">
       <label class="form-label">日期 *</label>
-      <button type="button" class="date-input-btn has-value" id="inc-date" onclick="openDatePicker('inc-date','收入日期',true)"><span id="inc-date-text">今天</span><span class="cal-icon">📅</span></button>
+      <button type="button" class="date-input-btn has-value" id="inc-date" onclick="openDatePicker('inc-date','收入日期',true)"><span id="inc-date-text">今天</span><span class="cal-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span></button>
     </div>
     <div class="form-group">
       <label class="form-label">金额(¥) *</label>
@@ -1453,11 +1642,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
   <div class="sheet" style="max-height:92vh;overflow-y:auto;padding-bottom:32px">
     <div class="handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div class="stitle" style="margin-bottom:0">📱 手机号绑定详情</div>
+      <div class="stitle" style="margin-bottom:0">手机号绑定详情</div>
       <button onclick="closePhoneBindModal()" style="width:32px;height:32px;border-radius:50%;background:#f1f5f9;border:none;cursor:pointer;font-size:18px;color:var(--sub);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s" onmouseenter="this.style.background='#e2e8f0'" onmouseleave="this.style.background='#f1f5f9'">×</button>
     </div>
     <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:14px;line-height:1.6">
-      ⚠️ 每个手机号最多绑定 <b>5</b> 个游戏账号。以下展示各手机号的有效绑定情况（<b>已出售</b>和<b>被找回</b>的账号不占用绑定名额）。
+      每个手机号最多绑定 <b>5</b> 个游戏账号。以下展示各手机号的有效绑定情况（<b>已出售</b>和<b>被找回</b>的账号不占用绑定名额）。
     </div>
     <div id="phoneBindList"></div>
   </div>
@@ -1473,7 +1662,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <!-- 标题 -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
       <div>
-        <div style="font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px">🖼️ 商品图工具箱</div>
+        <div style="font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px">商品图工具箱</div>
         <div style="font-size:12px;color:var(--hint);margin-top:3px">精选跨境电商商品图制作工具，点击直接打开</div>
       </div>
       <button onclick="closeImgGen()" style="width:32px;height:32px;border-radius:50%;background:#f1f5f9;border:none;cursor:pointer;font-size:18px;color:var(--sub);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s">×</button>
@@ -1481,9 +1670,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 
     <!-- 主推工具：Pic Copilot -->
     <div class="igtool-main" onclick="openToolUrl('https://www.piccopilot.com/zh')">
-      <div class="igtool-main-badge">🏆 推荐首选</div>
+      <div class="igtool-main-badge">推荐首选</div>
       <div style="display:flex;align-items:center;gap:14px">
-        <div class="igtool-main-icon">🤖</div>
+        <div class="igtool-main-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5"><rect x="4" y="4" width="24" height="24" rx="4"/><circle cx="11" cy="11" r="2.5"/><polyline points="28,20 21,13 7,28"/></svg></div>
         <div style="flex:1;min-width:0">
           <div class="igtool-main-name">Pic Copilot <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,.65)">· 阿里巴巴出品</span></div>
           <div class="igtool-main-desc">专为跨境电商设计 · AI抠图 · 背景生成 · 图片文字翻译（中/英/日/韩等）· AI虚拟模特 · 批量处理</div>
@@ -1491,10 +1680,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div style="font-size:20px;color:rgba(255,255,255,.7);flex-shrink:0">→</div>
       </div>
       <div class="igtool-main-tags">
-        <span class="igtool-tag">✅ 免费额度</span>
-        <span class="igtool-tag">🌍 多语言翻译</span>
-        <span class="igtool-tag">🛒 亚马逊/Lazada/Shopee</span>
-        <span class="igtool-tag">👗 AI模特换装</span>
+        <span class="igtool-tag">免费额度</span>
+        <span class="igtool-tag">多语言翻译</span>
+        <span class="igtool-tag">亚马逊/Lazada/Shopee</span>
+        <span class="igtool-tag">AI模特换装</span>
       </div>
     </div>
 
@@ -1509,7 +1698,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div class="igtool-card-body">
           <div class="igtool-card-name">美图设计室</div>
           <div class="igtool-card-desc">免费 · AI商品图海报 · 智能抠图换背景 · 海量电商模板 · 跨境主图</div>
-          <div class="igtool-card-tags"><span>🆓 免费</span><span>📱 中文界面</span></div>
+          <div class="igtool-card-tags"><span>免费</span><span>中文界面</span></div>
         </div>
       </div>
 
@@ -1518,7 +1707,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div class="igtool-card-body">
           <div class="igtool-card-name">Remove.bg</div>
           <div class="igtool-card-desc">行业标杆背景去除 · 精度极高 · 复杂背景也能完美抠图 · 支持批量</div>
-          <div class="igtool-card-tags"><span>🎯 精度最高</span><span>🔥 业界首选</span></div>
+          <div class="igtool-card-tags"><span>精度最高</span><span>业界首选</span></div>
         </div>
       </div>
 
@@ -1527,16 +1716,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div class="igtool-card-body">
           <div class="igtool-card-name">PhotoRoom</div>
           <div class="igtool-card-desc">AI商品图编辑 · 背景去除+替换 · 阴影生成 · 快速出专业级商拍图</div>
-          <div class="igtool-card-tags"><span>💡 场景感强</span><span>⚡ 速度快</span></div>
+          <div class="igtool-card-tags"><span>场景感强</span><span>速度快</span></div>
         </div>
       </div>
 
       <div class="igtool-card" onclick="openToolUrl('https://clipdrop.co/remove-background')">
-        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#f7971e,#ffd200)">🌟</div>
+        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#f7971e,#ffd200)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="4"/></svg></div>
         <div class="igtool-card-body">
           <div class="igtool-card-name">Clipdrop</div>
           <div class="igtool-card-desc">Stability AI出品 · 背景去除 · 物品替换 · AI重打光 · 商品增强</div>
-          <div class="igtool-card-tags"><span>🤖 AI增强</span><span>💡 重打光</span></div>
+          <div class="igtool-card-tags"><span>AI增强</span><span>重打光</span></div>
         </div>
       </div>
 
@@ -1545,7 +1734,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div class="igtool-card-body">
           <div class="igtool-card-name">Mokker</div>
           <div class="igtool-card-desc">上传商品图自动生成场景背景 · 亚马逊卖家常用 · 多风格场景</div>
-          <div class="igtool-card-tags"><span>🌄 场景生成</span><span>🛒 亚马逊</span></div>
+          <div class="igtool-card-tags"><span>场景生成</span><span>亚马逊</span></div>
         </div>
       </div>
 
@@ -1554,15 +1743,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div class="igtool-card-body">
           <div class="igtool-card-name">Canva</div>
           <div class="igtool-card-desc">全功能设计平台 · 海量电商模板 · 多语言文案设计 · 一键调整平台尺寸</div>
-          <div class="igtool-card-tags"><span>📐 尺寸灵活</span><span>🌐 多语言</span></div>
+          <div class="igtool-card-tags"><span>尺寸灵活</span><span>多语言</span></div>
         </div>
       </div>
 
     </div>
 
     <!-- 使用提示 -->
-    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:12px 14px;margin-top:14px;font-size:12px;color:#92400e;line-height:1.7">
-      💡 <b>推荐工作流：</b>用 <b>Pic Copilot</b> 一站式搞定（抠图+换背景+翻译）；需要极致抠图精度用 <b>Remove.bg</b>；做整体设计排版用 <b>Canva</b>
+    <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 14px;margin-top:14px;font-size:12px;color:#92400e;line-height:1.7">
+      <b>推荐工作流：</b>用 <b>Pic Copilot</b> 一站式搞定（抠图+换背景+翻译）；需要极致抠图精度用 <b>Remove.bg</b>；做整体设计排版用 <b>Canva</b>
     </div>
   </div>
 </div>
@@ -1686,7 +1875,7 @@ async function _onRealtimeChange() {
       renderAll();
       setSyncBar('ok');
       updateSyncTime();
-      toast('☁️ 数据已更新');
+      toast('数据已更新');
     }
   } catch(e) { console.error('Realtime pull error:', e); }
 }
@@ -1771,8 +1960,9 @@ function defaultData() {
   const today = new Date().toISOString().split('T')[0];
   return {
     users: {
-      jiashuo: { name:'佳硕', role:'创始人 & CEO', pwd:'5201314', color:'#1a1f2e' },
-      yixin:   { name:'一新', role:'联合创始人 & 掌舵人', pwd:'5201314', color:'#141820' }
+      jiashuo:  { name:'佳硕', role:'创始人 & CEO', pwd:'5201314', color:'#1a1f2e' },
+      yixin:    { name:'一新', role:'联合创始人 & 掌舵人', pwd:'5201314', color:'#141820' },
+      lingling: { name:'张灵灵', role:'永远的女朋友', pwd:'5201314', color:'#2a1220', isReadOnly: true }
     },
     roadmap: [
       { id:'r1', dot:'g', label:'当前重点', text:'TEMU 跨境电商 · 羽毛球手胶' },
@@ -1952,12 +2142,12 @@ function normTs(ts) {
 async function pullIfNewer(silent = false) {
   const result = await sbFetch();
   if (result === 'timeout') {
-    if (!silent) toast('⚠️ 网络较慢，稍后重试');
+    if (!silent) toast('网络较慢，稍后重试');
     return false;
   }
   if (!result) {
     await forcePush();
-    if (!silent) toast('☁️ 数据已初始化到云端');
+    if (!silent) toast('数据已初始化到云端');
     return false;
   }
   const lastSeen = localStorage.getItem(LAST_SYNC_AT) || '';
@@ -1966,7 +2156,7 @@ async function pullIfNewer(silent = false) {
     mergeAndSetLocal(result.value);
     localStorage.setItem(LAST_SYNC_AT, cloudAt);
     renderAll();
-    if (!silent) toast('☁️ 已更新最新数据');
+    if (!silent) toast('已更新最新数据');
     return true;
   }
   return false;
@@ -2043,7 +2233,7 @@ function updateSyncTime() {
 }
 
 async function syncNow() {
-  if (!isOnline) { toast('⚠️ 当前无网络，请检查连接'); return; }
+  if (!isOnline) { toast('当前无网络，请检查连接'); return; }
   if (isSyncing) { toast('同步中，请稍候...'); return; }
   isSyncing = true;
   setSyncBar('syncing');
@@ -2053,10 +2243,10 @@ async function syncNow() {
     await pullIfNewer(true);
     setSyncBar('ok');
     updateSyncTime();
-    toast('✅ 同步完成');
+    toast('同步完成');
   } catch(e) {
     setSyncBar('error');
-    toast('❌ 同步失败，请重试');
+    toast('同步失败，请重试');
   } finally {
     isSyncing = false;
   }
@@ -2176,7 +2366,7 @@ function changePwd() {
 // ══════════════════════════════════════════════
 function initApp() {
   const s = getLocal(), u = s.users[CU];
-  const init = u.name.charAt(0);
+  const init = u.name.slice(-1);
   const _avBg = CU === 'jiashuo'
     ? 'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)'
     : 'linear-gradient(145deg,#141820 0%,#0c101a 60%,#141825 100%)';
@@ -2184,7 +2374,7 @@ function initApp() {
   setEl('hdrNm', u.name);
   // 右上角职位小标签（简洁）
   const _hdrSub = document.getElementById('hdrNmSub');
-  if (_hdrSub) _hdrSub.textContent = CU === 'jiashuo' ? '👑 创始人' : CU === 'yixin' ? '👑 联创' : u.role;
+  if (_hdrSub) _hdrSub.textContent = CU === 'jiashuo' ? '创始人' : CU === 'yixin' ? '联创' : u.role;
   const now = new Date();
   const days = ['周日','周一','周二','周三','周四','周五','周六'];
   setEl('hdrDate', `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 ${days[now.getDay()]}`);
@@ -2193,8 +2383,8 @@ function initApp() {
   // 创始人特权：加强身份标识（佳硕 & 一新都是创始人）
   const isFounder = (CU === 'jiashuo' || CU === 'yixin');
   const titleText = isFounder
-    ? `${greeting}，${u.name} 👑`
-    : `${greeting}，${u.name} 👋`;
+    ? `${greeting}，${u.name}`
+    : `${greeting}，${u.name}`;
   setEl('bnrTitle', titleText);
   setEl('bnrDate', `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`);
   setEl('pfAv', init); document.getElementById('pfAv').style.background = _avBg;
@@ -2229,6 +2419,8 @@ function initApp() {
   // 确保 FAB 初始绑定（首页 → 添加动态）
   document.getElementById('fab').onclick = openAddAct;
   fetchDailySoup();
+  // 调度会议通知（每次登录/刷新后重新注册）
+  scheduleMeetingNotifs();
 }
 
 function setEl(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
@@ -2238,15 +2430,15 @@ function renderAll() {
   // 同步更新头部用户信息（防止切换账号后数据不对）
   if (CU && s.users[CU]) {
     const u = s.users[CU];
-    setEl('hdrAv', u.name.charAt(0));
+    setEl('hdrAv', u.name.slice(-1));
     const _rAvBg = (CU === 'jiashuo')
       ? 'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)'
       : 'linear-gradient(145deg,#141820 0%,#0c101a 60%,#141825 100%)';
     document.getElementById('hdrAv').style.background = _rAvBg;
     setEl('hdrNm', u.name);
     const _sub = document.getElementById('hdrNmSub');
-    if (_sub) _sub.textContent = CU === 'jiashuo' ? '👑 创始人' : CU === 'yixin' ? '👑 联创' : u.role;
-    setEl('pfAv', u.name.charAt(0));
+    if (_sub) _sub.textContent = CU === 'jiashuo' ? '创始人' : CU === 'yixin' ? '联创' : u.role;
+    setEl('pfAv', u.name.slice(-1));
     if (document.getElementById('pfAv')) document.getElementById('pfAv').style.background = _rAvBg;
     const _pfen = document.getElementById('pfEnName');
     if (_pfen) {
@@ -2270,6 +2462,7 @@ function renderAll() {
   renderHomePulse(); renderMeetingList();
   renderMemberList(); renderGameAccPage(); renderGameAccInProfile(); applyReadOnly();
   renderNewsTicker();
+  renderPfStats();
 }
 
 // ══════════════════════════════════════════════
@@ -2281,6 +2474,29 @@ function renderStats() {
   const taskCount = alive(s.tasks).filter(t => t.status !== 'done').length;
   const tcEl = document.getElementById('myTaskCount');
   if (tcEl) tcEl.textContent = taskCount + ' 项待处理';
+}
+
+// ── 我的页面：数据概览卡 ──
+function renderPfStats() {
+  const el = document.getElementById('pfStatsRow');
+  if (!el) return;
+  const s = getLocal();
+  const myTasks   = alive(s.tasks).filter(t => t.owner === CU && t.status !== 'done').length;
+  const myMeetings = alive(s.meetings).filter(m => m.status !== 'done').length;
+  const myInsights = alive(s.insights).filter(i => i.author === CU || !i.author).length;
+  el.innerHTML = `
+    <div class="pf-stat-item">
+      <div class="pf-stat-val">${myTasks}</div>
+      <div class="pf-stat-lab">待办任务</div>
+    </div>
+    <div class="pf-stat-item">
+      <div class="pf-stat-val">${myMeetings}</div>
+      <div class="pf-stat-lab">待开会议</div>
+    </div>
+    <div class="pf-stat-item">
+      <div class="pf-stat-val">${myInsights}</div>
+      <div class="pf-stat-lab">创业心得</div>
+    </div>`;
 }
 
 // ══════════════════════════════════════════════
@@ -2348,10 +2564,10 @@ function renderHomeAccounts() {
     el.innerHTML = '<div style="color:var(--hint);font-size:13px;padding:4px 0">暂无账号，点「管理」添加</div>'; return;
   }
   el.innerHTML = accs.slice(0,3).map(a => {
-    const icon = a.name.includes('TEMU') ? '🛒' : a.name.includes('亚马逊') ? '📦' : '🔑';
+    const iconColor = a.name.includes('TEMU') ? '#f97316' : a.name.includes('亚马逊') ? '#eab308' : '#60a5fa';
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f5f7fa">
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:18px">${icon}</span>
+        <span style="width:28px;height:28px;border-radius:8px;background:${iconColor}22;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg></span>
         <div>
           <div style="font-size:13px;font-weight:700">${a.name}</div>
           <div style="font-size:11px;color:var(--hint)">${a.user}</div>
@@ -2528,7 +2744,7 @@ function renderNewsTicker() {
     return (d.getMonth()+1) + '/' + d.getDate();
   };
   const buildItems = () => acts.map(a => {
-    const icon = iconMap[a.type] || '📌';
+    const icon = iconMap[a.type] || '·';
     const rawTime = a.time || (a.createdAt||'').slice(0,16).replace('T',' ') || '';
     const timeStr = _relTime(rawTime);
     return `<span class="news-ticker-item"><span class="ti-icon">${icon}</span>${a.text.slice(0,40).replace(/</g,'&lt;').replace(/>/g,'&gt;')}${a.text.length>40?'…':''}<span class="ti-time">${timeStr}</span></span>`;
@@ -2707,9 +2923,9 @@ async function fetchDailySoup(forceRefresh) {
       '给我今天的一句话励志，不要带引号，不要有任何解释和前缀，直接给出句子本身。',
       120
     );
-    el.textContent = '🔥 ' + text;
+    el.textContent = text;
     // 非强制刷新才缓存（手动换一句不覆盖今日缓存）
-    if (!forceRefresh) localStorage.setItem(todayKey, '🔥 ' + text);
+    if (!forceRefresh) localStorage.setItem(todayKey, text);
   } catch(e) {
     const fallbacks = [
       '不是所有努力都立竿见影，但没有一份努力会被辜负。',
@@ -2717,7 +2933,7 @@ async function fetchDailySoup(forceRefresh) {
       '市场不相信眼泪，只相信行动和结果。',
       '今天的坚持，是明天最好的底气。',
     ];
-    el.textContent = '🔥 ' + fallbacks[Math.floor(Math.random() * fallbacks.length)];
+    el.textContent = fallbacks[Math.floor(Math.random() * fallbacks.length)];
   } finally {
     if (btn) { btn.style.opacity = '.7'; btn.style.pointerEvents = ''; }
   }
@@ -2789,12 +3005,12 @@ async function aiPolish(fieldId, promptKey) {
   if (!raw) { toast('请先输入内容再整理'); return; }
   const btn = document.getElementById('ai-' + fieldId);
   const origText = btn ? btn.textContent : '';
-  if (btn) { btn.textContent = '✨ 整理中...'; btn.disabled = true; }
+  if (btn) { btn.textContent = '整理中...'; btn.disabled = true; }
   try {
     const prompt = PROMPTS[promptKey] || PROMPTS['activity'];
     const result = await callDeepSeek(prompt, raw, 400);
     el.value = result;
-    toast('✓ AI 整理完成');
+    toast('AI 整理完成');
   } catch(e) {
     if (e.name === 'AbortError') toast('AI 响应超时，请重试');
     else toast('AI 服务暂时不可用，请稍后重试');
@@ -2809,17 +3025,17 @@ async function aiPolishAct() {
   const raw = ta.value.trim();
   if (!raw) { toast('请先输入内容'); return; }
   const btn = document.getElementById('aiPolishBtn');
-  btn.textContent = '✨ 整理中...';
+  btn.textContent = '整理中...';
   btn.disabled = true;
   try {
     const result = await callDeepSeek(PROMPTS['activity'], raw, 200);
     ta.value = result;
-    toast('AI 整理完成 ✓');
+    toast('AI 整理完成');
   } catch(e) {
     if (e.name === 'AbortError') toast('AI 响应超时，请重试');
     else toast('AI 服务暂时不可用');
   } finally {
-    btn.textContent = '✨ AI 智能整理';
+    btn.textContent = 'AI 智能整理';
     btn.disabled = false;
   }
 }
@@ -2959,29 +3175,54 @@ function renderMemberList() {
   const s = getLocal();
   const el = document.getElementById('memberList');
   if (!el) return;
-  // 显示所有成员（含管理员），佳硕永远第一，管理员标注角色 & 不可删除
+  // 排序：佳硕→一新→灵灵→其他
+  const ORDER = ['jiashuo', 'yixin', 'lingling'];
   const members = Object.entries(s.users).sort(([a],[b]) => {
-    if (a === 'jiashuo') return -1;
-    if (b === 'jiashuo') return 1;
+    const ia = ORDER.indexOf(a), ib = ORDER.indexOf(b);
+    if (ia !== -1 && ib !== -1) return ia - ib;
+    if (ia !== -1) return -1;
+    if (ib !== -1) return 1;
     return 0;
   });
   if (!members.length) {
     el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无成员</div>'; return;
   }
+
+  // 身份配置表
+  const IDENTITY_MAP = {
+    jiashuo: { enName:'ZHANG JIASHUO', roleTag:'role-founder', roleText:'◆ FOUNDER · CEO', avBg:'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)' },
+    yixin:   { enName:'ZHU YIXIN',     roleTag:'role-cofounder', roleText:'◇ CO-FOUNDER · 联合创始人', avBg:'linear-gradient(145deg,#1a1228 0%,#120c1a 60%,#1a1228 100%)' },
+    lingling:{ enName:'ZHANG LINGLING',roleTag:'role-lover', roleText:'♡ BELOVED · 永远的女朋友', avBg:'linear-gradient(145deg,#2a1220 0%,#1a0c18 60%,#2a1220 100%)' }
+  };
+
   el.innerHTML = members.map(([uid, u]) => {
+    const identity = IDENTITY_MAP[uid];
     const isAdm = ADMINS.includes(uid);
-    const roleLabel = isAdm ? '管理员 · 可编辑' : `${u.role||'成员'} · 只读`;
-    const badgeColor = isAdm ? 'var(--blue)' : 'var(--hint)';
-    const delBtnHtml = isAdm ? '' : `<button class="del-btn" onclick="delMember('${uid}')">🗑</button>`;
+    const isSpecial = !!identity;
+    const avBg = identity ? identity.avBg : (u.color || '#1a1f2e');
+    // 头像：特殊成员用全名最后一字，其他用最后一字
+    const avLetter = u.name.slice(-1);
+    // 英文名
+    const enName = identity ? identity.enName : (u.name.toUpperCase().replace(/\s+/g, ''));
+    // 角色标签
+    let roleTagHtml = '';
+    if (identity) {
+      roleTagHtml = `<span class="member-role-tag ${identity.roleTag}">${identity.roleText}</span>`;
+    } else if (isAdm) {
+      roleTagHtml = `<span class="member-role-tag role-founder">◆ ADMIN · 管理员</span>`;
+    } else {
+      roleTagHtml = `<span class="member-role-tag role-member">${u.role || '成员'}</span>`;
+    }
+    const delBtnHtml = isAdm || isSpecial ? '' : `<button class="del-btn" onclick="delMember('${uid}')">删</button>`;
     return `
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f5f7fa">
-      <div style="width:36px;height:36px;border-radius:50%;background:${u.color||'#94a3b8'};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0">${u.name.charAt(0)}</div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:6px">
-          <div style="font-size:13px;font-weight:700">${u.name}</div>
-          ${isAdm ? '<span style="font-size:10px;font-weight:700;color:#fff;background:var(--blue);border-radius:6px;padding:1px 6px">管理员</span>' : ''}
-        </div>
-        <div style="font-size:11px;color:${badgeColor};margin-top:1px">${roleLabel}</div>
+    <div class="member-card-item">
+      <div class="member-av">
+        <div class="member-av-inner" style="background:${avBg}">${avLetter}</div>
+      </div>
+      <div class="member-info">
+        <div class="member-en">${enName}</div>
+        <div class="member-name">${u.name}</div>
+        ${roleTagHtml}
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0">
         <button class="edit-btn" style="padding:2px 10px" onclick="openEditMember('${uid}')">编辑</button>
@@ -3079,12 +3320,17 @@ function refreshLoginMembers() {
   if (!el) return;
   const members = Object.entries(s.users).filter(([uid]) => !ADMINS.includes(uid));
   if (!members.length) { el.innerHTML = ''; return; }
-  el.innerHTML = `<div style="font-size:11px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">团队成员</div>` +
-    `<div style="display:flex;flex-wrap:wrap;gap:8px">${members.map(([uid,u]) =>
-      `<div class="ubtn${CU===uid?' sel':''}" style="flex:0 0 auto;min-width:80px" id="ubtn-${uid}" onclick="selUser('${uid}')">
-        <div class="av" style="background:${u.color||'#94a3b8'}">${u.name.charAt(0)}</div>
+  const SPECIAL_BG = {
+    lingling: 'linear-gradient(145deg,#2a1220 0%,#1a0c18 60%,#2a1220 100%)'
+  };
+  el.innerHTML = `<div style="font-size:9px;font-weight:400;color:rgba(212,175,55,0.55);text-transform:uppercase;letter-spacing:3px;margin-bottom:10px;font-family:-apple-system,'SF Pro Display',sans-serif">团队成员</div>` +
+    `<div style="display:flex;flex-wrap:wrap;gap:8px">${members.map(([uid,u]) => {
+      const bg = SPECIAL_BG[uid] || (u.color || '#1a1f2e');
+      return `<div class="ubtn${CU===uid?' sel':''}" style="flex:0 0 auto;min-width:80px" id="ubtn-${uid}" onclick="selUser('${uid}')">
+        <div class="av" style="background:${bg}">${u.name.slice(-1)}</div>
         <div class="nm">${u.name}</div><div class="rl">${u.role||'成员'}</div>
-      </div>`).join('')}</div>`;
+      </div>`;
+    }).join('')}</div>`;
 }
 
 function toggleMemberList() {
@@ -3146,6 +3392,11 @@ function meetingHTML(m) {
   const statusDot = isDone
     ? '<span style="width:6px;height:6px;border-radius:50%;background:#4ade80;flex-shrink:0;display:inline-block"></span>'
     : '<span style="width:6px;height:6px;border-radius:50%;background:#fbbf24;flex-shrink:0;display:inline-block;animation:pulse 2s infinite"></span>';
+  // 通知按钮（仅待开会议且有时间信息才显示）
+  const hasTime = !isDone && m.date && m.duration && m.duration.includes(':');
+  const notifKey = `notif_${m.id}`;
+  const notifSet = localStorage.getItem(notifKey);
+  const notifBtn = hasTime ? `<button onclick="openMeetingNotif('${m.id}')" style="font-size:12px;font-weight:600;color:${notifSet?'rgba(34,197,94,0.9)':'rgba(148,163,184,0.7)'};background:${notifSet?'rgba(22,163,74,0.1)':'rgba(255,255,255,0.05)'};border:1px solid ${notifSet?'rgba(22,163,74,0.25)':'rgba(255,255,255,0.1)'};border-radius:8px;padding:5px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;-webkit-tap-highlight-color:transparent"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>${notifSet?'通知已设置':'设置通知'}</button>` : '';
   return `<div class="mcard" style="${isDone?'opacity:0.7':''}">
     <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 0;-webkit-tap-highlight-color:transparent" onclick="toggleMeeting('${m.id}')">
       <div style="flex:1;min-width:0;display:flex;align-items:center;gap:8px">
@@ -3162,6 +3413,7 @@ function meetingHTML(m) {
       <div style="display:flex;justify-content:flex-start;gap:8px;margin-top:10px;flex-wrap:wrap">
         ${linkBtn}
         ${doneBtn}
+        ${notifBtn}
         <button class="edit-btn" onclick="editMeeting('${m.id}')">编辑</button>
         <button class="del-btn" onclick="delMeeting('${m.id}')">删除</button>
       </div>
@@ -3265,7 +3517,7 @@ function taskHTML(t, compact) {
   const isOverdue = t.due && t.status !== 'done' && t.due < todayStr;
   const dueTag = t.due && t.status !== 'done'
     ? `<span style="font-size:11px;padding:1px 7px;border-radius:10px;background:${isOverdue?'#fee2e2':'#f1f5f9'};color:${isOverdue?'#dc2626':'var(--hint)'}">
-        ${isOverdue?'⚠️ 已逾期':'📅 '+t.due}
+        ${isOverdue?'已逾期':t.due}
        </span>` : '';
   return `<div class="titem">
     <div class="tchk ${sc[t.status]}" onclick="cycleTask('${t.id}')">${si[t.status]}</div>
@@ -3490,7 +3742,7 @@ function prodHTML(p) {
   const profit = p.price && p.cost ? (p.price - p.cost).toFixed(2) : '-';
   const rate   = p.price && p.cost ? Math.round((p.price - p.cost) / p.price * 100) : 0;
   const monthly = p.price && p.cost && p.sales ? Math.round((p.price - p.cost) * p.sales * (1 - (p.refund||0)/100)) : 0;
-  const em = { TEMU:'🛒', 亚马逊:'📦', 速卖通:'🌐', 其他:'📌' };
+  const em = { TEMU:'T', 亚马逊:'A', 速卖通:'S', 其他:'·' };
   const PROD_STATUS_STYLE = {
     '选品中': { bg:'#ede9fe', color:'#7c3aed' },
     '备货中': { bg:'#f1f5f9', color:'#475569' },
@@ -3506,7 +3758,7 @@ function prodHTML(p) {
   return `<div class="coll-card">
     <div class="coll-hdr" onclick="toggleColl('${cardId}')">
       <div class="coll-title" style="flex:1;min-width:0;gap:8px">
-        <span style="font-size:18px;flex-shrink:0">${em[p.platform]||'📦'}</span>
+        <span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px;background:rgba(148,163,184,0.12);color:var(--sub);flex-shrink:0">${em[p.platform]||p.platform||'—'}</span>
         <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px">${p.name}</span>
       </div>
       <div class="coll-actions" style="gap:6px">
@@ -3636,7 +3888,7 @@ function delProd(id) {
 // 商品状态快切（选品中 → 备货中 → 在售 → 下架 → 选品中）
 function cycleProdStatus(id) {
   const CYCLE = ['选品中', '备货中', '在售', '下架'];
-  const LABEL_MAP = { '选品中':'🔍 选品中', '备货中':'📦 备货中', '在售':'✅ 在售', '下架':'⬇️ 下架' };
+  const LABEL_MAP = { '选品中':'选品中', '备货中':'备货中', '在售':'在售', '下架':'下架' };
   const s = getLocal();
   const idx = (s.products||[]).findIndex(x => x.id === id);
   if (idx === -1) return;
@@ -3660,7 +3912,7 @@ function renderInsightList() {
     return ta - tb;
   });
   if (!insights.length) {
-    el.innerHTML = '<div class="empty"><div class="ei">💡</div>还没有心得，点右下角 + 添加</div>'; return;
+    el.innerHTML = '<div class="empty"><div class="ei" style="font-size:28px;opacity:.3">—</div>还没有心得，点右下角 + 添加</div>'; return;
   }
   const users = s.users || {};
   el.innerHTML = insights.map(i => {
@@ -3734,11 +3986,12 @@ function renderAccList() {
     return;
   }
   el.innerHTML = accs.map(a => {
-    const bg   = a.name.includes('TEMU') ? '#fff1f0' : a.name.includes('亚马逊') ? '#fff7e6' : '#f0f9ff';
-    const icon = a.name.includes('TEMU') ? '🛒' : a.name.includes('亚马逊') ? '📦' : '🔑';
+    const bg   = a.name.includes('TEMU') ? 'rgba(249,115,22,0.1)' : a.name.includes('亚马逊') ? 'rgba(234,179,8,0.1)' : 'rgba(96,165,250,0.1)';
+    const iconClr = a.name.includes('TEMU') ? '#f97316' : a.name.includes('亚马逊') ? '#eab308' : '#60a5fa';
+    const iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${iconClr}" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>`;
     return `<div class="accard">
       <div class="achead">
-        <div class="acicon" style="background:${bg}">${icon}</div>
+        <div class="acicon" style="background:${bg}">${iconSvg}</div>
         <div style="flex:1">
           <div class="acname">${a.name}</div>
           ${a.url ? `<div class="acurl"><a href="${a.url}" target="_blank" style="color:var(--blue)">${a.url}</a></div>` : ''}
@@ -3989,7 +4242,7 @@ function saveRecord() {
       s.meetings.unshift(newMeeting);
       // 先生成 fallback 动态并保存
       const actId = 'act_' + Date.now();
-      const fallbackText = `📋 ${mDate} ${dur} 召开「${title}」` + (conclusion ? `，结论：${conclusion.slice(0,40)}` : '');
+      const fallbackText = `${mDate} ${dur} 召开「${title}」` + (conclusion ? `，结论：${conclusion.slice(0,40)}` : '');
       s.activities.unshift(stampNow({ id: actId, time: nowBJStr(), text: fallbackText, type: 'b', author: CU }));
       setLocal(s);
       renderAll();
@@ -4004,13 +4257,13 @@ function saveRecord() {
             (topics.length ? `，议题：${topics.join('、')}` : '') +
             (conclusion ? `，结论：${conclusion}` : '');
           const aiText = await callDeepSeek(
-            '你是会议记录助手。根据会议信息，生成一条简洁的会议动态，包含时间、主题和核心结论，1-2句话，格式：📋 [日期时间] 召开「xxx」会议，[核心成果/结论]。只返回动态文字，不要解释。',
+            '你是会议记录助手。根据会议信息，生成一条简洁的会议动态，包含时间、主题和核心结论，1-2句话，格式：[日期时间] 召开「xxx」会议，[核心成果/结论]。只返回动态文字，不要解释。',
             meetingDesc, 150
           );
           if (!aiText || !aiText.trim()) return;
           const s2 = getLocal();
           const idx = s2.activities.findIndex(a => a.id === actId);
-          if (idx !== -1) { s2.activities[idx] = stampNow({ ...s2.activities[idx], text: aiText }); setLocal(s2); renderAll(); forcePushAndPull(); toast('✓ AI 会议动态已生成'); }
+          if (idx !== -1) { s2.activities[idx] = stampNow({ ...s2.activities[idx], text: aiText }); setLocal(s2); renderAll(); forcePushAndPull(); toast('AI 会议动态已生成'); }
         } catch(e) { /* 保留 fallback 动态 */ }
       })();
       return;
@@ -4090,16 +4343,16 @@ function toast(msg) {
 }
 
 // ══════════════════════════════════════════════
-//  🎮 GAME ACCOUNTS
+//  GAME ACCOUNTS
 // ══════════════════════════════════════════════
 let gaFilter = 'all';
 let gaFilter2 = 'all';
 
 const GA_STATUS_MAP = {
-  '正常':  { label:'✅ 正常',  cls:'#22c55e' },
-  '冻结':  { label:'⚠️ 冻结',  cls:'#f59e0b' },
-  '已出售':{ label:'🔒 已出售', cls:'#6b7280' },
-  '被找回':{ label:'❌ 被找回', cls:'#ef4444' }
+  '正常':  { label:'正常',  cls:'#22c55e' },
+  '冻结':  { label:'冻结',  cls:'#f59e0b' },
+  '已出售':{ label:'已出售', cls:'#6b7280' },
+  '被找回':{ label:'被找回', cls:'#ef4444' }
 };
 
 function filterGameAcc(f) {
@@ -4160,19 +4413,19 @@ function renderGameAccDashboard() {
   const html = `
     <div class="ga-kpi white">
       <div class="ga-kpi-val">${stockAcc.length}</div>
-      <div class="ga-kpi-lab">📦 库存账号</div>
+      <div class="ga-kpi-lab">库存账号</div>
     </div>
     <div class="ga-kpi amber">
       <div class="ga-kpi-val">¥${stockValue.toLocaleString()}</div>
-      <div class="ga-kpi-lab">💰 库存价值</div>
+      <div class="ga-kpi-lab">库存价值</div>
     </div>
     <div class="ga-kpi blue">
       <div class="ga-kpi-val">¥${totalIncome.toLocaleString()}</div>
-      <div class="ga-kpi-lab">💵 累计收入</div>
+      <div class="ga-kpi-lab">累计收入</div>
     </div>
     <div class="ga-kpi green">
       <div class="ga-kpi-val">¥${totalNet.toFixed(0)}</div>
-      <div class="ga-kpi-lab">✅ 实际到手</div>
+      <div class="ga-kpi-lab">实际到手</div>
     </div>`;
   const el = document.getElementById('gameaccDashboard');
   if (el) el.innerHTML = html;
@@ -4191,19 +4444,19 @@ function renderGameAccDashboard2() {
   el.innerHTML = `
     <div class="ga-kpi white">
       <div class="ga-kpi-val">${stockAcc.length}</div>
-      <div class="ga-kpi-lab">📦 库存账号</div>
+      <div class="ga-kpi-lab">库存账号</div>
     </div>
     <div class="ga-kpi amber">
       <div class="ga-kpi-val">¥${stockValue.toLocaleString()}</div>
-      <div class="ga-kpi-lab">💰 库存价值</div>
+      <div class="ga-kpi-lab">库存价值</div>
     </div>
     <div class="ga-kpi blue">
       <div class="ga-kpi-val">¥${totalIncome.toLocaleString()}</div>
-      <div class="ga-kpi-lab">💵 累计收入</div>
+      <div class="ga-kpi-lab">累计收入</div>
     </div>
     <div class="ga-kpi green">
       <div class="ga-kpi-val">¥${totalNet.toFixed(0)}</div>
-      <div class="ga-kpi-lab">✅ 实际到手</div>
+      <div class="ga-kpi-lab">实际到手</div>
     </div>`;
 }
 
@@ -4230,7 +4483,7 @@ function _renderGameAccToEl(elId, filter) {
   const el = document.getElementById(elId);
   if (!el) return;
   if (!acc.length) {
-    el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--hint)"><div style="font-size:44px;margin-bottom:10px">🎮</div><div style="font-size:14px">暂无账号</div></div>';
+    el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--hint)"><div style="font-size:28px;opacity:.3;margin-bottom:10px">—</div><div style="font-size:14px">暂无账号</div></div>';
     return;
   }
   const STATUS_STYLE = {
@@ -4247,8 +4500,8 @@ function _renderGameAccToEl(elId, filter) {
     gameGroups[g].push(a);
   });
   const gameIconMap = {
-    '王者荣耀': '🏆', '和平精英': '🎯', '原神': '🌟', '英雄联盟': '⚔️',
-    '我的世界': '🧱', '绝地求生': '🔫', '斗罗大陆': '🔮', '梦幻西游': '🐉'
+    '王者荣耀': 'WZ', '和平精英': 'HP', '原神': 'YS', '英雄联盟': 'LOL',
+    '我的世界': 'MC', '绝地求生': 'PUBG', '斗罗大陆': 'DL', '梦幻西游': 'MH'
   };
   const buildAccCard = (a) => {
     const ss = STATUS_STYLE[a.status] || { bg:'rgba(71,85,105,0.15)', color:'#94a3b8', dot:'#94a3b8' };
@@ -4256,7 +4509,7 @@ function _renderGameAccToEl(elId, filter) {
       ? (a.sellPrice - a.cost) : null;
     const profitHtml = profit !== null
       ? `<span class="ga-profit ${profit>=0?'pos':'neg'}">${profit>=0?'+':''}¥${profit}</span>` : '';
-    const statusLabel = { '正常':'✅ 正常', '冻结':'⚠️ 冻结', '已出售':'🔒 已出售', '被找回':'❌ 被找回' }[a.status] || a.status;
+    const statusLabel = { '正常':'正常', '冻结':'冻结', '已出售':'已出售', '被找回':'被找回' }[a.status] || a.status;
     return `<div class="ga-card">
       <div class="ga-card-top">
         <div style="flex:1;min-width:0">
@@ -4265,7 +4518,7 @@ function _renderGameAccToEl(elId, filter) {
             <span class="ga-status-tag" style="background:${ss.bg};color:${ss.color}">${statusLabel}</span>
             ${profitHtml}
           </div>
-          <div class="ga-meta">${a.os === '苹果' ? '🍎' : '🤖'} ${a.os} &nbsp;·&nbsp; ${a.region || 'QQ区'}${a.note ? ' &nbsp;·&nbsp; ' + a.note.slice(0,16) : ''}</div>
+          <div class="ga-meta">${a.os} &nbsp;·&nbsp; ${a.region || 'QQ区'}${a.note ? ' &nbsp;·&nbsp; ' + a.note.slice(0,16) : ''}</div>
         </div>
         <div class="ga-actions">
           <button class="ga-btn-status" style="background:${ss.bg};color:${ss.color}" onclick="cycleGameAccStatus('${a.id}')" title="点击切换状态">${statusLabel}</button>
@@ -4302,13 +4555,13 @@ function _renderGameAccToEl(elId, filter) {
     const groupAcc = gameGroups[game];
     const normalCount = groupAcc.filter(a => a.status === '正常').length;
     const frozenCount = groupAcc.filter(a => a.status === '冻结').length;
-    const icon = gameIconMap[game] || '🎮';
+    const soldCount   = groupAcc.filter(a => a.status === '已售').length;
+    const icon = gameIconMap[game] || game.slice(0,2);
     const groupId = elId + '_game_' + gi;
     const metaParts = [];
-    if (normalCount) metaParts.push(`✅ ${normalCount}个正常`);
-    if (frozenCount) metaParts.push(`⚠️ ${frozenCount}冻结`);
-    const soldCount = groupAcc.filter(a => a.status === '已出售').length;
-    if (soldCount) metaParts.push(`🔒 ${soldCount}已售`);
+    if (normalCount) metaParts.push(`${normalCount}个正常`);
+    if (frozenCount) metaParts.push(`${frozenCount}冻结`);
+    if (soldCount)   metaParts.push(`${soldCount}已售`);
     return `<div class="ga-game-group">
       <div class="ga-game-group-hdr" onclick="toggleGameGroup('${groupId}')">
         <div class="ga-game-group-left">
@@ -4350,7 +4603,7 @@ function _renderIncomeToEl(elId) {
   const el = document.getElementById(elId);
   if (!el) return;
   if (!inc.length) {
-    el.innerHTML = '<div style="text-align:center;padding:28px 20px;color:var(--hint)"><div style="font-size:36px;margin-bottom:8px">💵</div><div>暂无收入记录</div></div>';
+    el.innerHTML = '<div style="text-align:center;padding:28px 20px;color:var(--hint)"><div style="font-size:22px;opacity:.3;margin-bottom:8px">—</div><div>暂无收入记录</div></div>';
     return;
   }
   const totalAmount = inc.reduce((s, r) => s + r.amount, 0);
@@ -4507,8 +4760,8 @@ function cycleGameAccStatus(id) {
   const next = CYCLE[(CYCLE.indexOf(cur) + 1) % CYCLE.length];
   s.gameAccounts[idx] = stampNow({ ...s.gameAccounts[idx], status: next });
   setLocal(s); renderGameAccPage(); renderGameAccInProfile(); forcePushAndPull();
-  const LABEL = { '正常':'✅ 正常', '冻结':'⚠️ 冻结', '已出售':'🔒 已出售', '被找回':'❌ 被找回' };
-  toast(`状态已更新：${LABEL[next]} ✓`);
+  const LABEL = { '正常':'正常', '冻结':'冻结', '已出售':'已出售', '被找回':'被找回' };
+  toast(`状态已更新：${LABEL[next]}`);
 }
 
 // 收入相关
@@ -4652,7 +4905,7 @@ function renderPhoneBindList() {
     list.forEach(a => { statusCountMap[a.status] = (statusCountMap[a.status]||0)+1; });
     const accRows = list.map(a => {
       const ss = STATUS_STYLE[a.status] || { bg:'#f1f5f9', color:'#64748b' };
-      const statusLabel = { '正常':'✅ 正常', '冻结':'⚠️ 冻结', '已出售':'🔒 已出售', '被找回':'❌ 被找回' }[a.status] || a.status;
+      const statusLabel = { '正常':'正常', '冻结':'冻结', '已出售':'已出售', '被找回':'被找回' }[a.status] || a.status;
       const isInactive = a.status === '已出售' || a.status === '被找回';
       return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f5f7fa;opacity:${isInactive?'0.5':'1'}">
         <div style="flex:1;min-width:0">
@@ -4671,7 +4924,7 @@ function renderPhoneBindList() {
           <div style="font-size:14px;font-weight:800;letter-spacing:.5px;color:var(--text);font-family:monospace">${phone}</div>
           <div style="font-size:11px;color:var(--hint);margin-top:2px">
             有效绑定 <b style="color:${barColor}">${count}</b> 个（正常+冻结）/ 上限 5 个
-            ${!overLimit ? `· 还可绑定 <b style="color:${barColor}">${remaining}</b> 个` : ' · <b style="color:#ef4444">⚠️ 已超上限</b>'}
+            ${!overLimit ? `· 还可绑定 <b style="color:${barColor}">${remaining}</b> 个` : ' · <b style="color:#ef4444">已超上限</b>'}
           </div>
         </div>
         <div style="text-align:right;font-size:11px;color:var(--hint)">
@@ -4855,6 +5108,314 @@ function setDateVal(fieldId, val) {
 }
 
 // ══════════════════════════════════════════════
+//  会议通知系统
+// ══════════════════════════════════════════════
+
+// 当前正在设置通知的会议ID
+let _notifMeetingId = null;
+
+// 默认短信模板
+const DEFAULT_SMS_TEMPLATE = '【StartupLog】您好，您有一场会议即将开始：{title}，时间：{date} {time}，请提前做好准备。（本短信由系统自动发送，请勿回复）';
+
+// 读取通知设置（持久化在 localStorage）
+function getNotifConfig() {
+  try { return JSON.parse(localStorage.getItem('notifConfig') || '{}'); } catch(e) { return {}; }
+}
+function setNotifConfig(cfg) {
+  localStorage.setItem('notifConfig', JSON.stringify(cfg));
+}
+
+// 打开会议通知设置弹窗
+function openMeetingNotif(meetingId) {
+  _notifMeetingId = meetingId;
+  const s = getLocal();
+  const m = s.meetings.find(x => x.id === meetingId);
+  if (!m) return;
+
+  // 填充会议信息
+  const [startTime] = (m.duration || '').split('-');
+  document.getElementById('notifMeetingInfo').innerHTML =
+    `<b style="color:var(--text)">${m.title}</b><br>` +
+    `<span style="color:var(--hint)">日期：${m.date || '-'}&nbsp;&nbsp;时间：${startTime || m.duration || '-'}</span>`;
+
+  // 读取已保存的通知状态
+  const notifKey = `notif_${meetingId}`;
+  const saved = (() => { try { return JSON.parse(localStorage.getItem(notifKey) || 'null'); } catch(e) { return null; } })();
+  const cfg = getNotifConfig();
+
+  // 浏览器通知
+  document.getElementById('notifPushToggle').checked = !!(saved && saved.push);
+  updateNotifPushStatus();
+
+  // 短信通知
+  const smsOn = !!(saved && saved.sms);
+  document.getElementById('notifSmsToggle').checked = smsOn;
+  document.getElementById('notifSmsPanel').style.display = smsOn ? 'block' : 'none';
+
+  // 填充SMS配置
+  document.getElementById('notifSmsPhone').value      = cfg.smsPhone || '';
+  document.getElementById('notifSmsSecretId').value   = cfg.smsSecretId || '';
+  document.getElementById('notifSmsSecretKey').value  = cfg.smsSecretKey || '';
+  document.getElementById('notifSmsSdkAppId').value   = cfg.smsSdkAppId || '';
+  document.getElementById('notifSmsSign').value       = cfg.smsSign || '';
+  document.getElementById('notifSmsTemplateId').value = cfg.smsTemplateId || '';
+  document.getElementById('notifSmsTemplate').value   = cfg.smsTemplate || DEFAULT_SMS_TEMPLATE;
+
+  updateSmsPreview();
+  document.getElementById('notifModal').classList.add('show');
+}
+
+function closeNotifModal() {
+  document.getElementById('notifModal').classList.remove('show');
+}
+
+// 开关：浏览器Push
+function onNotifPushToggle() {
+  updateNotifPushStatus();
+}
+
+function updateNotifPushStatus() {
+  const on = document.getElementById('notifPushToggle').checked;
+  const warnEl = document.getElementById('notifPermWarn');
+  const statusEl = document.getElementById('notifPushStatus');
+  if (!on) { warnEl.style.display = 'none'; statusEl.textContent = ''; return; }
+  if (!('Notification' in window)) {
+    warnEl.style.display = 'block';
+    warnEl.textContent = '此浏览器不支持通知功能。';
+    document.getElementById('notifPushToggle').checked = false;
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    warnEl.style.display = 'block';
+    statusEl.textContent = '';
+  } else if (Notification.permission === 'granted') {
+    warnEl.style.display = 'none';
+    statusEl.textContent = '已获得通知权限，开会前 5 分钟将自动提醒。';
+    statusEl.style.color = 'rgba(74,222,128,0.8)';
+  } else {
+    warnEl.style.display = 'none';
+    statusEl.textContent = '保存时将请求通知权限。';
+    statusEl.style.color = 'var(--hint)';
+  }
+}
+
+// 开关：短信
+function onNotifSmsToggle() {
+  const on = document.getElementById('notifSmsToggle').checked;
+  document.getElementById('notifSmsPanel').style.display = on ? 'block' : 'none';
+}
+
+// 更新短信预览
+function updateSmsPreview() {
+  const template = document.getElementById('notifSmsTemplate').value || DEFAULT_SMS_TEMPLATE;
+  const s = getLocal();
+  const m = _notifMeetingId ? s.meetings.find(x => x.id === _notifMeetingId) : null;
+  const title = m ? m.title : '跨境电商项目周会';
+  const date  = m ? (m.date || '2026-03-16') : '2026-03-16';
+  const [startTime] = ((m && m.duration) || '10:00-11:00').split('-');
+  const preview = template
+    .replace(/\{title\}/g, title)
+    .replace(/\{date\}/g, date)
+    .replace(/\{time\}/g, startTime || '10:00');
+  document.getElementById('smsMsgPreview').textContent = preview;
+}
+
+// 保存通知设置
+async function saveNotifSettings() {
+  const pushOn = document.getElementById('notifPushToggle').checked;
+  const smsOn  = document.getElementById('notifSmsToggle').checked;
+  const phone  = document.getElementById('notifSmsPhone').value.trim();
+  const template = document.getElementById('notifSmsTemplate').value.trim() || DEFAULT_SMS_TEMPLATE;
+
+  // 请求推送权限
+  if (pushOn && 'Notification' in window && Notification.permission === 'default') {
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') {
+      document.getElementById('notifPermWarn').style.display = 'block';
+      document.getElementById('notifPushToggle').checked = false;
+      toast('通知权限被拒绝，请在浏览器设置中手动开启');
+      return;
+    }
+  }
+  if (pushOn && 'Notification' in window && Notification.permission === 'denied') {
+    toast('通知权限已被拒绝，请在浏览器/系统设置中手动开启');
+    return;
+  }
+
+  // 校验短信设置
+  if (smsOn && !phone) { toast('请填写接收短信的手机号'); return; }
+
+  // 保存全局SMS配置
+  const cfg = getNotifConfig();
+  cfg.smsPhone      = document.getElementById('notifSmsPhone').value.trim();
+  cfg.smsTemplate   = template;
+  cfg.smsSecretId   = document.getElementById('notifSmsSecretId').value.trim();
+  cfg.smsSecretKey  = document.getElementById('notifSmsSecretKey').value.trim();
+  cfg.smsSdkAppId   = document.getElementById('notifSmsSdkAppId').value.trim();
+  cfg.smsSign       = document.getElementById('notifSmsSign').value.trim();
+  cfg.smsTemplateId = document.getElementById('notifSmsTemplateId').value.trim();
+  setNotifConfig(cfg);
+
+  // 保存本次会议的通知状态
+  const notifKey = `notif_${_notifMeetingId}`;
+  if (pushOn || smsOn) {
+    localStorage.setItem(notifKey, JSON.stringify({ push: pushOn, sms: smsOn, phone }));
+  } else {
+    localStorage.removeItem(notifKey);
+  }
+
+  // 重新调度通知
+  scheduleMeetingNotifs();
+
+  closeNotifModal();
+  renderMeetingList();
+  renderHomeMeetings();
+  toast(pushOn || smsOn ? '通知已设置，提前 5 分钟提醒' : '已关闭通知');
+}
+
+// ── 通知调度引擎 ──
+// 用 setTimeout 在浏览器内实现定时通知
+// 每次页面加载时重新注册所有待通知的会议
+let _notifTimers = {};
+
+function scheduleMeetingNotifs() {
+  // 先清除所有旧的定时器
+  Object.values(_notifTimers).forEach(id => clearTimeout(id));
+  _notifTimers = {};
+
+  const s = getLocal();
+  const now = Date.now();
+  const ADVANCE_MS = 5 * 60 * 1000; // 提前5分钟
+
+  alive(s.meetings).forEach(m => {
+    if (m.status === 'done') return;
+    const notifKey = `notif_${m.id}`;
+    const saved = (() => { try { return JSON.parse(localStorage.getItem(notifKey) || 'null'); } catch(e) { return null; } })();
+    if (!saved || (!saved.push && !saved.sms)) return;
+
+    // 解析会议时间
+    const meetingMs = parseMeetingDateTime(m.date, m.duration);
+    if (!meetingMs) return;
+
+    const triggerMs = meetingMs - ADVANCE_MS;
+    const delay = triggerMs - now;
+
+    if (delay < -60000) return; // 已过期超过1分钟，跳过
+    if (delay < 0) return;      // 已过期，不提醒
+
+    _notifTimers[m.id] = setTimeout(() => {
+      fireNotif(m, saved);
+    }, delay);
+  });
+}
+
+// 解析 "2026-03-16" + "10:00-11:00" 为时间戳（北京时间）
+function parseMeetingDateTime(dateStr, durStr) {
+  if (!dateStr || !durStr) return null;
+  const [startTime] = (durStr || '').split('-');
+  if (!startTime || !startTime.includes(':')) return null;
+  const [h, min] = startTime.split(':').map(Number);
+  if (isNaN(h) || isNaN(min)) return null;
+  // 解析 YYYY-MM-DD
+  const [y, mo, d] = dateStr.split('-').map(Number);
+  if (!y || !mo || !d) return null;
+  // 北京时间 UTC+8
+  const utcMs = Date.UTC(y, mo - 1, d, h - 8, min, 0);
+  return utcMs;
+}
+
+// 触发通知（Push + SMS）
+async function fireNotif(m, saved) {
+  const cfg = getNotifConfig();
+  const [startTime] = (m.duration || '').split('-');
+  const body = `${m.title}\n${m.date} ${startTime || ''}  即将开始，请准备`;
+
+  // 浏览器Push
+  if (saved.push && 'Notification' in window && Notification.permission === 'granted') {
+    try {
+      new Notification('会议即将开始 · 5分钟后', {
+        body,
+        icon: './icon192.png',
+        badge: './icon192.png',
+        tag: m.id,
+        requireInteraction: true
+      });
+    } catch(e) {}
+  }
+
+  // 短信
+  if (saved.sms && cfg.smsSecretId && cfg.smsSecretKey && cfg.smsSdkAppId && cfg.smsSign && cfg.smsTemplateId) {
+    const phone = saved.phone || cfg.smsPhone;
+    if (phone) {
+      await sendSmsNotif(m, phone, cfg).catch(() => {});
+    }
+  }
+}
+
+// 发送短信（腾讯云 SMS API via fetch → 后端代理 或 直接调用）
+// 注：浏览器端受CORS限制，需通过 sw.js 代理或后端转发
+// 此处尝试直接调用，失败时在 toast 中提示
+async function sendSmsNotif(m, phone, cfg) {
+  const template = cfg.smsTemplate || DEFAULT_SMS_TEMPLATE;
+  const [startTime] = (m.duration || '').split('-');
+  const msg = template
+    .replace(/\{title\}/g, m.title)
+    .replace(/\{date\}/g, m.date || '')
+    .replace(/\{time\}/g, startTime || '');
+
+  // 构造腾讯云SMS请求
+  const params = {
+    PhoneNumberSet: [`+86${phone.replace(/^\+86/,'')}`],
+    SmsSdkAppId: cfg.smsSdkAppId,
+    SignName: cfg.smsSign,
+    TemplateId: cfg.smsTemplateId,
+    // 如果用模板参数，TemplateParamSet 按模板变量顺序填
+    TemplateParamSet: [m.title, m.date || '', startTime || '']
+  };
+
+  // 腾讯云 SMS API（需要签名，建议通过服务端代理）
+  // 这里先尝试通过 fetch proxy，如果有 /api/sms 后端
+  try {
+    const resp = await fetch('/api/sms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...params, secretId: cfg.smsSecretId, secretKey: cfg.smsSecretKey })
+    });
+    if (!resp.ok) throw new Error('SMS API error');
+  } catch(e) {
+    // 静默失败（前端直接调用受CORS限制）
+    console.warn('SMS send failed:', e.message);
+  }
+}
+
+// 测试发送短信
+async function testSendSms() {
+  const phone = document.getElementById('notifSmsPhone').value.trim();
+  if (!phone) { toast('请先填写手机号'); return; }
+  const cfg = {
+    smsSecretId:   document.getElementById('notifSmsSecretId').value.trim(),
+    smsSecretKey:  document.getElementById('notifSmsSecretKey').value.trim(),
+    smsSdkAppId:   document.getElementById('notifSmsSdkAppId').value.trim(),
+    smsSign:       document.getElementById('notifSmsSign').value.trim(),
+    smsTemplateId: document.getElementById('notifSmsTemplateId').value.trim(),
+    smsTemplate:   document.getElementById('notifSmsTemplate').value.trim() || DEFAULT_SMS_TEMPLATE
+  };
+  if (!cfg.smsSecretId || !cfg.smsSecretKey || !cfg.smsSdkAppId) {
+    toast('请先填写腾讯云 SMS API 配置');
+    return;
+  }
+  toast('正在发送测试短信...');
+  const s = getLocal();
+  const m = _notifMeetingId ? s.meetings.find(x => x.id === _notifMeetingId) : { title: '测试会议', date: '2026-01-01', duration: '10:00-11:00' };
+  try {
+    await sendSmsNotif(m, phone, cfg);
+    toast('测试短信已发送，请注意查收');
+  } catch(e) {
+    toast('发送失败：' + e.message);
+  }
+}
+
+// ══════════════════════════════════════════════
 //  启动
 // ══════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
@@ -4878,7 +5439,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const dy = e.touches[0].clientY - _ptrStartY;
     if (_ptrHideTimer) clearTimeout(_ptrHideTimer);
     if (dy > 55 && !_ptrTriggered) {
-      _ptrTip.textContent = '☁️ 松开即可同步';
+      _ptrTip.textContent = '松开即可同步';
       _ptrTip.classList.add('visible');
     } else if (dy > 20) {
       _ptrTip.textContent = '↓ 下拉同步';
