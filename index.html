@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-015';
+  var VER = '20260314-016';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -1226,7 +1226,7 @@ const DB_KEY = 'startuplog';
 //  原理：通过 WS 长连接订阅 store 表变更，
 //  云端一有更新立刻推送，无需轮询等待
 // ══════════════════════════════════════════════
-let _rtWs = null, _rtHb = null, _rtRef = 0, _rtReconnTimer = null;
+let _rtWs = null, _rtHb = null, _rtRef = 0, _rtReconnTimer = null, _rtIgnoreEcho = false;
 
 function startRealtime() {
   if (_rtWs && _rtWs.readyState <= 1) return; // 已连接或连接中
@@ -1295,8 +1295,13 @@ function _scheduleReconnect() {
 
 // 收到 Realtime 推送后的处理：立即拉取最新数据并刷新界面
 async function _onRealtimeChange() {
-  if (isSyncing) return; // 本机正在推送中，跳过（自己触发的变更）
-  isSyncing = true;
+  // 本机刚推送完毕后的短暂窗口内，忽略自己触发的 Realtime 回声
+  if (_rtIgnoreEcho) return;
+  // 若当前正在推送中（isSyncing），稍等推送完再拉，避免读到半截数据
+  if (isSyncing) {
+    setTimeout(_onRealtimeChange, 800);
+    return;
+  }
   try {
     const result = await sbFetch();
     if (!result || result === 'timeout') return;
@@ -1308,10 +1313,9 @@ async function _onRealtimeChange() {
       renderAll();
       setSyncBar('ok');
       updateSyncTime();
+      toast('☁️ 数据已更新');
     }
-  } finally {
-    isSyncing = false;
-  }
+  } catch(e) { console.error('Realtime pull error:', e); }
 }
 
 // 网络恢复时重启实时连接
@@ -1599,9 +1603,18 @@ async function forcePushAndPull() {
   if (!isOnline) { pendingSync = true; return; }
   if (isSyncing) return;
   isSyncing = true;
+  _rtIgnoreEcho = true; // 屏蔽自己推送触发的 Realtime 回声
   setSyncBar('syncing');
   try {
-    await forcePush();
+    // 推送本地数据到云端
+    const ret = await sbPush(getLocal());
+    if (!ret) { setSyncBar('error'); return; }
+    // 推送后立即拉取云端时间戳，确保本机 LAST_SYNC_AT 与云端严格一致
+    // 这样其他设备的 pullIfNewer 才能正确感知到"有新数据"
+    const result = await sbFetch();
+    if (result && result !== 'timeout') {
+      localStorage.setItem(LAST_SYNC_AT, normTs(result.updatedAt || ''));
+    }
     setSyncBar('ok');
     updateSyncTime();
     pendingSync = false;
@@ -1610,6 +1623,7 @@ async function forcePushAndPull() {
     console.error('Sync error:', e);
   } finally {
     isSyncing = false;
+    setTimeout(() => { _rtIgnoreEcho = false; }, 3000); // 3s后恢复监听
   }
 }
 
@@ -1677,9 +1691,16 @@ async function syncNow() {
 
 function startAutoSync() {
   if (syncTimer) clearInterval(syncTimer);
-  syncTimer = setInterval(autoSync, 30000); // 30s 兜底轮询（Realtime 是主通道）
+  syncTimer = setInterval(autoSync, 15000); // 15s 兜底轮询（Realtime 是主通道）
   startRealtime(); // 启动 WebSocket 实时推送
 }
+
+// 页面从后台切回前台时（手机最常见场景），立即触发一次拉取
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && isOnline) {
+    autoSync();
+  }
+});
 
 // ══════════════════════════════════════════════
 //  AUTH
