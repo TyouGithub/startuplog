@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-052';
+  var VER = '20260314-053';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -2691,7 +2691,7 @@ function renderActs() {
       <div class="tlc" style="flex:1">${a.text}${authorTag}</div>
       ${editBtn}${delBtn}
     </div></div>`;
-  }).join('') + (acts.length > showCount ? `<div style="text-align:center;padding-top:10px"><span class="cm" onclick="goPage('profile');setTimeout(()=>{const b=document.getElementById('profileActCard-body');const ar=document.getElementById('profileActCard-arrow');if(b&&b.style.display==='none'){b.style.display='';if(ar)ar.textContent='▲';}},100)">查看全部 ${acts.length} 条动态 →</span></div>` : '');
+  }).join('') + (acts.length > showCount ? `<div style="text-align:center;padding-top:10px"><span class="cm" onclick="goPage('profile');setTimeout(()=>{const b=document.getElementById('profileActCard-body');const ar=document.getElementById('profileActCard-arrow');if(b&&!b.classList.contains('open')){b.classList.add('open');if(ar)ar.classList.add('open');}b.scrollIntoView({behavior:'smooth',block:'start'});},150)">查看全部 ${acts.length} 条动态 →</span></div>` : '');
 }
 
 // ── 首页账号快捷入口 ──
@@ -4592,6 +4592,13 @@ function filterGameAcc2(f) {
   });
   document.getElementById('gaf2-' + f)?.classList.add('on');
   renderGameAccList2();
+  // 自动展开账号列表卡片
+  const body  = document.getElementById('gameaccListCard2-body');
+  const arrow = document.getElementById('gameaccListCard2-arrow');
+  if (body && !body.classList.contains('open')) {
+    body.classList.add('open');
+    if (arrow) arrow.classList.add('open');
+  }
 }
 
 function _updateGaMasterSub(subId) {
