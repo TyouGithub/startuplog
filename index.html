@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-013';
+  var VER = '20260314-014';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -311,8 +311,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 /* ── 图片灯箱 ── */
 .img-lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:600;align-items:center;justify-content:center;padding:20px}
 .img-lightbox.show{display:flex}
-.img-lightbox img{max-width:100%;max-height:90vh;border-radius:14px;box-shadow:0 16px 64px rgba(0,0,0,.5)}
-.img-lightbox-close{position:absolute;top:16px;right:16px;width:38px;height:38px;background:rgba(255,255,255,.15);border:none;border-radius:50%;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.img-lightbox img{max-width:100%;max-height:85vh;border-radius:14px;box-shadow:0 16px 64px rgba(0,0,0,.5);display:block}
+.img-lightbox-close{position:fixed;top:16px;right:16px;width:44px;height:44px;background:rgba(30,30,30,.85);border:2px solid rgba(255,255,255,.35);border-radius:50%;color:#fff;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:601;backdrop-filter:blur(4px);transition:background .15s;line-height:1}
+.img-lightbox-close:hover{background:rgba(239,68,68,.85)}
 
 /* ── 上传图片预览 ── */
 .prod-img-item{position:relative;display:inline-block}
@@ -818,7 +819,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
         <!-- 桌面端：拖拽区（移动端自动隐藏） -->
         <div class="img-drop-zone" id="imgDropZone"
           onclick="document.getElementById('f-p-img').click()"
-          ondragover="imgDragOver(event)" ondragleave="imgDragLeave(event)" ondrop="imgDrop(event)">
+          ondragenter="imgDragEnter(event)" ondragover="imgDragOver(event)" ondragleave="imgDragLeave(event)" ondrop="imgDrop(event)">
           <span class="drop-icon">🖼️</span>
           <div class="drop-text">拖拽图片到此处，或 <span style="color:var(--blue);font-weight:600">点击选择</span></div>
           <div class="drop-hint">支持 JPG / PNG / WEBP，可多选</div>
@@ -985,9 +986,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 </div>
 
 <!-- 图片灯箱 -->
-<div class="img-lightbox" id="imgLightbox" onclick="closeImgLightbox()">
+<div class="img-lightbox" id="imgLightbox" onclick="if(event.target===this)closeImgLightbox()">
   <button class="img-lightbox-close" onclick="closeImgLightbox()">✕</button>
-  <img id="imgLightboxSrc" src="" alt=""/>
+  <img id="imgLightboxSrc" src="" alt="" onclick="event.stopPropagation()"/>
 </div>
 
 <!-- 新增/编辑账号弹窗 -->
@@ -2140,6 +2141,13 @@ function openImgLightbox(src) {
   document.getElementById('imgLightboxSrc').src = src;
   document.getElementById('imgLightbox').classList.add('show');
 }
+// 从商品卡片打开灯箱（通过id+index查找src，避免base64内联到onclick）
+function openImgLightboxFromProd(prodId, imgIdx) {
+  const s = getLocal();
+  const p = (s.products || []).find(x => x.id === prodId);
+  if (!p || !p.imgs || !p.imgs[imgIdx]) return;
+  openImgLightbox(p.imgs[imgIdx]);
+}
 function closeImgLightbox() { document.getElementById('imgLightbox').classList.remove('show'); }
 
 // ── 通用 AI 整理核心函数 ──
@@ -2696,6 +2704,11 @@ function handleProdImgs(input) {
 }
 
 // 拖拽事件
+function imgDragEnter(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('imgDropZone').classList.add('drag-over');
+}
 function imgDragOver(e) {
   e.preventDefault();
   e.stopPropagation();
@@ -2703,7 +2716,11 @@ function imgDragOver(e) {
 }
 function imgDragLeave(e) {
   e.preventDefault();
-  document.getElementById('imgDropZone').classList.remove('drag-over');
+  // 只有真正离开整个拖拽区才移除高亮（防止经过子元素时误触发）
+  const zone = document.getElementById('imgDropZone');
+  if (!zone.contains(e.relatedTarget)) {
+    zone.classList.remove('drag-over');
+  }
 }
 function imgDrop(e) {
   e.preventDefault();
@@ -2726,7 +2743,7 @@ function renderProdImgPreview() {
   if (!preview) return;
   preview.innerHTML = pendingProdImgs.map((src, idx) =>
     `<div class="prod-img-item">
-      <img src="${src}" onclick="openImgLightbox('${src}')" title="点击放大"/>
+      <img src="${src}" onclick="openImgLightbox(pendingProdImgs[${idx}])" title="点击放大"/>
       <button class="prod-img-del" onclick="delProdImg(${idx})" title="删除">×</button>
     </div>`
   ).join('');
@@ -2747,7 +2764,7 @@ function prodHTML(p) {
   const em = { TEMU:'🛒', 亚马逊:'📦', 速卖通:'🌐', 其他:'📌' };
   const sc = { 选品中:'b-purple', 备货中:'b-todo', 在售:'b-done', 下架:'b-todo' };
   const imgsHtml = p.imgs && p.imgs.length
-    ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${p.imgs.map(src=>`<div class="prod-img-item" style="display:inline-block"><img src="${src}" onclick="openImgLightbox('${src}')" title="点击放大" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1.5px solid var(--border);cursor:pointer"></div>`).join('')}</div>` : '';
+    ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${p.imgs.map((src,i)=>`<div class="prod-img-item" style="display:inline-block"><img src="${src}" onclick="openImgLightboxFromProd('${p.id}',${i})" title="点击放大" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1.5px solid var(--border);cursor:pointer"></div>`).join('')}</div>` : '';
   const keywordsHtml = p.keywords ? `<div class="pfull"><div class="pflab">关键词</div><div style="font-size:13px;color:var(--text);margin-top:3px">${p.keywords}</div></div>` : '';
   const skuHtml = p.sku ? `<div class="pfull"><div class="pflab">SKU / 变体</div><div style="font-size:13px;color:var(--text);margin-top:3px">${p.sku}</div></div>` : '';
   return `<div class="pcard">
