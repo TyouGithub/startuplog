@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-039';
+  var VER = '20260314-040';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -54,6 +54,13 @@ window.addEventListener('unhandledrejection', function(e) {
 <script>
 // ── Service Worker 注册 + 自动更新检测 ──
 if ('serviceWorker' in navigator) {
+  // controllerchange = 新SW接管，直接静默刷新
+  var _swRefreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function() {
+    if (_swRefreshing) return;
+    _swRefreshing = true;
+    window.location.reload();
+  });
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('./sw.js').then(function(reg) {
       // 检测到新版本（updatefound）
@@ -61,17 +68,13 @@ if ('serviceWorker' in navigator) {
         var newWorker = reg.installing;
         newWorker.addEventListener('statechange', function() {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // 有新版本就绪，提示用户刷新
-            var bar = document.createElement('div');
-            bar.id = '__swUpdateBar';
-            bar.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(22,119,255,0.95);color:#fff;padding:12px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(22,119,255,.4);display:flex;align-items:center;gap:10px;white-space:nowrap;backdrop-filter:blur(12px)';
-            bar.innerHTML = '发现新版本 <span onclick="location.reload(true)" style="background:rgba(255,255,255,0.25);padding:3px 10px;border-radius:12px;cursor:pointer;margin-left:4px">立即更新</span>';
-            document.body && document.body.appendChild(bar);
-            // 10秒后自动消失
-            setTimeout(function(){ bar.remove && bar.remove(); }, 10000);
+            // 新版本已安装，主动告诉SW跳过等待，触发controllerchange自动刷新
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
           }
         });
       });
+      // 每次激活时主动检测是否有更新
+      reg.update();
     }).catch(function(err) {
       console.warn('[SW] 注册失败:', err);
     });
@@ -742,7 +745,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <!-- 登录区 -->
     <div class="lcard-body">
       <div class="ulabel">选择身份</div>
-      <div class="urow">
+      <div class="urow" style="display:flex;gap:8px;margin-bottom:20px">
         <div class="ubtn sel" id="ubtn-jiashuo" onclick="selUser('jiashuo')">
           <div class="av" style="background:linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)">硕</div>
           <div class="nm">佳硕</div><div class="rl">创始人</div>
@@ -750,6 +753,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div class="ubtn" id="ubtn-yixin" onclick="selUser('yixin')">
           <div class="av" style="background:linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)">新</div>
           <div class="nm">一新</div><div class="rl">联合创始人</div>
+        </div>
+        <div class="ubtn" id="ubtn-lingling" onclick="selUser('lingling')">
+          <div class="av" style="background:linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)">灵</div>
+          <div class="nm">灵灵</div><div class="rl">运营主管</div>
         </div>
       </div>
       <div id="memberBtns" style="display:none;margin-bottom:16px"></div>
@@ -3217,6 +3224,8 @@ function togglePwdPanel() {
 //  成员管理 & 权限
 // ══════════════════════════════════════════════
 const ADMINS = ['jiashuo', 'yixin'];
+// 核心固定成员（不可删除，登录页固定显示）
+const CORE_MEMBERS = ['jiashuo', 'yixin', 'lingling'];
 function isAdmin() { return ADMINS.includes(CU); }
 
 // 只读模式：隐藏所有写操作按钮
@@ -3369,7 +3378,7 @@ function saveNewMember() {
 }
 
 function delMember(uid) {
-  if (ADMINS.includes(uid)) { toast('不能删除管理员'); return; }
+  if (CORE_MEMBERS.includes(uid)) { toast('核心成员不可删除'); return; }
   const s = getLocal();
   const name = s.users[uid] ? s.users[uid].name : uid;
   showConfirm('删除成员', `确定移除成员「${name}」吗？`).then(ok => {
@@ -3388,7 +3397,8 @@ function refreshLoginMembers() {
   const s = getLocal();
   const el = document.getElementById('memberBtns');
   if (!el) return;
-  const members = Object.entries(s.users).filter(([uid]) => !ADMINS.includes(uid));
+  // lingling 已固定在主选择行，其他成员折叠区只显示动态添加的成员
+  const members = Object.entries(s.users).filter(([uid]) => !ADMINS.includes(uid) && uid !== 'lingling');
   if (!members.length) { el.innerHTML = ''; return; }
   const SPECIAL_BG = {
     lingling: 'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)'
@@ -4616,11 +4626,15 @@ function _renderGameAccToEl(elId, filter) {
   let acc = alive(s.gameAccounts);
   const fv = filterMap[filter];
   if (fv) acc = acc.filter(a => a.status === fv);
-  // 按 updatedAt/date 降序，最新在最上面
+  // 第一层：状态排序（正常→冻结→已出售→被找回）
+  // 第二层：价格从高到低（sellPrice 优先，其次 cost）
+  const STATUS_ORDER = { '正常':0, '冻结':1, '已出售':2, '被找回':3 };
   acc = acc.slice().sort((a, b) => {
-    const ta = new Date(b.updatedAt || b.date || 0).getTime();
-    const tb = new Date(a.updatedAt || a.date || 0).getTime();
-    return ta - tb;
+    const so = (STATUS_ORDER[a.status] ?? 99) - (STATUS_ORDER[b.status] ?? 99);
+    if (so !== 0) return so;
+    const pa = parseFloat(a.sellPrice ?? a.cost ?? 0);
+    const pb = parseFloat(b.sellPrice ?? b.cost ?? 0);
+    return pb - pa;
   });
   const el = document.getElementById(elId);
   if (!el) return;
@@ -4634,21 +4648,11 @@ function _renderGameAccToEl(elId, filter) {
     '已出售':{ bg:'rgba(71,85,105,0.15)',  color:'#94a3b8',  dot:'#94a3b8' },
     '被找回':{ bg:'rgba(220,38,38,0.15)',  color:'#f87171',  dot:'#ef4444' }
   };
-  // 按游戏分组
-  const gameGroups = {};
-  acc.forEach(a => {
-    const g = a.game || '未知游戏';
-    if (!gameGroups[g]) gameGroups[g] = [];
-    gameGroups[g].push(a);
-  });
-  const gameIconMap = {
-    '王者荣耀': 'WZ', '和平精英': 'HP', '原神': 'YS', '英雄联盟': 'LOL',
-    '我的世界': 'MC', '绝地求生': 'PUBG', '斗罗大陆': 'DL', '梦幻西游': 'MH'
-  };
+  // 平铺渲染，不再分组
   const buildAccCard = (a) => {
     const ss = STATUS_STYLE[a.status] || { bg:'rgba(71,85,105,0.15)', color:'#94a3b8', dot:'#94a3b8' };
     const profit = (a.status === '已出售' || a.status === '被找回') && a.sellPrice != null
-      ? (a.sellPrice - a.cost) : null;
+      ? (parseFloat(a.sellPrice) - parseFloat(a.cost || 0)) : null;
     const profitHtml = profit !== null
       ? `<span class="ga-profit ${profit>=0?'pos':'neg'}">${profit>=0?'+':''}¥${profit}</span>` : '';
     const statusLabel = { '正常':'正常', '冻结':'冻结', '已出售':'已出售', '被找回':'被找回' }[a.status] || a.status;
@@ -4657,6 +4661,7 @@ function _renderGameAccToEl(elId, filter) {
         <div style="flex:1;min-width:0">
           <div class="ga-name-row">
             <span class="ga-name">${a.name}</span>
+            <span style="font-size:10px;color:rgba(255,255,255,0.35);margin-left:4px">${a.game||''}</span>
             <span class="ga-status-tag" style="background:${ss.bg};color:${ss.color}">${statusLabel}</span>
             ${profitHtml}
           </div>
@@ -4692,37 +4697,7 @@ function _renderGameAccToEl(elId, filter) {
       </div>
     </div>`;
   };
-  const groupKeys = Object.keys(gameGroups);
-  el.innerHTML = groupKeys.map((game, gi) => {
-    const groupAcc = gameGroups[game];
-    const normalCount = groupAcc.filter(a => a.status === '正常').length;
-    const frozenCount = groupAcc.filter(a => a.status === '冻结').length;
-    const soldCount   = groupAcc.filter(a => a.status === '已售').length;
-    const icon = gameIconMap[game] || game.slice(0,2);
-    const groupId = elId + '_game_' + gi;
-    const metaParts = [];
-    if (normalCount) metaParts.push(`${normalCount}个正常`);
-    if (frozenCount) metaParts.push(`${frozenCount}冻结`);
-    if (soldCount)   metaParts.push(`${soldCount}已售`);
-    return `<div class="ga-game-group">
-      <div class="ga-game-group-hdr" onclick="toggleGameGroup('${groupId}')">
-        <div class="ga-game-group-left">
-          <div class="ga-game-group-icon">${icon}</div>
-          <div>
-            <div class="ga-game-group-name">${game}</div>
-            <div class="ga-game-group-meta">${metaParts.join(' · ') || '共 ' + groupAcc.length + ' 个账号'}</div>
-          </div>
-        </div>
-        <div class="ga-game-group-right">
-          <span class="ga-game-count-badge">${groupAcc.length} 个</span>
-          <span class="ga-game-arrow" id="${groupId}-arrow">▼</span>
-        </div>
-      </div>
-      <div class="ga-game-group-body" id="${groupId}-body">
-        ${groupAcc.map(buildAccCard).join('')}
-      </div>
-    </div>`;
-  }).join('');
+  el.innerHTML = acc.map(buildAccCard).join('');
 }
 
 function togglePwd(id, pwd) {
