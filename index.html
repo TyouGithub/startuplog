@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-012';
+  var VER = '20260314-013';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -319,6 +319,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 .prod-img-item img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;transition:transform .15s}
 .prod-img-item img:active{transform:scale(.95)}
 .prod-img-del{position:absolute;top:-7px;right:-7px;width:20px;height:20px;background:#ef4444;border:none;border-radius:50%;color:#fff;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+
+/* ── 拖拽上传区 ── */
+.img-drop-zone{border:2px dashed var(--border);border-radius:12px;padding:20px 16px;text-align:center;cursor:pointer;background:#f8fafc;transition:all .2s;user-select:none;-webkit-user-select:none}
+.img-drop-zone:hover{border-color:var(--blue);background:#eff6ff}
+.img-drop-zone.drag-over{border-color:var(--blue);background:#dbeafe;transform:scale(1.01)}
+.img-drop-zone .drop-icon{font-size:28px;margin-bottom:6px;display:block;line-height:1}
+.img-drop-zone .drop-text{font-size:13px;color:var(--sub);line-height:1.5}
+.img-drop-zone .drop-hint{font-size:11px;color:var(--hint);margin-top:3px}
+/* 移动端：改为醒目的相册按钮 */
+.img-mobile-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border:1.5px solid var(--blue);border-radius:12px;background:#eff6ff;color:var(--blue);font-size:14px;font-weight:600;cursor:pointer;width:100%;font-family:inherit;transition:opacity .15s}
+.img-mobile-btn:active{opacity:.75}
 
 /* ── AI整理按钮 ── */
 .ai-btn{display:block;width:100%;margin-top:7px;background:linear-gradient(135deg,#7c3aed,#1677ff);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.2px;transition:opacity .15s}
@@ -802,7 +813,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
       <div class="frow"><label>SKU / 变体说明</label><input id="f-p-sku" placeholder="如：黑色/蓝色/红色 各1条"/></div>
       <div class="frow"><label>商品主图（上传图片）</label>
         <div id="f-p-img-preview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px"></div>
-        <input type="file" id="f-p-img" accept="image/*" multiple style="font-size:13px" onchange="handleProdImgs(this)"/>
+        <!-- 隐藏的 file input，由下方按钮/拖区触发 -->
+        <input type="file" id="f-p-img" accept="image/*" multiple style="display:none" onchange="handleProdImgs(this)"/>
+        <!-- 桌面端：拖拽区（移动端自动隐藏） -->
+        <div class="img-drop-zone" id="imgDropZone"
+          onclick="document.getElementById('f-p-img').click()"
+          ondragover="imgDragOver(event)" ondragleave="imgDragLeave(event)" ondrop="imgDrop(event)">
+          <span class="drop-icon">🖼️</span>
+          <div class="drop-text">拖拽图片到此处，或 <span style="color:var(--blue);font-weight:600">点击选择</span></div>
+          <div class="drop-hint">支持 JPG / PNG / WEBP，可多选</div>
+        </div>
+        <!-- 移动端：相册按钮（桌面端自动隐藏） -->
+        <button class="img-mobile-btn" id="imgMobileBtn" onclick="document.getElementById('f-p-img').click()">
+          📷 从相册选取图片
+        </button>
       </div>
       <div class="frow"><label>商品链接</label><input id="f-p-url" placeholder="https://..."/></div>
       <div class="frow"><label>选品理由 / 竞品分析</label>
@@ -2638,6 +2662,26 @@ function delTask(id) {
 
 // ── 选品图片处理 ──
 let pendingProdImgs = [];
+
+// 检测移动端（触屏设备）
+function _isMobileDevice() {
+  return /Mobi|Android|iPhone|iPad|iPod|Touch/i.test(navigator.userAgent) || ('ontouchstart' in window);
+}
+
+// 初始化上传区（根据设备显示不同UI）
+function initImgUploadZone() {
+  const drop = document.getElementById('imgDropZone');
+  const mBtn = document.getElementById('imgMobileBtn');
+  if (!drop || !mBtn) return;
+  if (_isMobileDevice()) {
+    drop.style.display = 'none';
+    mBtn.style.display = 'flex';
+  } else {
+    drop.style.display = 'block';
+    mBtn.style.display = 'none';
+  }
+}
+
 function handleProdImgs(input) {
   const files = Array.from(input.files);
   files.forEach(file => {
@@ -2649,6 +2693,32 @@ function handleProdImgs(input) {
     reader.readAsDataURL(file);
   });
   input.value = ''; // 清空以允许重复选同一文件
+}
+
+// 拖拽事件
+function imgDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('imgDropZone').classList.add('drag-over');
+}
+function imgDragLeave(e) {
+  e.preventDefault();
+  document.getElementById('imgDropZone').classList.remove('drag-over');
+}
+function imgDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('imgDropZone').classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  if (!files.length) return;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      pendingProdImgs.push(ev.target.result);
+      renderProdImgPreview();
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 function renderProdImgPreview() {
@@ -2920,6 +2990,10 @@ function switchForm(type) {
   });
   const tt = { task:'添加任务', product:'添加选品', meeting:'记录会议', insight:'记录心得', account:'添加账号' };
   setEl('modalTitle', tt[type] || '添加');
+  // 切换到商品表单时初始化上传区
+  if (type === 'product') {
+    setTimeout(initImgUploadZone, 0);
+  }
   // 新建会议时初始化逐条输入列表、时间选择器
   if (type === 'meeting' && !document.getElementById('modal').dataset.editMeetingId) {
     _initMeetingLists([], []);
