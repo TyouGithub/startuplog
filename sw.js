@@ -2,7 +2,7 @@
 // 每次发版时同步更新 CACHE_VERSION（与 index.html 里的 VER 保持一致）
 // 版本号变化 → 浏览器自动检测 → 后台下载新版 → 下次打开生效
 
-const CACHE_VERSION = '20260314-026';
+const CACHE_VERSION = '20260314-027';
 const CACHE_NAME = `startuplog-${CACHE_VERSION}`;
 
 // 需要缓存的核心资源（离线也能打开）
