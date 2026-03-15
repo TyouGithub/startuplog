@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-028';
+  var VER = '20260314-029';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -48,6 +48,9 @@ window.addEventListener('unhandledrejection', function(e) {
 <meta name="apple-mobile-web-app-title" content="StartupLog"/>
 <meta name="theme-color" content="#0a0c14"/>
 <link rel="manifest" href="manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet"/>
 <script>
 // ── Service Worker 注册 + 自动更新检测 ──
 if ('serviceWorker' in navigator) {
@@ -150,16 +153,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .news-ticker-label::after{content:'';display:block;width:1px;height:14px;background:rgba(255,215,0,0.3)}
 .news-ticker-dot{width:6px;height:6px;border-radius:50%;background:#ef4444;box-shadow:0 0 6px rgba(239,68,68,.8);animation:tickerDot 1.2s ease-in-out infinite}
 @keyframes tickerDot{0%,100%{opacity:1;box-shadow:0 0 6px rgba(239,68,68,.8)}50%{opacity:.4;box-shadow:0 0 2px rgba(239,68,68,.3)}}
-.news-ticker-track{flex:1;overflow:hidden;position:relative;mask-image:linear-gradient(90deg,transparent 0,#000 5%,#000 95%,transparent 100%);-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 5%,#000 95%,transparent 100%)}
-.news-ticker-inner{display:flex;gap:0;white-space:nowrap;animation:tickerScroll 28s linear infinite}
+.news-ticker-track{flex:1;overflow:hidden;position:relative;mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%);-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%)}
+.news-ticker-inner{display:flex;gap:0;white-space:nowrap;will-change:transform}
 .news-ticker-inner:hover{animation-play-state:paused}
-.news-ticker-item{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.75);padding:0 28px 0 0;font-weight:500}
+.news-ticker-item{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.75);padding:0 32px 0 0;font-weight:500}
 .news-ticker-item .ti-icon{font-size:11px;opacity:.8}
 .news-ticker-item .ti-time{color:rgba(255,215,0,.6);font-size:10px;font-weight:600;margin-left:2px}
-@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.hdr-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;cursor:pointer}
-.hdr-nm{font-size:13px;color:var(--sub);font-weight:600}
-
 /* ── BOTTOM NAV ── */
 .bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(8,10,16,0.96);backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%);border-top:1px solid rgba(255,255,255,0.07);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
 .btab{flex:1;padding:12px 2px 14px;text-align:center;cursor:pointer;-webkit-user-select:none;user-select:none;transition:opacity .15s;position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:58px;-webkit-tap-highlight-color:transparent}
@@ -290,10 +289,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .ac2actions{display:flex;gap:6px;margin-top:4px}
 
 /* ── PROFILE ── */
-.pf-card{background:linear-gradient(135deg,#0a0c18,#0f1628 50%,#111028);border-radius:var(--r);padding:20px 18px;margin-bottom:10px;color:#fff;display:flex;align-items:center;gap:14px;border:1px solid rgba(212,160,23,0.2);box-shadow:0 0 0 1px rgba(255,255,255,0.04),0 8px 32px rgba(0,0,0,0.5)}
-.pf-av{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;border:2.5px solid rgba(212,160,23,.4);flex-shrink:0;box-shadow:0 0 12px rgba(212,160,23,0.2)}
-.pf-nm{font-size:17px;font-weight:800;margin-bottom:3px}
-.pf-rl{font-size:12.5px;opacity:.8}
+.pf-card{background:linear-gradient(135deg,#0a0c18,#0f1628 50%,#111028);border-radius:var(--r);padding:22px 18px;margin-bottom:10px;color:#fff;display:flex;align-items:center;gap:16px;border:1px solid rgba(212,160,23,0.2);box-shadow:0 0 0 1px rgba(255,255,255,0.04),0 8px 32px rgba(0,0,0,0.5)}
+.pf-av{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;border:2.5px solid rgba(212,160,23,.4);flex-shrink:0;box-shadow:0 0 0 4px rgba(212,160,23,0.08),0 0 18px rgba(212,160,23,0.2)}
+.pf-nm{font-size:28px;font-weight:400;margin-bottom:2px;font-family:'Ma Shan Zheng',cursive;letter-spacing:4px;background:linear-gradient(135deg,#fff 0%,#fde68a 60%,#d4a017 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1}
+.pf-rl{font-size:12px;opacity:.75;letter-spacing:.5px}
+
+/* 头部右上角用户区 */
+.hdr-user-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 8px 4px 4px;border-radius:20px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);backdrop-filter:blur(8px);transition:all .2s;-webkit-tap-highlight-color:transparent}
+.hdr-user-wrap:active{background:rgba(255,255,255,0.1)}
+.hdr-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;box-shadow:0 0 0 2px rgba(212,160,23,0.4),0 0 8px rgba(212,160,23,0.2);flex-shrink:0}
+.hdr-nm{font-size:12px;color:#e2e8f0;font-weight:600;letter-spacing:.3px;max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hdr-nm-sub{font-size:9.5px;color:var(--hint);font-weight:500;letter-spacing:.2px;line-height:1;margin-top:1px}
 
 /* 快捷工具入口 */
 .shortcut-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
@@ -630,9 +636,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       </div>
       <div class="hdr-right">
         <span class="sync-icon" id="syncIcon" onclick="syncNow()" title="手动同步">☁️</span>
-        <div style="display:flex;align-items:center;gap:6px;cursor:pointer" onclick="goPage('profile')">
+        <div class="hdr-user-wrap" onclick="goPage('profile')">
           <div class="hdr-av" id="hdrAv"></div>
-          <div class="hdr-nm" id="hdrNm"></div>
+          <div style="display:flex;flex-direction:column;line-height:1">
+            <div class="hdr-nm" id="hdrNm"></div>
+            <div class="hdr-nm-sub" id="hdrNmSub"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -2097,6 +2106,9 @@ function initApp() {
   const init = u.name.charAt(0);
   setEl('hdrAv', init); document.getElementById('hdrAv').style.background = u.color;
   setEl('hdrNm', u.name);
+  // 右上角职位小标签（简洁）
+  const _hdrSub = document.getElementById('hdrNmSub');
+  if (_hdrSub) _hdrSub.textContent = CU === 'jiashuo' ? '👑 创始人' : CU === 'yixin' ? '👑 联创' : u.role;
   const now = new Date();
   const days = ['周日','周一','周二','周三','周四','周五','周六'];
   setEl('hdrDate', `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 ${days[now.getDay()]}`);
@@ -2111,14 +2123,14 @@ function initApp() {
   setEl('bnrDate', `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`);
   setEl('pfAv', init); document.getElementById('pfAv').style.background = u.color;
   setEl('pfNm', u.name); setEl('pfRl', u.role);
-  // 创始人专属：FOUNDER 徽章 + 专属副标题（佳硕 & 一新都有）
+  // 创始人专属：FOUNDER 徽章 + 专属副标题（佳硕 & 一新都有，去掉 StartupLog 前缀）
   const _pfBadge = document.getElementById('pfFounderBadge');
   const _pfSub = document.getElementById('pfSubline');
   if (_pfBadge) _pfBadge.style.display = isFounder ? 'block' : 'none';
   if (_pfSub) _pfSub.textContent = CU === 'jiashuo'
-    ? '🏢 StartupLog 创始人 · 掌舵人'
+    ? '创始人 · 掌舵人'
     : isFounder
-      ? '🏢 StartupLog 联合创始人 · 掌舵人'
+      ? '联合创始人 · 掌舵人'
       : '与创始人共同创业中 ☁️ 数据云端同步';
   setDateVal('f-m-date', now.toISOString().split('T')[0]);
   renderAll();
@@ -2138,6 +2150,8 @@ function renderAll() {
     setEl('hdrAv', u.name.charAt(0));
     document.getElementById('hdrAv').style.background = u.color;
     setEl('hdrNm', u.name);
+    const _sub = document.getElementById('hdrNmSub');
+    if (_sub) _sub.textContent = CU === 'jiashuo' ? '👑 创始人' : CU === 'yixin' ? '👑 联创' : u.role;
     setEl('pfAv', u.name.charAt(0));
     if (document.getElementById('pfAv')) document.getElementById('pfAv').style.background = u.color;
     setEl('pfNm', u.name); setEl('pfRl', u.role);
@@ -2372,6 +2386,10 @@ function calcProfit() {
 }
 
 // ── 顶部动态播报条 ──
+let _tickerRAF = null;   // requestAnimationFrame handle
+let _tickerX   = 0;     // 当前偏移（px）
+let _tickerHalf = 0;    // 单份内容宽度（px），滚到此处重置
+
 function renderNewsTicker() {
   const s = getLocal();
   const ticker = document.getElementById('newsTicker');
@@ -2387,18 +2405,49 @@ function renderNewsTicker() {
   ticker.style.display = 'flex';
 
   const iconMap = { g:'✅', b:'📋', o:'⚡', p:'💡', r:'🔴' };
-  // 生成两份内容（首尾相接实现无缝循环）
   const buildItems = () => acts.map(a => {
     const icon = iconMap[a.type] || '📌';
     const timeStr = (a.time || (a.createdAt||'').slice(0,16).replace('T',' ') || '').replace(/:\d{2}$/,'');
     return `<span class="news-ticker-item"><span class="ti-icon">${icon}</span>${a.text.slice(0,40).replace(/</g,'&lt;').replace(/>/g,'&gt;')}${a.text.length>40?'…':''}<span class="ti-time">${timeStr}</span></span>`;
   }).join('');
 
+  // 渲染两份（A + A），通过 JS 精确重置，消除突兀回跳
   inner.innerHTML = buildItems() + buildItems();
+  inner.style.transform = 'translateX(0)';
 
-  // 动态调整动画速度（内容越长速度越慢）
-  const speed = Math.max(20, acts.length * 5);
-  inner.style.animationDuration = speed + 's';
+  // 停止旧动画帧
+  if (_tickerRAF) { cancelAnimationFrame(_tickerRAF); _tickerRAF = null; }
+
+  // 等 DOM 渲染完再测量宽度
+  requestAnimationFrame(() => {
+    // 单份宽度 = 内容总宽的一半
+    _tickerHalf = inner.scrollWidth / 2;
+    _tickerX    = 0;
+
+    let paused = false;
+    inner.addEventListener('mouseenter', () => { paused = true; }, { passive: true });
+    inner.addEventListener('mouseleave', () => { paused = false; }, { passive: true });
+
+    // 60px/s 匀速，约每帧移 1px（60fps）
+    const PX_PER_MS = 0.055; // 越小越慢，可调
+    let lastTime = null;
+
+    function step(ts) {
+      if (!lastTime) lastTime = ts;
+      const dt = ts - lastTime;
+      lastTime = ts;
+      if (!paused) {
+        _tickerX += PX_PER_MS * dt;
+        // 到达单份末尾时 → 瞬间重置到 0（视觉无缝，因为 A+A 首尾完全一致）
+        if (_tickerX >= _tickerHalf) {
+          _tickerX -= _tickerHalf;
+        }
+        inner.style.transform = `translateX(${-_tickerX}px)`;
+      }
+      _tickerRAF = requestAnimationFrame(step);
+    }
+    _tickerRAF = requestAnimationFrame(step);
+  });
 }
 
 // ── 首页数据脉搏（4格横排，紧凑版）──
