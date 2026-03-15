@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-011';
+  var VER = '20260314-012';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -338,7 +338,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 .ga-kpi.blue  .ga-kpi-val{color:#60a5fa}
 .ga-kpi.white .ga-kpi-val{color:#fff}
 
-/* ── 商品图生成器入口 ── */
+/* ── 商品图工具箱入口 ── */
 .imggen-entry{background:linear-gradient(135deg,#1677ff,#7c3aed);border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:opacity .15s;-webkit-tap-highlight-color:transparent}
 .imggen-entry:active{opacity:.88}
 .imggen-entry-left{display:flex;align-items:center;gap:12px}
@@ -347,91 +347,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 .imggen-entry-sub{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px}
 .imggen-entry-arrow{font-size:18px;color:rgba(255,255,255,.7);font-weight:700}
 
-/* ── 商品图生成器弹窗 ── */
-.imggen-sheet{max-height:96vh;overflow-y:auto;padding-bottom:32px;padding:16px 16px 40px}
-.imggen-header{text-align:center;margin-bottom:16px}
-.imggen-title{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px}
-.imggen-subtitle{font-size:12px;color:var(--hint);margin-top:3px}
+/* ── 工具箱弹窗内容 ── */
+.igtool-main{background:linear-gradient(135deg,#1677ff,#7c3aed);border-radius:16px;padding:16px;margin-bottom:14px;cursor:pointer;position:relative;overflow:hidden;transition:opacity .15s}
+.igtool-main:active{opacity:.88}
+.igtool-main-badge{display:inline-block;background:rgba(255,255,255,.2);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:10px;letter-spacing:.3px}
+.igtool-main-icon{font-size:32px;flex-shrink:0}
+.igtool-main-name{font-size:16px;font-weight:800;color:#fff;margin-bottom:4px}
+.igtool-main-desc{font-size:12px;color:rgba(255,255,255,.82);line-height:1.6}
+.igtool-main-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.igtool-tag{background:rgba(255,255,255,.18);color:#fff;font-size:10px;font-weight:600;padding:3px 8px;border-radius:8px}
 
-/* API配置栏 */
-.imggen-apikey-bar{background:#f8fafc;border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:14px}
-.imggen-apikey-hd{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text)}
-.imggen-api-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
-.dot-gray{background:#d1d5db}
-.dot-green{background:#22c55e}
-.dot-red{background:#ef4444}
-.imggen-api-label{font-size:11px;font-weight:600;color:var(--hint);margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
-.imggen-api-input{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:9px;font-size:12px;font-family:monospace;background:#fff;color:var(--text);outline:none;transition:border-color .2s}
-.imggen-api-input:focus{border-color:var(--blue)}
+.igtool-section-hd{font-size:12px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.5px;margin:4px 0 10px}
 
-/* 上传区 */
-.imggen-upload-zone{border:2.5px dashed var(--border);border-radius:14px;padding:24px 16px;text-align:center;cursor:pointer;background:#fafbfc;transition:all .2s;margin-bottom:14px;min-height:120px;display:flex;align-items:center;justify-content:center}
-.imggen-upload-zone.drag-over{border-color:var(--blue);background:#eff6ff}
-.imggen-upload-zone.has-img{border-color:var(--green);background:#f0fdf4;padding:10px}
-
-/* section */
-.imggen-section{margin-bottom:16px}
-.imggen-section-title{font-size:13px;font-weight:700;color:var(--sub);margin-bottom:10px;letter-spacing:.1px}
-.imggen-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.imggen-form-item{display:flex;flex-direction:column}
-.imggen-label{font-size:11px;font-weight:600;color:var(--hint);margin-bottom:4px}
-.imggen-input{padding:9px 11px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;background:#f8fafc;color:var(--text);outline:none;transition:border-color .2s;width:100%}
-.imggen-input:focus{border-color:var(--blue);background:#fff}
-
-/* 色块 */
-.ig-swatch{width:28px;height:28px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0}
-.ig-swatch:active{transform:scale(.9)}
-.ig-swatch.sel{border-color:var(--blue);box-shadow:0 0 0 2px rgba(22,119,255,.25)}
-
-/* AI文案按钮 */
-.imggen-ai-btn{width:100%;padding:12px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s;margin-top:4px}
-.imggen-ai-btn:active{opacity:.85}
-.imggen-ai-btn:disabled{opacity:.55;cursor:not-allowed}
-
-/* 语言Tab */
-.ig-lang-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.ig-lang-tab{padding:5px 11px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:var(--sub);transition:all .15s;font-family:inherit}
-.ig-lang-tab.on{border-color:var(--blue);background:#eff6ff;color:var(--blue)}
-.ig-lang-panel{display:none}
-.ig-lang-panel.on{display:block}
-.ig-copy-row{margin-bottom:8px}
-.ig-copy-row label{font-size:11px;font-weight:600;color:var(--hint);display:block;margin-bottom:3px}
-.ig-copy-row textarea,.ig-copy-row input{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:9px;font-size:12px;font-family:inherit;background:#f8fafc;color:var(--text);outline:none;resize:vertical;transition:border-color .2s}
-.ig-copy-row textarea:focus,.ig-copy-row input:focus{border-color:var(--blue);background:#fff}
-
-/* 平台网格 */
-.ig-platform-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.ig-platform-item{border:2px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;background:#fff;transition:all .15s;display:flex;flex-direction:column;align-items:center}
-.ig-platform-item input{display:none}
-.ig-platform-item.sel{border-color:var(--blue);background:#eff6ff}
-.ig-plat-icon{font-size:22px;margin-bottom:4px}
-.ig-plat-name{font-size:12px;font-weight:700;color:var(--text)}
-.ig-plat-size{font-size:10px;color:var(--hint);margin-top:2px;font-family:monospace}
-
-/* 生成按钮 */
-.imggen-generate-btn{width:100%;padding:16px;background:linear-gradient(135deg,#1677ff,#0d47a1);color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;transition:opacity .15s;margin-top:6px;letter-spacing:.3px}
-.imggen-generate-btn:active{opacity:.88}
-.imggen-generate-btn:disabled{opacity:.5;cursor:not-allowed}
-
-/* 结果区 */
-.imggen-result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.imggen-back-btn{padding:7px 14px;background:#f1f5f9;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--sub)}
-.imggen-dl-all-btn{padding:7px 14px;background:linear-gradient(135deg,#1677ff,#0d47a1);border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:#fff}
-.ig-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.ig-result-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 10px rgba(0,0,0,.06)}
-.ig-result-card canvas,.ig-result-card img{width:100%;display:block;border-radius:12px 12px 0 0}
-.ig-result-card-info{padding:8px 10px;display:flex;align-items:center;justify-content:space-between}
-.ig-result-plat{font-size:11px;font-weight:700;color:var(--text)}
-.ig-result-size{font-size:10px;color:var(--hint)}
-.ig-result-dl{padding:5px 10px;background:#eff6ff;color:var(--blue);border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
-.ig-result-dl:active{background:#dbeafe}
-
-/* 进度提示 */
-.imggen-progress{text-align:center;padding:32px 20px}
-.imggen-progress-spinner{font-size:36px;animation:igSpin 1s linear infinite;display:inline-block;margin-bottom:10px}
-@keyframes igSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-.imggen-progress-text{font-size:14px;font-weight:600;color:var(--text)}
-.imggen-progress-sub{font-size:12px;color:var(--hint);margin-top:4px}
+.igtool-grid{display:flex;flex-direction:column;gap:8px}
+.igtool-card{background:#fff;border-radius:14px;padding:12px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;border:1.5px solid var(--border);transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.igtool-card:active{border-color:var(--blue);background:#eff6ff;transform:scale(.99)}
+.igtool-card-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.igtool-card-body{flex:1;min-width:0}
+.igtool-card-name{font-size:14px;font-weight:800;color:var(--text);margin-bottom:3px}
+.igtool-card-desc{font-size:12px;color:var(--sub);line-height:1.5;margin-bottom:5px}
+.igtool-card-tags{display:flex;flex-wrap:wrap;gap:4px}
+.igtool-card-tags span{background:#f1f5f9;color:var(--sub);font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px}
 
 /* 游戏账号卡片 */
 .ga-card{background:#fff;border-radius:14px;padding:0;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;border:1px solid var(--border)}
@@ -628,13 +564,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
     <div class="page-hdr">
       <div class="page-hdr-title">🛒 选品库</div>
     </div>
-    <!-- 商品图生成器入口 -->
+    <!-- 商品图工具箱入口 -->
     <div class="imggen-entry" onclick="openImgGen()">
       <div class="imggen-entry-left">
         <div class="imggen-entry-icon">🖼️</div>
         <div>
-          <div class="imggen-entry-title">商品图生成器</div>
-          <div class="imggen-entry-sub">上传原图 → 一键生成多平台多语言商品主图</div>
+          <div class="imggen-entry-title">商品图工具箱</div>
+          <div class="imggen-entry-sub">精选 AI 工具 · 抠图 / 换背景 / 多语言翻译 · 一键直达</div>
         </div>
       </div>
       <div class="imggen-entry-arrow">→</div>
@@ -1151,144 +1087,105 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans G
 </div>
 
 <!-- ══════════════════════════════════════════
-     商品图生成器弹窗
+     商品图工具箱弹窗
 ══════════════════════════════════════════ -->
 <div class="overlay" id="imgGenModal" onclick="if(event.target===this)closeImgGen()">
-  <div class="sheet imggen-sheet">
+  <div class="sheet" style="max-height:92vh;overflow-y:auto;padding:16px 16px 36px">
     <div class="handle"></div>
-    <div class="imggen-header">
-      <div class="imggen-title">🖼️ 商品图生成器</div>
-      <div class="imggen-subtitle">上传原图 · AI生成文案 · 一键导出多平台</div>
+
+    <!-- 标题 -->
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px">🖼️ 商品图工具箱</div>
+      <div style="font-size:12px;color:var(--hint);margin-top:3px">精选跨境电商商品图制作工具，点击直接打开</div>
     </div>
 
-    <!-- Step 1: 上传 & 配置 -->
-    <div id="imggen-step1">
-      <!-- API Key 配置区（折叠） -->
-      <div class="imggen-apikey-bar" id="imggenApiBar">
-        <div class="imggen-apikey-hd" onclick="toggleImgGenApi()">
-          <span>🔑 API 配置</span>
-          <span id="imggenApiStatus" class="imggen-api-dot dot-gray"></span>
-          <span id="imggenApiArrow" style="font-size:11px;color:var(--hint);margin-left:auto">▼</span>
+    <!-- 主推工具：Pic Copilot -->
+    <div class="igtool-main" onclick="openToolUrl('https://www.piccopilot.com/zh')">
+      <div class="igtool-main-badge">🏆 推荐首选</div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="igtool-main-icon">🤖</div>
+        <div style="flex:1;min-width:0">
+          <div class="igtool-main-name">Pic Copilot <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,.65)">· 阿里巴巴出品</span></div>
+          <div class="igtool-main-desc">专为跨境电商设计 · AI抠图 · 背景生成 · 图片文字翻译（中/英/日/韩等）· AI虚拟模特 · 批量处理</div>
         </div>
-        <div id="imggenApiBody" style="display:none;margin-top:10px">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div>
-              <div class="imggen-api-label">remove.bg API Key</div>
-              <input class="imggen-api-input" id="ig-removebg-key" placeholder="如：XXXX-XXXX-XXXX" oninput="saveImgGenKeys()"/>
-              <div style="font-size:10px;color:var(--hint);margin-top:3px">免费50次/月 · <a href="https://www.remove.bg/api" target="_blank" style="color:var(--blue)">获取</a></div>
-            </div>
-            <div>
-              <div class="imggen-api-label">AI 文案 API Key</div>
-              <input class="imggen-api-input" id="ig-ai-key" placeholder="OpenAI / 其他兼容" oninput="saveImgGenKeys()"/>
-              <div style="font-size:10px;color:var(--hint);margin-top:3px">用于生成多语言文案</div>
-            </div>
-          </div>
-          <div style="margin-top:8px">
-            <div class="imggen-api-label">AI 接口地址</div>
-            <input class="imggen-api-input" id="ig-ai-base" placeholder="https://api.openai.com/v1" oninput="saveImgGenKeys()" style="font-family:monospace;font-size:12px"/>
-          </div>
-        </div>
+        <div style="font-size:20px;color:rgba(255,255,255,.7);flex-shrink:0">→</div>
       </div>
-
-      <!-- 图片上传 -->
-      <div class="imggen-upload-zone" id="igUploadZone" onclick="document.getElementById('igFileInput').click()" ondragover="event.preventDefault()" ondrop="onImgGenDrop(event)">
-        <input type="file" id="igFileInput" accept="image/*" style="display:none" onchange="onImgGenFile(event)"/>
-        <div id="igUploadPrompt">
-          <div style="font-size:40px;margin-bottom:8px">📷</div>
-          <div style="font-weight:700;color:var(--text);font-size:14px;margin-bottom:4px">点击上传或拖入原始商品图</div>
-          <div style="font-size:12px;color:var(--hint)">支持 JPG / PNG / WebP · 建议 800px 以上</div>
-        </div>
-        <img id="igPreview" style="display:none;max-width:100%;max-height:180px;object-fit:contain;border-radius:10px"/>
+      <div class="igtool-main-tags">
+        <span class="igtool-tag">✅ 免费额度</span>
+        <span class="igtool-tag">🌍 多语言翻译</span>
+        <span class="igtool-tag">🛒 亚马逊/Lazada/Shopee</span>
+        <span class="igtool-tag">👗 AI模特换装</span>
       </div>
-
-      <!-- 商品信息 -->
-      <div class="imggen-section">
-        <div class="imggen-section-title">📝 商品基本信息</div>
-        <div class="imggen-form-grid">
-          <div class="imggen-form-item">
-            <label class="imggen-label">商品名称（中文）</label>
-            <input class="imggen-input" id="ig-name-zh" placeholder="如：无线蓝牙耳机" oninput="igMarkDirty()"/>
-          </div>
-          <div class="imggen-form-item">
-            <label class="imggen-label">核心卖点（中文，逗号分隔）</label>
-            <input class="imggen-input" id="ig-points-zh" placeholder="如：30小时续航,降噪,防水" oninput="igMarkDirty()"/>
-          </div>
-          <div class="imggen-form-item">
-            <label class="imggen-label">参考价格</label>
-            <input class="imggen-input" id="ig-price" placeholder="如：$29.99 / ¥199" oninput="igMarkDirty()"/>
-          </div>
-          <div class="imggen-form-item">
-            <label class="imggen-label">背景颜色</label>
-            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px" id="ig-bg-swatches">
-              <div class="ig-swatch sel" data-color="#ffffff" style="background:#fff;border:2px solid var(--blue)" onclick="selectBg(this,'#ffffff')"></div>
-              <div class="ig-swatch" data-color="#f5f5f5" style="background:#f5f5f5" onclick="selectBg(this,'#f5f5f5')"></div>
-              <div class="ig-swatch" data-color="#000000" style="background:#000" onclick="selectBg(this,'#000000')"></div>
-              <div class="ig-swatch" data-color="#1677ff" style="background:#1677ff" onclick="selectBg(this,'#1677ff')"></div>
-              <div class="ig-swatch" data-color="#ff4d4f" style="background:#ff4d4f" onclick="selectBg(this,'#ff4d4f')"></div>
-              <div class="ig-swatch" data-color="#f5a623" style="background:#f5a623" onclick="selectBg(this,'#f5a623')"></div>
-              <div class="ig-swatch" data-color="#22c55e" style="background:#22c55e" onclick="selectBg(this,'#22c55e')"></div>
-              <input type="color" id="ig-bg-custom" value="#ffffff" title="自定义颜色" style="width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);cursor:pointer;padding:1px" onchange="selectBgCustom(this)"/>
-            </div>
-          </div>
-        </div>
-        <button class="imggen-ai-btn" onclick="runAiCopy()" id="igAiBtn">
-          <span id="igAiBtnTxt">✨ AI 生成多语言文案</span>
-        </button>
-      </div>
-
-      <!-- 多语言文案 -->
-      <div class="imggen-section" id="igCopySection" style="display:none">
-        <div class="imggen-section-title">🌍 多语言文案 <span style="font-size:11px;font-weight:400;color:var(--hint)">（可手动修改）</span></div>
-        <div id="igLangTabs" class="ig-lang-tabs">
-          <button class="ig-lang-tab on" data-lang="en" onclick="switchLangTab(this,'en')">🇺🇸 英语</button>
-          <button class="ig-lang-tab" data-lang="ja" onclick="switchLangTab(this,'ja')">🇯🇵 日语</button>
-          <button class="ig-lang-tab" data-lang="ko" onclick="switchLangTab(this,'ko')">🇰🇷 韩语</button>
-          <button class="ig-lang-tab" data-lang="de" onclick="switchLangTab(this,'de')">🇩🇪 德语</button>
-          <button class="ig-lang-tab" data-lang="fr" onclick="switchLangTab(this,'fr')">🇫🇷 法语</button>
-          <button class="ig-lang-tab" data-lang="es" onclick="switchLangTab(this,'es')">🇪🇸 西班牙</button>
-        </div>
-        <div id="igLangPanels">
-          <!-- 动态生成 -->
-        </div>
-      </div>
-
-      <!-- 平台 & 规格 -->
-      <div class="imggen-section">
-        <div class="imggen-section-title">🏪 目标平台 & 规格</div>
-        <div class="ig-platform-grid" id="igPlatformGrid">
-          <label class="ig-platform-item sel"><input type="checkbox" value="amazon" checked onchange="igTogglePlatform(this)"><div class="ig-plat-icon">🛒</div><div class="ig-plat-name">Amazon</div><div class="ig-plat-size">1000×1000</div></label>
-          <label class="ig-platform-item sel"><input type="checkbox" value="shopify" checked onchange="igTogglePlatform(this)"><div class="ig-plat-icon">🛍️</div><div class="ig-plat-name">Shopify</div><div class="ig-plat-size">1200×1200</div></label>
-          <label class="ig-platform-item sel"><input type="checkbox" value="rakuten" checked onchange="igTogglePlatform(this)"><div class="ig-plat-icon">🇯🇵</div><div class="ig-plat-name">楽天</div><div class="ig-plat-size">700×700</div></label>
-          <label class="ig-platform-item sel"><input type="checkbox" value="lazada" checked onchange="igTogglePlatform(this)"><div class="ig-plat-icon">🌏</div><div class="ig-plat-name">Lazada</div><div class="ig-plat-size">800×800</div></label>
-          <label class="ig-platform-item sel"><input type="checkbox" value="temu" checked onchange="igTogglePlatform(this)"><div class="ig-plat-icon">💸</div><div class="ig-plat-name">TEMU</div><div class="ig-plat-size">800×800</div></label>
-          <label class="ig-platform-item"><input type="checkbox" value="custom" onchange="igTogglePlatform(this)"><div class="ig-plat-icon">⚙️</div><div class="ig-plat-name">自定义</div><div class="ig-plat-size">任意尺寸</div></label>
-        </div>
-        <div id="ig-custom-size" style="display:none;margin-top:8px;display:none">
-          <div style="display:flex;gap:8px;align-items:center">
-            <input class="imggen-input" id="ig-cw" placeholder="宽 (px)" type="number" min="100" max="5000" style="flex:1"/>
-            <span style="color:var(--hint);font-size:14px">×</span>
-            <input class="imggen-input" id="ig-ch" placeholder="高 (px)" type="number" min="100" max="5000" style="flex:1"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- 生成按钮 -->
-      <button class="imggen-generate-btn" onclick="runImgGen()" id="igGenBtn">
-        🚀 一键生成商品图
-      </button>
     </div>
 
-    <!-- Step 2: 结果预览 -->
-    <div id="imggen-step2" style="display:none">
-      <div class="imggen-result-header">
-        <button class="imggen-back-btn" onclick="igBackToStep1()">← 重新生成</button>
-        <div style="font-size:13px;font-weight:700;color:var(--text)">生成完成</div>
-        <button class="imggen-dl-all-btn" onclick="igDownloadAll()">⬇️ 全部下载</button>
+    <!-- 分区标题 -->
+    <div class="igtool-section-hd">其他优质工具</div>
+
+    <!-- 工具网格 -->
+    <div class="igtool-grid">
+
+      <div class="igtool-card" onclick="openToolUrl('https://www.designkit.cn/')">
+        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#ff6b9d,#ff4d6d)">🎨</div>
+        <div class="igtool-card-body">
+          <div class="igtool-card-name">美图设计室</div>
+          <div class="igtool-card-desc">免费 · AI商品图海报 · 智能抠图换背景 · 海量电商模板 · 跨境主图</div>
+          <div class="igtool-card-tags"><span>🆓 免费</span><span>📱 中文界面</span></div>
+        </div>
       </div>
-      <div id="igResultGrid" class="ig-result-grid"></div>
+
+      <div class="igtool-card" onclick="openToolUrl('https://www.remove.bg/')">
+        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">✂️</div>
+        <div class="igtool-card-body">
+          <div class="igtool-card-name">Remove.bg</div>
+          <div class="igtool-card-desc">行业标杆背景去除 · 精度极高 · 复杂背景也能完美抠图 · 支持批量</div>
+          <div class="igtool-card-tags"><span>🎯 精度最高</span><span>🔥 业界首选</span></div>
+        </div>
+      </div>
+
+      <div class="igtool-card" onclick="openToolUrl('https://www.photoroom.com/')">
+        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#11998e,#38ef7d)">📸</div>
+        <div class="igtool-card-body">
+          <div class="igtool-card-name">PhotoRoom</div>
+          <div class="igtool-card-desc">AI商品图编辑 · 背景去除+替换 · 阴影生成 · 快速出专业级商拍图</div>
+          <div class="igtool-card-tags"><span>💡 场景感强</span><span>⚡ 速度快</span></div>
+        </div>
+      </div>
+
+      <div class="igtool-card" onclick="openToolUrl('https://clipdrop.co/remove-background')">
+        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#f7971e,#ffd200)">🌟</div>
+        <div class="igtool-card-body">
+          <div class="igtool-card-name">Clipdrop</div>
+          <div class="igtool-card-desc">Stability AI出品 · 背景去除 · 物品替换 · AI重打光 · 商品增强</div>
+          <div class="igtool-card-tags"><span>🤖 AI增强</span><span>💡 重打光</span></div>
+        </div>
+      </div>
+
+      <div class="igtool-card" onclick="openToolUrl('https://mokker.ai/')">
+        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">🎭</div>
+        <div class="igtool-card-body">
+          <div class="igtool-card-name">Mokker</div>
+          <div class="igtool-card-desc">上传商品图自动生成场景背景 · 亚马逊卖家常用 · 多风格场景</div>
+          <div class="igtool-card-tags"><span>🌄 场景生成</span><span>🛒 亚马逊</span></div>
+        </div>
+      </div>
+
+      <div class="igtool-card" onclick="openToolUrl('https://www.canva.com/zh_cn/')">
+        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#00b4db,#0083b0)">🖌️</div>
+        <div class="igtool-card-body">
+          <div class="igtool-card-name">Canva</div>
+          <div class="igtool-card-desc">全功能设计平台 · 海量电商模板 · 多语言文案设计 · 一键调整平台尺寸</div>
+          <div class="igtool-card-tags"><span>📐 尺寸灵活</span><span>🌐 多语言</span></div>
+        </div>
+      </div>
+
     </div>
 
-    <span class="cancel-link" onclick="closeImgGen()" style="margin-top:8px;display:block;text-align:center">关闭</span>
+    <!-- 使用提示 -->
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:12px 14px;margin-top:14px;font-size:12px;color:#92400e;line-height:1.7">
+      💡 <b>推荐工作流：</b>用 <b>Pic Copilot</b> 一站式搞定（抠图+换背景+翻译）；需要极致抠图精度用 <b>Remove.bg</b>；做整体设计排版用 <b>Canva</b>
+    </div>
+
+    <span class="cancel-link" onclick="closeImgGen()" style="margin-top:16px;display:block;text-align:center">关闭</span>
   </div>
 </div>
 
@@ -3718,552 +3615,16 @@ function renderPhoneBindList() {
 }
 
 // ══════════════════════════════════════════════
-//  商品图生成器
+//  商品图工具箱
 // ══════════════════════════════════════════════
-
-const IG_KEY = 'ig_api_keys';
-let igState = {
-  origFile: null,          // 原始 File 对象
-  removedBg: null,         // 去背景后的 Blob URL
-  bgColor: '#ffffff',
-  copyData: {},            // { en: {title,points,cta}, ja: {...}, ... }
-  curLang: 'en',
-  platforms: ['amazon','shopify','rakuten','lazada','temu'],
-  resultCanvases: [],      // [{platform, canvas, lang}]
-};
-
-const IG_LANGS = {
-  en: { label:'🇺🇸 英语', flag:'🇺🇸', name:'English' },
-  ja: { label:'🇯🇵 日语', flag:'🇯🇵', name:'日本語' },
-  ko: { label:'🇰🇷 韩语', flag:'🇰🇷', name:'한국어' },
-  de: { label:'🇩🇪 德语', flag:'🇩🇪', name:'Deutsch' },
-  fr: { label:'🇫🇷 法语', flag:'🇫🇷', name:'Français' },
-  es: { label:'🇪🇸 西班牙', flag:'🇪🇸', name:'Español' },
-};
-
-const IG_PLATFORMS = {
-  amazon:  { name:'Amazon',   size:'1000×1000', w:1000, h:1000, icon:'🛒', lang:'en' },
-  shopify: { name:'Shopify',  size:'1200×1200', w:1200, h:1200, icon:'🛍️', lang:'en' },
-  rakuten: { name:'楽天',      size:'700×700',   w:700,  h:700,  icon:'🇯🇵', lang:'ja' },
-  lazada:  { name:'Lazada',   size:'800×800',   w:800,  h:800,  icon:'🌏', lang:'en' },
-  temu:    { name:'TEMU',     size:'800×800',   w:800,  h:800,  icon:'💸', lang:'en' },
-  custom:  { name:'自定义',    size:'自定义',    w:1000, h:1000, icon:'⚙️', lang:'en' },
-};
-
 function openImgGen() {
-  loadImgGenKeys();
   document.getElementById('imgGenModal').classList.add('show');
 }
 function closeImgGen() {
   document.getElementById('imgGenModal').classList.remove('show');
 }
-
-function loadImgGenKeys() {
-  try {
-    const k = JSON.parse(localStorage.getItem(IG_KEY) || '{}');
-    if (k.removebg) document.getElementById('ig-removebg-key').value = k.removebg;
-    if (k.aiKey)   document.getElementById('ig-ai-key').value = k.aiKey;
-    if (k.aiBase)  document.getElementById('ig-ai-base').value = k.aiBase;
-    updateApiDot();
-  } catch(e) {}
-}
-function saveImgGenKeys() {
-  const k = {
-    removebg: document.getElementById('ig-removebg-key').value.trim(),
-    aiKey:    document.getElementById('ig-ai-key').value.trim(),
-    aiBase:   document.getElementById('ig-ai-base').value.trim(),
-  };
-  localStorage.setItem(IG_KEY, JSON.stringify(k));
-  updateApiDot();
-}
-function getIgKeys() {
-  try { return JSON.parse(localStorage.getItem(IG_KEY) || '{}'); } catch(e) { return {}; }
-}
-function updateApiDot() {
-  const k = getIgKeys();
-  const dot = document.getElementById('imggenApiStatus');
-  if (!dot) return;
-  dot.className = 'imggen-api-dot ' + (k.removebg ? 'dot-green' : 'dot-gray');
-}
-function toggleImgGenApi() {
-  const body = document.getElementById('imggenApiBody');
-  const arrow = document.getElementById('imggenApiArrow');
-  const vis = body.style.display !== 'none';
-  body.style.display = vis ? 'none' : 'block';
-  if (arrow) arrow.textContent = vis ? '▼' : '▲';
-}
-
-// 文件上传 / 拖拽
-function onImgGenFile(e) {
-  const file = e.target.files[0];
-  if (file) loadImgFile(file);
-}
-function onImgGenDrop(e) {
-  e.preventDefault();
-  const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) loadImgFile(file);
-}
-function loadImgFile(file) {
-  igState.origFile = file;
-  igState.removedBg = null;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const img = document.getElementById('igPreview');
-    const prompt = document.getElementById('igUploadPrompt');
-    const zone = document.getElementById('igUploadZone');
-    img.src = ev.target.result;
-    img.style.display = 'block';
-    prompt.style.display = 'none';
-    zone.classList.add('has-img');
-    zone.classList.remove('drag-over');
-  };
-  reader.readAsDataURL(file);
-}
-function igMarkDirty() {
-  // 文案变了时隐藏文案区（需重新生成），但不强制
-}
-
-// 选背景色
-function selectBg(el, color) {
-  igState.bgColor = color;
-  document.querySelectorAll('.ig-swatch').forEach(s => s.classList.remove('sel'));
-  el.classList.add('sel');
-}
-function selectBgCustom(el) {
-  igState.bgColor = el.value;
-  document.querySelectorAll('.ig-swatch').forEach(s => s.classList.remove('sel'));
-}
-
-// 平台勾选
-function igTogglePlatform(cb) {
-  const item = cb.closest('.ig-platform-item');
-  if (cb.checked) {
-    item.classList.add('sel');
-    if (!igState.platforms.includes(cb.value)) igState.platforms.push(cb.value);
-  } else {
-    item.classList.remove('sel');
-    igState.platforms = igState.platforms.filter(p => p !== cb.value);
-  }
-  const customSizeEl = document.getElementById('ig-custom-size');
-  if (customSizeEl) customSizeEl.style.display = igState.platforms.includes('custom') ? 'block' : 'none';
-}
-
-// 切换语言 Tab
-function switchLangTab(btn, lang) {
-  igState.curLang = lang;
-  document.querySelectorAll('.ig-lang-tab').forEach(t => t.classList.remove('on'));
-  btn.classList.add('on');
-  document.querySelectorAll('.ig-lang-panel').forEach(p => p.classList.remove('on'));
-  const panel = document.getElementById('ig-panel-' + lang);
-  if (panel) panel.classList.add('on');
-}
-
-// ─── AI 生成多语言文案 ───
-async function runAiCopy() {
-  const nameZh   = document.getElementById('ig-name-zh').value.trim();
-  const pointsZh = document.getElementById('ig-points-zh').value.trim();
-  if (!nameZh) { toast('请先填写商品名称'); return; }
-
-  const btn = document.getElementById('igAiBtn');
-  const txt = document.getElementById('igAiBtnTxt');
-  btn.disabled = true;
-  txt.textContent = '✨ 生成中...';
-
-  const keys = getIgKeys();
-
-  // 构建 prompt
-  const prompt = `你是一名专业跨境电商文案专家。请根据以下商品信息，分别生成英语(en)、日语(ja)、韩语(ko)、德语(de)、法语(fr)、西班牙语(es) 的商品标题和3条核心卖点，以及一句促销文案(CTA)。
-商品名称（中文）：${nameZh}
-核心卖点（中文）：${pointsZh || '无'}
-
-请严格按以下 JSON 格式返回，不要有其他内容：
-{
-  "en": {"title":"...","points":["...","...","..."],"cta":"..."},
-  "ja": {"title":"...","points":["...","...","..."],"cta":"..."},
-  "ko": {"title":"...","points":["...","...","..."],"cta":"..."},
-  "de": {"title":"...","points":["...","...","..."],"cta":"..."},
-  "fr": {"title":"...","points":["...","...","..."],"cta":"..."},
-  "es": {"title":"...","points":["...","...","..."],"cta":"..."}
-}`;
-
-  try {
-    let result = null;
-    // 尝试调用用户配置的 AI 接口
-    if (keys.aiKey) {
-      const base = (keys.aiBase || 'https://api.openai.com/v1').replace(/\/$/, '');
-      const resp = await fetch(base + '/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+keys.aiKey },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [{ role:'user', content: prompt }],
-          temperature: 0.7
-        })
-      });
-      if (resp.ok) {
-        const j = await resp.json();
-        const raw = j.choices?.[0]?.message?.content || '';
-        const jsonMatch = raw.match(/\{[\s\S]*\}/);
-        if (jsonMatch) result = JSON.parse(jsonMatch[0]);
-      }
-    }
-
-    // 如果没有 AI Key 或调用失败，使用规则生成兜底文案
-    if (!result) {
-      result = igFallbackCopy(nameZh, pointsZh);
-      if (!keys.aiKey) toast('未配置 AI Key，已使用内置模板生成文案');
-    }
-
-    igState.copyData = result;
-    renderCopyPanels(result);
-    document.getElementById('igCopySection').style.display = 'block';
-    txt.textContent = '✨ 重新生成';
-  } catch(e) {
-    toast('文案生成失败：' + (e.message || e));
-    igState.copyData = igFallbackCopy(nameZh, pointsZh);
-    renderCopyPanels(igState.copyData);
-    document.getElementById('igCopySection').style.display = 'block';
-    txt.textContent = '✨ 重新生成';
-  }
-  btn.disabled = false;
-}
-
-// 兜底模板（无 AI Key 时）
-function igFallbackCopy(nameZh, pointsZh) {
-  const pts = pointsZh ? pointsZh.split(/[,，]/).map(s=>s.trim()).filter(Boolean) : [];
-  const templates = {
-    en: { title:`${nameZh} - Premium Quality`, points: pts.length>=3 ? pts.slice(0,3) : ['High Quality','Fast Delivery','Best Value'], cta:'Buy Now & Save!' },
-    ja: { title:`${nameZh} - プレミアム品質`, points: pts.length>=3 ? pts.slice(0,3) : ['高品質','迅速配送','最高のコスパ'], cta:'今すぐ購入！' },
-    ko: { title:`${nameZh} - 프리미엄 품질`, points: pts.length>=3 ? pts.slice(0,3) : ['고품질','빠른 배송','최고의 가성비'], cta:'지금 구매하기!' },
-    de: { title:`${nameZh} - Premium Qualität`, points: pts.length>=3 ? pts.slice(0,3) : ['Hohe Qualität','Schnelle Lieferung','Bestes Preis-Leistung'], cta:'Jetzt kaufen!' },
-    fr: { title:`${nameZh} - Qualité Premium`, points: pts.length>=3 ? pts.slice(0,3) : ['Haute qualité','Livraison rapide','Meilleur rapport qualité-prix'], cta:'Achetez maintenant!' },
-    es: { title:`${nameZh} - Calidad Premium`, points: pts.length>=3 ? pts.slice(0,3) : ['Alta calidad','Entrega rápida','Mejor relación calidad-precio'], cta:'¡Compra ahora!' },
-  };
-  return templates;
-}
-
-function renderCopyPanels(data) {
-  const container = document.getElementById('igLangPanels');
-  container.innerHTML = Object.entries(IG_LANGS).map(([lang, info]) => {
-    const d = data[lang] || { title:'', points:['','',''], cta:'' };
-    return `<div class="ig-lang-panel ${lang === igState.curLang ? 'on' : ''}" id="ig-panel-${lang}">
-      <div class="ig-copy-row"><label>商品标题</label>
-        <input id="ig-title-${lang}" value="${(d.title||'').replace(/"/g,'&quot;')}"/>
-      </div>
-      <div class="ig-copy-row"><label>卖点（每行一条，最多3条）</label>
-        <textarea id="ig-points-${lang}" rows="3">${(d.points||[]).join('\n')}</textarea>
-      </div>
-      <div class="ig-copy-row"><label>促销文案 (CTA)</label>
-        <input id="ig-cta-${lang}" value="${(d.cta||'').replace(/"/g,'&quot;')}"/>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// 从输入框读取文案
-function getEditedCopy(lang) {
-  const titleEl  = document.getElementById('ig-title-' + lang);
-  const pointsEl = document.getElementById('ig-points-' + lang);
-  const ctaEl    = document.getElementById('ig-cta-' + lang);
-  return {
-    title:  titleEl  ? titleEl.value.trim()  : '',
-    points: pointsEl ? pointsEl.value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,3) : [],
-    cta:    ctaEl    ? ctaEl.value.trim()    : '',
-  };
-}
-
-// ─── remove.bg 抠图 ───
-async function removeBg(file) {
-  const keys = getIgKeys();
-  if (!keys.removebg) {
-    // 没有 key 时直接返回原图 blob url
-    return URL.createObjectURL(file);
-  }
-  const form = new FormData();
-  form.append('image_file', file);
-  form.append('size', 'auto');
-  const resp = await fetch('https://api.remove.bg/v1.0/removebg', {
-    method: 'POST',
-    headers: { 'X-Api-Key': keys.removebg },
-    body: form
-  });
-  if (!resp.ok) {
-    const err = await resp.text();
-    throw new Error('remove.bg 失败: ' + resp.status + ' ' + err);
-  }
-  const blob = await resp.blob();
-  return URL.createObjectURL(blob);
-}
-
-// ─── Canvas 合成 ───
-async function compositeImage(bgRemovedUrl, platform, copyObj, bgColor, w, h) {
-  return new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas');
-    canvas.width = w; canvas.height = h;
-    const ctx = canvas.getContext('2d');
-
-    // 背景
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, w, h);
-
-    // 加载去背景图
-    const productImg = new Image();
-    productImg.crossOrigin = 'anonymous';
-    productImg.onload = () => {
-      // 商品图区域：上方70%
-      const prodAreaH = Math.floor(h * 0.64);
-      const prodAreaW = w;
-      const scale = Math.min(prodAreaW * 0.82 / productImg.width, prodAreaH * 0.88 / productImg.height);
-      const pw = productImg.width * scale;
-      const ph = productImg.height * scale;
-      const px = (w - pw) / 2;
-      const py = (prodAreaH - ph) / 2 + 10;
-      ctx.drawImage(productImg, px, py, pw, ph);
-
-      // 文案区域：下方
-      const textAreaY = prodAreaH;
-      const textAreaH = h - prodAreaH;
-      const isDark = isColorDark(bgColor);
-      const textColor = isDark ? '#ffffff' : '#1a2332';
-      const accentColor = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.06)';
-
-      // 文案背景条（轻微对比）
-      ctx.fillStyle = isDark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.65)';
-      ctx.fillRect(0, textAreaY, w, textAreaH);
-
-      const pad = w * 0.05;
-      let curY = textAreaY + textAreaH * 0.12;
-
-      // 标题
-      if (copyObj.title) {
-        ctx.fillStyle = textColor;
-        ctx.font = `800 ${Math.round(w * 0.042)}px -apple-system,Arial,sans-serif`;
-        ctx.textAlign = 'center';
-        const titleLines = wrapText(ctx, copyObj.title, w - pad * 2, 2);
-        const lineH = Math.round(w * 0.05);
-        titleLines.forEach((line, i) => {
-          ctx.fillText(line, w / 2, curY + i * lineH);
-        });
-        curY += titleLines.length * lineH + textAreaH * 0.06;
-      }
-
-      // 卖点
-      const pointFontSize = Math.round(w * 0.031);
-      ctx.font = `600 ${pointFontSize}px -apple-system,Arial,sans-serif`;
-      ctx.textAlign = 'left';
-      (copyObj.points || []).slice(0, 3).forEach(pt => {
-        if (!pt) return;
-        ctx.fillStyle = accentColor;
-        const dotR = pointFontSize * 0.35;
-        ctx.beginPath();
-        ctx.arc(pad + dotR, curY - dotR * 0.2, dotR, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = isDark ? 'rgba(255,255,255,0.85)' : '#475569';
-        ctx.fillText(pt.length > 24 ? pt.slice(0, 23) + '…' : pt, pad + dotR * 2.6, curY);
-        curY += pointFontSize * 1.7;
-      });
-
-      // CTA / 价格
-      const price = document.getElementById('ig-price')?.value?.trim();
-      const ctaText = copyObj.cta || '';
-      if (ctaText || price) {
-        const ctaY = textAreaY + textAreaH - textAreaH * 0.14;
-        // CTA 背景药丸
-        const ctaFull = price ? `${ctaText}  ${price}` : ctaText;
-        ctx.font = `800 ${Math.round(w * 0.038)}px -apple-system,Arial,sans-serif`;
-        const ctaW = ctx.measureText(ctaFull).width + w * 0.1;
-        const ctaH = Math.round(w * 0.075);
-        const ctaX = (w - ctaW) / 2;
-        ctx.fillStyle = isDark ? 'rgba(255,255,255,0.2)' : '#1677ff';
-        roundRect(ctx, ctaX, ctaY - ctaH * 0.72, ctaW, ctaH, ctaH / 2);
-        ctx.fill();
-        ctx.fillStyle = isDark ? '#fff' : '#fff';
-        ctx.textAlign = 'center';
-        ctx.fillText(ctaFull, w / 2, ctaY);
-      }
-
-      // 平台水印（小角标）
-      const platInfo = IG_PLATFORMS[platform] || {};
-      ctx.font = `700 ${Math.round(w * 0.025)}px -apple-system,Arial,sans-serif`;
-      ctx.fillStyle = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.2)';
-      ctx.textAlign = 'right';
-      ctx.fillText(platInfo.name || platform, w - pad * 0.6, h - pad * 0.5);
-
-      resolve(canvas);
-    };
-    productImg.onerror = reject;
-    productImg.src = bgRemovedUrl;
-  });
-}
-
-// 工具：文字自动换行
-function wrapText(ctx, text, maxWidth, maxLines) {
-  const words = text.split(' ');
-  const lines = [];
-  let cur = '';
-  for (const w of words) {
-    const test = cur ? cur + ' ' + w : w;
-    if (ctx.measureText(test).width > maxWidth && cur) {
-      lines.push(cur);
-      cur = w;
-      if (lines.length >= maxLines) break;
-    } else { cur = test; }
-  }
-  if (cur && lines.length < maxLines) lines.push(cur);
-  return lines;
-}
-// 工具：圆角矩形
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-}
-// 工具：判断颜色深浅
-function isColorDark(hex) {
-  const c = hex.replace('#','');
-  const r = parseInt(c.slice(0,2),16), g = parseInt(c.slice(2,4),16), b = parseInt(c.slice(4,6),16);
-  return (r * 299 + g * 587 + b * 114) / 1000 < 140;
-}
-
-// ─── 主流程：一键生成 ───
-async function runImgGen() {
-  if (!igState.origFile) { toast('请先上传商品图片'); return; }
-  if (igState.platforms.length === 0) { toast('请至少选择一个目标平台'); return; }
-
-  const btn = document.getElementById('igGenBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ 生成中...';
-
-  // 如果文案区域有内容就读取，否则用兜底
-  const hasAiCopy = Object.keys(igState.copyData).length > 0;
-  let copyData = hasAiCopy ? {} : igFallbackCopy(
-    document.getElementById('ig-name-zh').value.trim() || '商品',
-    document.getElementById('ig-points-zh').value.trim()
-  );
-  if (hasAiCopy) {
-    // 读取用户编辑后的内容
-    Object.keys(IG_LANGS).forEach(lang => {
-      copyData[lang] = document.getElementById('ig-panel-'+lang) ? getEditedCopy(lang) : (igState.copyData[lang] || {});
-    });
-  }
-
-  // 显示进度
-  document.getElementById('imggen-step1').innerHTML = `
-    <div class="imggen-progress">
-      <div class="imggen-progress-spinner">⚙️</div>
-      <div class="imggen-progress-text" id="igProgressTxt">正在处理图片...</div>
-      <div class="imggen-progress-sub" id="igProgressSub">这可能需要 5-15 秒</div>
-    </div>`;
-
-  const setProgress = (txt, sub) => {
-    const t = document.getElementById('igProgressTxt');
-    const s = document.getElementById('igProgressSub');
-    if (t) t.textContent = txt;
-    if (s) s.textContent = sub || '';
-  };
-
-  try {
-    // Step A: 去背景
-    setProgress('🎨 AI 去除背景中...', '调用 remove.bg 服务');
-    const bgUrl = await removeBg(igState.origFile);
-    igState.removedBg = bgUrl;
-
-    // Step B: 获取自定义尺寸
-    const customW = parseInt(document.getElementById('ig-cw')?.value) || 1000;
-    const customH = parseInt(document.getElementById('ig-ch')?.value) || 1000;
-
-    // Step C: 逐平台合成
-    const results = [];
-    for (let i = 0; i < igState.platforms.length; i++) {
-      const plat = igState.platforms[i];
-      const platInfo = IG_PLATFORMS[plat] || IG_PLATFORMS.amazon;
-      const w = plat === 'custom' ? customW : platInfo.w;
-      const h = plat === 'custom' ? customH : platInfo.h;
-      const lang = platInfo.lang || 'en';
-      const copy = copyData[lang] || copyData['en'] || {};
-      setProgress(`🖼️ 合成 ${platInfo.name} 主图...`, `${i+1} / ${igState.platforms.length} 个平台`);
-      const canvas = await compositeImage(bgUrl, plat, copy, igState.bgColor, w, h);
-      results.push({ platform: plat, platInfo, canvas, lang, copy });
-    }
-
-    igState.resultCanvases = results;
-    renderImgGenResults(results);
-    document.getElementById('imggen-step1').style.display = 'none';
-    document.getElementById('imggen-step2').style.display = 'block';
-  } catch(e) {
-    igBackToStep1();
-    toast('生成失败：' + (e.message || e));
-    btn.disabled = false;
-    btn.textContent = '🚀 一键生成商品图';
-  }
-}
-
-function igBackToStep1() {
-  // 重建 step1 内容
-  document.getElementById('imggen-step2').style.display = 'none';
-  const s1 = document.getElementById('imggen-step1');
-  s1.style.display = 'block';
-  const btn = document.getElementById('igGenBtn');
-  if (btn) { btn.disabled = false; btn.textContent = '🚀 一键生成商品图'; }
-}
-
-function renderImgGenResults(results) {
-  const grid = document.getElementById('igResultGrid');
-  grid.innerHTML = '';
-  results.forEach(({ platform, platInfo, canvas, lang }) => {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'ig-result-card';
-    // 预览图（缩放显示）
-    const previewCanvas = document.createElement('canvas');
-    const pw = 320, ph = Math.round(platInfo.h / platInfo.w * 320);
-    previewCanvas.width = pw; previewCanvas.height = ph;
-    const pCtx = previewCanvas.getContext('2d');
-    pCtx.drawImage(canvas, 0, 0, pw, ph);
-
-    const info = document.createElement('div');
-    info.className = 'ig-result-card-info';
-    info.innerHTML = `
-      <div>
-        <div class="ig-result-plat">${platInfo.icon} ${platInfo.name}</div>
-        <div class="ig-result-size">${platInfo.w}×${platInfo.h} · ${IG_LANGS[lang]?.flag||''} ${lang.toUpperCase()}</div>
-      </div>
-      <button class="ig-result-dl" onclick="igDownloadOne('${platform}')">⬇️ 下载</button>`;
-
-    wrapper.appendChild(previewCanvas);
-    wrapper.appendChild(info);
-    grid.appendChild(wrapper);
-  });
-}
-
-function igDownloadOne(platform) {
-  const item = igState.resultCanvases.find(r => r.platform === platform);
-  if (!item) return;
-  const { platInfo, canvas } = item;
-  const a = document.createElement('a');
-  a.download = `${platInfo.name}_${platInfo.w}x${platInfo.h}.png`;
-  a.href = canvas.toDataURL('image/png');
-  a.click();
-}
-
-function igDownloadAll() {
-  if (!igState.resultCanvases.length) { toast('没有可下载的图片'); return; }
-  igState.resultCanvases.forEach(({ platform, platInfo, canvas }, idx) => {
-    setTimeout(() => {
-      const a = document.createElement('a');
-      a.download = `${platInfo.name}_${platInfo.w}x${platInfo.h}.png`;
-      a.href = canvas.toDataURL('image/png');
-      a.click();
-    }, idx * 350);
-  });
-  toast(`正在下载 ${igState.resultCanvases.length} 张图片 ✓`);
+function openToolUrl(url) {
+  window.open(url, '_blank');
 }
 
 // ══════════════════════════════════════════════
