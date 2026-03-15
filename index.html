@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-045';
+  var VER = '20260314-046';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -485,10 +485,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .prod-status-btn:active{filter:brightness(.92);transform:scale(.96)}
 
 /* ── LOADING ── */
-.loading-screen{position:fixed;inset:0;background:linear-gradient(145deg,#1e3a8a,#1677ff,#7c3aed);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;color:#fff}
-.loading-screen .spin{font-size:52px;animation:spin 1.5s linear infinite;margin-bottom:16px}
+.loading-screen{position:fixed;inset:0;background:#060810;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;color:#fff;background-image:radial-gradient(ellipse at 20% 80%,rgba(212,175,55,0.07) 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(37,99,235,0.09) 0%,transparent 55%)}
+.loading-screen .spin{margin-bottom:24px;position:relative;width:72px;height:72px}
+.loading-screen .spin-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid transparent;border-top-color:rgba(212,175,55,0.7);border-right-color:rgba(212,175,55,0.2);animation:spin 1.4s cubic-bezier(.6,.2,.4,.8) infinite}
+.loading-screen .spin-logo{position:absolute;inset:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,rgba(20,30,50,0.95) 0%,rgba(10,16,30,0.95) 100%);border-radius:14px;border:1px solid rgba(212,175,55,0.2);box-shadow:0 0 20px rgba(212,175,55,0.08)}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-.loading-screen p{font-size:14px;opacity:.8}
+@keyframes pulse-gold{0%,100%{opacity:.7}50%{opacity:1}}
+.loading-screen .spin-logo svg{animation:pulse-gold 2s ease-in-out infinite}
+.loading-screen p{font-size:13px;color:rgba(255,255,255,0.5);letter-spacing:1px}
+.loading-screen .loading-title{font-size:16px;font-weight:200;color:rgba(255,255,255,0.85);letter-spacing:6px;text-transform:uppercase;margin-bottom:6px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.loading-screen .loading-title em{font-style:normal;color:rgba(212,175,55,0.85)}
 
 /* ── 图片灯箱 ── */
 .img-lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:600;align-items:center;justify-content:center;padding:20px}
@@ -706,9 +712,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 
 <!-- 加载屏 -->
 <div class="loading-screen" id="loadingScreen">
-  <div class="spin"><svg width="52" height="52" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="22" stroke="rgba(255,255,255,0.15)" stroke-width="3"/><path d="M26 4a22 22 0 0 1 22 22" stroke="rgba(255,255,255,0.9)" stroke-width="3" stroke-linecap="round"/><circle cx="26" cy="26" r="6" fill="rgba(255,255,255,0.9)"/></svg></div>
-  <p>正在同步云端数据，请稍候…</p>
-  <p style="font-size:12px;opacity:.55;margin-top:8px">首次加载约需 3-6 秒</p>
+  <div class="spin">
+    <div class="spin-ring"></div>
+    <div class="spin-logo">
+      <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+        <path d="M14 4L22 9V19L14 24L6 19V9L14 4Z" stroke="rgba(212,175,55,0.75)" stroke-width="1.2" fill="none"/>
+        <path d="M14 7V11M14 17V21M7 10.5L10.5 12.5M17.5 15.5L21 17.5M7 17.5L10.5 15.5M17.5 12.5L21 10.5" stroke="rgba(212,175,55,0.4)" stroke-width="0.8" stroke-linecap="round"/>
+        <circle cx="14" cy="14" r="2.8" fill="rgba(212,175,55,0.65)"/>
+        <circle cx="14" cy="14" r="1.2" fill="rgba(255,220,100,0.9)"/>
+      </svg>
+    </div>
+  </div>
+  <div class="loading-title">START<em>UP</em>LOG</div>
+  <p>正在同步云端数据…</p>
 </div>
 
 <!-- 确认弹窗 -->
