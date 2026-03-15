@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-036';
+  var VER = '20260314-037';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -368,7 +368,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .shortcut-sub{font-size:11px;color:var(--hint)}
 
 /* ── 我的页面数据概览卡 ── */
-.pf-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.pf-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
 .pf-stat-item{background:var(--card);border-radius:var(--r);padding:14px 12px;text-align:center;border:1px solid rgba(255,255,255,0.06);box-shadow:var(--shadow)}
 .pf-stat-val{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--text);line-height:1;margin-bottom:4px}
 .pf-stat-lab{font-size:10px;color:var(--hint);letter-spacing:.5px}
@@ -386,6 +386,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .role-founder{background:linear-gradient(135deg,rgba(212,175,55,0.2),rgba(212,175,55,0.08));color:rgba(212,175,55,0.9);border:1px solid rgba(212,175,55,0.2)}
 .role-cofounder{background:linear-gradient(135deg,rgba(167,139,250,0.2),rgba(167,139,250,0.08));color:rgba(167,139,250,0.9);border:1px solid rgba(167,139,250,0.2)}
 .role-lover{background:linear-gradient(135deg,rgba(244,114,182,0.2),rgba(244,114,182,0.08));color:rgba(244,114,182,0.9);border:1px solid rgba(244,114,182,0.2)}
+.role-supervisor{background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(56,189,248,0.08));color:rgba(56,189,248,0.9);border:1px solid rgba(56,189,248,0.2)}
 .role-member{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.08)}
 
 /* ── 会议通知 ── */
@@ -848,12 +849,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       </div>
     </div>
 
-    <!-- 动态记录 -->
+    <!-- 团队动态（精简，最近3条） -->
     <div class="coll-card">
       <div class="coll-hdr" onclick="toggleColl('actCard')">
-        <div class="coll-title">动态记录</div>
+        <div class="coll-title">团队动态</div>
         <div class="coll-actions">
-          <span class="cm" onclick="event.stopPropagation();openAddAct()">+ 添加</span>
+          <span class="cm" onclick="event.stopPropagation();openAddAct()">+ 记录</span>
           <span class="cm" id="syncStatus" style="font-size:11px;display:none"></span>
           <span class="coll-arrow" id="actCard-arrow">▼</span>
         </div>
@@ -1038,23 +1039,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div class="pf-brand-mark">StartupLog</div>
       </div>
     </div>
-    <!-- 快捷工具入口 - 高级版 -->
+    <!-- 快捷工具入口 -->
     <div class="shortcut-grid">
-      <div class="shortcut-item" onclick="goPage('tasks')">
-        <span class="shortcut-icon shortcut-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
-        <div><div class="shortcut-title">任务管理</div><div class="shortcut-sub" id="myTaskCount">-</div></div>
-      </div>
-      <div class="shortcut-item" onclick="openModal();switchForm('meeting')">
-        <span class="shortcut-icon shortcut-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-        <div><div class="shortcut-title">记录会议</div><div class="shortcut-sub">快速记录</div></div>
-      </div>
-      <div class="shortcut-item" onclick="goPage('products')">
-        <span class="shortcut-icon shortcut-icon--amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
-        <div><div class="shortcut-title">选品库</div><div class="shortcut-sub">商品管理</div></div>
-      </div>
       <div class="shortcut-item" onclick="openModal();switchForm('insight')">
         <span class="shortcut-icon shortcut-icon--teal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
         <div><div class="shortcut-title">记录心得</div><div class="shortcut-sub">创业思考</div></div>
+      </div>
+      <div class="shortcut-item" onclick="openAddAcc()">
+        <span class="shortcut-icon shortcut-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+        <div><div class="shortcut-title">平台账号</div><div class="shortcut-sub">账号管理</div></div>
+      </div>
+      <div class="shortcut-item" onclick="openAddGameAcc()">
+        <span class="shortcut-icon shortcut-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="5"/><line x1="8" y1="12" x2="12" y2="12"/><line x1="10" y1="10" x2="10" y2="14"/><circle cx="16" cy="12" r="1" fill="currentColor"/></svg></span>
+        <div><div class="shortcut-title">游戏账号</div><div class="shortcut-sub">新增账号</div></div>
+      </div>
+      <div class="shortcut-item" onclick="openRoadmapEdit()">
+        <span class="shortcut-icon shortcut-icon--amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        <div><div class="shortcut-title">创业路线</div><div class="shortcut-sub">编辑规划</div></div>
       </div>
     </div>
     <!-- 数据概览卡 -->
@@ -1135,6 +1136,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       </div>
       <div class="coll-body" id="roadmapCard-body">
         <div class="tl" id="roadmapList"></div>
+      </div>
+    </div>
+    <div class="coll-card">
+      <div class="coll-hdr" onclick="toggleColl('profileActCard')">
+        <div class="coll-title">全部动态</div>
+        <div class="coll-actions">
+          <button class="action-btn-ghost" onclick="event.stopPropagation();openAddAct()">＋ 记录</button>
+          <span class="coll-arrow" id="profileActCard-arrow">▼</span>
+        </div>
+      </div>
+      <div class="coll-body" id="profileActCard-body">
+        <div class="tl" id="profileActList"></div>
       </div>
     </div>
     <div class="coll-card">
@@ -1962,7 +1975,7 @@ function defaultData() {
     users: {
       jiashuo:  { name:'佳硕', role:'创始人 & CEO', pwd:'5201314', color:'#1a1f2e' },
       yixin:    { name:'一新', role:'联合创始人 & 掌舵人', pwd:'5201314', color:'#141820' },
-      lingling: { name:'张灵灵', role:'永远的女朋友', pwd:'5201314', color:'#2a1220', isReadOnly: true }
+      lingling: { name:'张灵灵', role:'运营主管', pwd:'5201314', color:'#2a1220', isReadOnly: true }
     },
     roadmap: [
       { id:'r1', dot:'g', label:'当前重点', text:'TEMU 跨境电商 · 羽毛球手胶' },
@@ -2469,11 +2482,7 @@ function renderAll() {
 //  STATS (内部统计，不再渲染到首页方块)
 // ══════════════════════════════════════════════
 function renderStats() {
-  // 统计数据供其他地方使用，方块已从首页移除
-  const s = getLocal();
-  const taskCount = alive(s.tasks).filter(t => t.status !== 'done').length;
-  const tcEl = document.getElementById('myTaskCount');
-  if (tcEl) tcEl.textContent = taskCount + ' 项待处理';
+  // 统计数据供其他地方使用
 }
 
 // ── 我的页面：数据概览卡 ──
@@ -2481,22 +2490,42 @@ function renderPfStats() {
   const el = document.getElementById('pfStatsRow');
   if (!el) return;
   const s = getLocal();
-  const myTasks   = alive(s.tasks).filter(t => t.owner === CU && t.status !== 'done').length;
+  const myTasks    = alive(s.tasks).filter(t => t.owner === CU && t.status !== 'done').length;
   const myMeetings = alive(s.meetings).filter(m => m.status !== 'done').length;
   const myInsights = alive(s.insights).filter(i => i.author === CU || !i.author).length;
+  const myActs     = alive(s.activities || []).length;
   el.innerHTML = `
-    <div class="pf-stat-item">
+    <div class="pf-stat-item" onclick="goPage('tasks')" style="cursor:pointer">
       <div class="pf-stat-val">${myTasks}</div>
       <div class="pf-stat-lab">待办任务</div>
     </div>
-    <div class="pf-stat-item">
+    <div class="pf-stat-item" onclick="goPage('meetings')" style="cursor:pointer">
       <div class="pf-stat-val">${myMeetings}</div>
       <div class="pf-stat-lab">待开会议</div>
     </div>
-    <div class="pf-stat-item">
+    <div class="pf-stat-item" onclick="openInsightFromStats()" style="cursor:pointer">
       <div class="pf-stat-val">${myInsights}</div>
       <div class="pf-stat-lab">创业心得</div>
+    </div>
+    <div class="pf-stat-item" onclick="goPage('home')" style="cursor:pointer">
+      <div class="pf-stat-val">${myActs}</div>
+      <div class="pf-stat-lab">团队动态</div>
     </div>`;
+}
+}
+
+// ── 从数据概览卡跳转到心得（展开心得折叠区） ──
+function openInsightFromStats() {
+  // 展开心得折叠卡
+  const body = document.getElementById('insightCard-body');
+  const arrow = document.getElementById('insightCard-arrow');
+  if (body && body.style.display === 'none') {
+    body.style.display = '';
+    if (arrow) arrow.textContent = '▲';
+  }
+  // 滚动到心得区
+  const card = document.getElementById('insightCard-body');
+  if (card) card.closest('.coll-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ══════════════════════════════════════════════
@@ -2529,20 +2558,21 @@ function nowBJStr() {
 function renderActs() {
   const s = getLocal();
   const el = document.getElementById('actList');
+  if (!el) return;
   // 按时间降序，最新在最上面
   const acts = alive(s.activities).slice().sort((a, b) => {
     const ta = new Date(b.time || b.updatedAt || 0).getTime() || 0;
     const tb = new Date(a.time || a.updatedAt || 0).getTime() || 0;
     return ta - tb;
   });
-  if (!acts.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态，点「+ 添加」记录第一条</div>'; return; }
+  if (!acts.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态，点「+ 记录」添加第一条</div>'; return; }
   const map = { b:'', g:'g', o:'o', p:'p' };
-  el.innerHTML = acts.slice(0,8).map((a, idx) => {
+  const showCount = 3;
+  el.innerHTML = acts.slice(0, showCount).map((a) => {
     const uname = a.author && s.users && s.users[a.author] ? s.users[a.author].name : (a.author || '');
-    const authorTag = uname ? `<span style="font-size:11px;color:var(--hint);background:#f1f5f9;border-radius:10px;padding:1px 7px;margin-left:5px">@${uname}</span>` : '';
-    const canEdit = isAdmin() || a.author === CU;
-    // 找真实下标
+    const authorTag = uname ? `<span style="font-size:11px;color:var(--hint);background:rgba(255,255,255,0.06);border-radius:10px;padding:1px 7px;margin-left:5px">@${uname}</span>` : '';
     const realIdx = s.activities.findIndex(x => x === a || (x.id && x.id === a.id));
+    const canEdit = isAdmin() || a.author === CU;
     const editBtn = canEdit ? `<button class="edit-btn" style="flex-shrink:0;padding:2px 8px" onclick="openEditActByIdx(${realIdx})">编辑</button>` : '';
     const delBtn  = canEdit ? `<button class="del-btn" style="font-size:13px;opacity:.4;flex-shrink:0" onclick="delAct(${realIdx})">🗑</button>` : '';
     return `<div class="tli"><div class="tldot ${map[a.type]||''}"></div>
@@ -2551,7 +2581,7 @@ function renderActs() {
       <div class="tlc" style="flex:1">${a.text}${authorTag}</div>
       ${editBtn}${delBtn}
     </div></div>`;
-  }).join('') + (acts.length > 8 ? `<div style="text-align:center;padding-top:10px"><span style="font-size:12px;color:var(--hint)">共 ${acts.length} 条记录</span></div>` : '');
+  }).join('') + (acts.length > showCount ? `<div style="text-align:center;padding-top:10px"><span class="cm" onclick="goPage('profile');setTimeout(()=>{const b=document.getElementById('profileActCard-body');const ar=document.getElementById('profileActCard-arrow');if(b&&b.style.display==='none'){b.style.display='';if(ar)ar.textContent='▲';}},100)">查看全部 ${acts.length} 条动态 →</span></div>` : '');
 }
 
 // ── 首页账号快捷入口 ──
@@ -2909,6 +2939,8 @@ async function fetchDailySoup(forceRefresh) {
   const el  = document.getElementById('bnrSoupText');
   const btn = document.getElementById('bnrRefreshBtn');
   if (!el) return;
+  // 强制刷新时先清除当天缓存
+  if (forceRefresh) localStorage.removeItem(todayKey);
   if (!forceRefresh) {
     const cached = localStorage.getItem(todayKey);
     if (cached) { el.textContent = cached; return; }
@@ -2924,8 +2956,8 @@ async function fetchDailySoup(forceRefresh) {
       120
     );
     el.textContent = text;
-    // 非强制刷新才缓存（手动换一句不覆盖今日缓存）
-    if (!forceRefresh) localStorage.setItem(todayKey, text);
+    // 缓存今日内容（手动换一句会覆盖缓存，每天只保留最新一句）
+    localStorage.setItem(todayKey, text);
   } catch(e) {
     const fallbacks = [
       '不是所有努力都立竿见影，但没有一份努力会被辜负。',
@@ -3192,7 +3224,7 @@ function renderMemberList() {
   const IDENTITY_MAP = {
     jiashuo: { enName:'ZHANG JIASHUO', roleTag:'role-founder', roleText:'◆ FOUNDER · CEO', avBg:'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)' },
     yixin:   { enName:'ZHU YIXIN',     roleTag:'role-cofounder', roleText:'◇ CO-FOUNDER · 联合创始人', avBg:'linear-gradient(145deg,#1a1228 0%,#120c1a 60%,#1a1228 100%)' },
-    lingling:{ enName:'ZHANG LINGLING',roleTag:'role-lover', roleText:'♡ BELOVED · 永远的女朋友', avBg:'linear-gradient(145deg,#2a1220 0%,#1a0c18 60%,#2a1220 100%)' }
+    lingling:{ enName:'ZHANG LINGLING',roleTag:'role-supervisor', roleText:'★ SUPERVISOR · 运营主管', avBg:'linear-gradient(145deg,#1a2035 0%,#0f1830 60%,#1a2035 100%)' }
   };
 
   el.innerHTML = members.map(([uid, u]) => {
@@ -3321,7 +3353,7 @@ function refreshLoginMembers() {
   const members = Object.entries(s.users).filter(([uid]) => !ADMINS.includes(uid));
   if (!members.length) { el.innerHTML = ''; return; }
   const SPECIAL_BG = {
-    lingling: 'linear-gradient(145deg,#2a1220 0%,#1a0c18 60%,#2a1220 100%)'
+    lingling: 'linear-gradient(145deg,#1a2035 0%,#0f1830 60%,#1a2035 100%)'
   };
   el.innerHTML = `<div style="font-size:9px;font-weight:400;color:rgba(212,175,55,0.55);text-transform:uppercase;letter-spacing:3px;margin-bottom:10px;font-family:-apple-system,'SF Pro Display',sans-serif">团队成员</div>` +
     `<div style="display:flex;flex-wrap:wrap;gap:8px">${members.map(([uid,u]) => {
@@ -5450,12 +5482,25 @@ window.addEventListener('DOMContentLoaded', async () => {
   }, { passive: true });
   document.addEventListener('touchend', e => {
     const dy = e.changedTouches[0].clientY - _ptrStartY;
-    _ptrHide();
     if (dy > 55 && window.scrollY === 0 && !_ptrTriggered) {
       _ptrTriggered = true;
-      // 触发同步后2秒自动消失（syncNow内部会setSyncBar）
-      _ptrHideTimer = setTimeout(_ptrHide, 100);
-      syncNow();
+      _ptrTip.textContent = '⏳ 同步中...';
+      _ptrTip.classList.add('visible');
+      syncNow().then ? syncNow().then(() => {
+        _ptrTip.textContent = '✓ 已更新';
+        if (_ptrHideTimer) clearTimeout(_ptrHideTimer);
+        _ptrHideTimer = setTimeout(_ptrHide, 1500);
+      }).catch(() => {
+        _ptrTip.textContent = '同步失败，请检查网络';
+        if (_ptrHideTimer) clearTimeout(_ptrHideTimer);
+        _ptrHideTimer = setTimeout(_ptrHide, 2000);
+      }) : (() => {
+        syncNow();
+        if (_ptrHideTimer) clearTimeout(_ptrHideTimer);
+        _ptrHideTimer = setTimeout(() => { _ptrTip.textContent = '✓ 已更新'; setTimeout(_ptrHide, 1200); }, 1500);
+      })();
+    } else {
+      _ptrHide();
     }
   }, { passive: true });
 
