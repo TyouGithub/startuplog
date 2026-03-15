@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-041';
+  var VER = '20260314-042';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -753,10 +753,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div class="ubtn" id="ubtn-yixin" onclick="selUser('yixin')">
           <div class="av" style="background:linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)">新</div>
           <div class="nm">一新</div><div class="rl">联合创始人</div>
-        </div>
-        <div class="ubtn" id="ubtn-lingling" onclick="selUser('lingling')">
-          <div class="av" style="background:linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)">灵</div>
-          <div class="nm">灵灵</div><div class="rl">运营主管</div>
         </div>
       </div>
       <div id="memberBtns" style="display:none;margin-bottom:16px"></div>
@@ -2405,9 +2401,10 @@ function changePwd() {
 function initApp() {
   const s = getLocal(), u = s.users[CU];
   const init = u.name.slice(-1);
-  const _avBg = CU === 'jiashuo'
-    ? 'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)'
-    : 'linear-gradient(145deg,#141820 0%,#0c101a 60%,#141825 100%)';
+  const _DEEP_BG = 'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)';
+  const _avBg = (CU === 'jiashuo' || CU === 'yixin' || CU === 'lingling')
+    ? _DEEP_BG
+    : (u.color || 'linear-gradient(145deg,#141820 0%,#0c101a 60%,#141825 100%)');
   setEl('hdrAv', init); document.getElementById('hdrAv').style.background = _avBg;
   setEl('hdrNm', u.name);
   // 右上角职位小标签（简洁）
@@ -2485,9 +2482,10 @@ function renderAll() {
   if (CU && s.users[CU]) {
     const u = s.users[CU];
     setEl('hdrAv', u.name.slice(-1));
-    const _rAvBg = (CU === 'jiashuo')
-      ? 'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)'
-      : 'linear-gradient(145deg,#141820 0%,#0c101a 60%,#141825 100%)';
+    const _DEEP_BG2 = 'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)';
+    const _rAvBg = (CU === 'jiashuo' || CU === 'yixin' || CU === 'lingling')
+      ? _DEEP_BG2
+      : (u.color || 'linear-gradient(145deg,#141820 0%,#0c101a 60%,#141825 100%)');
     document.getElementById('hdrAv').style.background = _rAvBg;
     setEl('hdrNm', u.name);
     const _sub = document.getElementById('hdrNmSub');
@@ -3397,15 +3395,16 @@ function refreshLoginMembers() {
   const s = getLocal();
   const el = document.getElementById('memberBtns');
   if (!el) return;
-  // lingling 已固定在主选择行，其他成员折叠区只显示动态添加的成员
-  const members = Object.entries(s.users).filter(([uid]) => !ADMINS.includes(uid) && uid !== 'lingling');
+  // 所有非管理员成员（含 lingling）都在折叠区渲染
+  const members = Object.entries(s.users).filter(([uid]) => !ADMINS.includes(uid));
   if (!members.length) { el.innerHTML = ''; return; }
+  const DEEP_BG = 'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)';
   const SPECIAL_BG = {
-    lingling: 'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)'
+    lingling: DEEP_BG
   };
   el.innerHTML = `<div style="font-size:9px;font-weight:400;color:rgba(212,175,55,0.55);text-transform:uppercase;letter-spacing:3px;margin-bottom:10px;font-family:-apple-system,'SF Pro Display',sans-serif">团队成员</div>` +
     `<div style="display:flex;flex-wrap:wrap;gap:8px">${members.map(([uid,u]) => {
-      const bg = SPECIAL_BG[uid] || (u.color || '#1a1f2e');
+      const bg = SPECIAL_BG[uid] || DEEP_BG;
       return `<div class="ubtn${CU===uid?' sel':''}" style="flex:0 0 auto;min-width:80px" id="ubtn-${uid}" onclick="selUser('${uid}')">
         <div class="av" style="background:${bg}">${u.name.slice(-1)}</div>
         <div class="nm">${u.name}</div><div class="rl">${u.role||'成员'}</div>
