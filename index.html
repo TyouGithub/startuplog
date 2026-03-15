@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-042';
+  var VER = '20260314-043';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -2069,6 +2069,22 @@ function getLocal() {
     if (d.roadmap === undefined)       { d.roadmap = def.roadmap; dirty = true; }
     if (d.gameAccounts === undefined)  { d.gameAccounts = def.gameAccounts; dirty = true; }
     if (d.incomeRecords === undefined) { d.incomeRecords = def.incomeRecords; dirty = true; }
+    // 核心成员数据迁移：确保三位核心成员始终存在且字段正确
+    if (!d.users) d.users = {};
+    const _defUsers = def.users;
+    ['jiashuo','yixin','lingling'].forEach(uid => {
+      if (!d.users[uid]) { d.users[uid] = _defUsers[uid]; dirty = true; }
+      else {
+        // 强制同步不可修改的字段（全名、颜色、只读标志）
+        const _fix = { jiashuo:{name:'佳硕',color:'#1a1f2e'}, yixin:{name:'一新',color:'#141820'}, lingling:{name:'张灵灵',color:'#1a1f2e',isReadOnly:true} };
+        const fix = _fix[uid];
+        if (fix) {
+          let changed = false;
+          Object.keys(fix).forEach(k => { if (d.users[uid][k] !== fix[k]) { d.users[uid][k] = fix[k]; changed = true; } });
+          if (changed) dirty = true;
+        }
+      }
+    });
     if (dirty) localStorage.setItem(SYNC_KEY, JSON.stringify(d));
     return d;
   } catch(e) { return defaultData(); }
@@ -2402,9 +2418,8 @@ function initApp() {
   const s = getLocal(), u = s.users[CU];
   const init = u.name.slice(-1);
   const _DEEP_BG = 'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)';
-  const _avBg = (CU === 'jiashuo' || CU === 'yixin' || CU === 'lingling')
-    ? _DEEP_BG
-    : (u.color || 'linear-gradient(145deg,#141820 0%,#0c101a 60%,#141825 100%)');
+  // 所有成员统一使用深色背景
+  const _avBg = _DEEP_BG;
   setEl('hdrAv', init); document.getElementById('hdrAv').style.background = _avBg;
   setEl('hdrNm', u.name);
   // 右上角职位小标签（简洁）
@@ -2431,7 +2446,7 @@ function initApp() {
     if (CU === 'jiashuo') { _pfEnName.textContent = 'ZHANG JIASHUO'; }
     else if (CU === 'yixin') { _pfEnName.textContent = 'ZHU YIXIN'; }
     else if (CU === 'lingling') { _pfEnName.textContent = 'ZHANG LINGLING'; }
-    else { _pfEnName.textContent = u.name.toUpperCase(); }
+    else { _pfEnName.textContent = (u.role || 'MEMBER').toUpperCase(); }
   }
   if (_pfCnName) {
     if (CU === 'jiashuo') { _pfCnName.innerHTML = '张<em>佳硕</em>'; }
@@ -2483,9 +2498,8 @@ function renderAll() {
     const u = s.users[CU];
     setEl('hdrAv', u.name.slice(-1));
     const _DEEP_BG2 = 'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)';
-    const _rAvBg = (CU === 'jiashuo' || CU === 'yixin' || CU === 'lingling')
-      ? _DEEP_BG2
-      : (u.color || 'linear-gradient(145deg,#141820 0%,#0c101a 60%,#141825 100%)');
+    // 所有成员统一深色背景
+    const _rAvBg = _DEEP_BG2;
     document.getElementById('hdrAv').style.background = _rAvBg;
     setEl('hdrNm', u.name);
     const _sub = document.getElementById('hdrNmSub');
@@ -2497,7 +2511,7 @@ function renderAll() {
       if (CU === 'jiashuo') _pfen.textContent = 'ZHANG JIASHUO';
       else if (CU === 'yixin') _pfen.textContent = 'ZHU YIXIN';
       else if (CU === 'lingling') _pfen.textContent = 'ZHANG LINGLING';
-      else _pfen.textContent = u.name.toUpperCase();
+      else _pfen.textContent = (u.role || 'MEMBER').toUpperCase();
     }
     const _pfcn = document.getElementById('pfCnName');
     if (_pfcn) {
