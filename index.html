@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-048';
+  var VER = '20260314-049';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -337,6 +337,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .pf-av::after{content:'';position:absolute;inset:-6px;border-radius:50%;background:conic-gradient(from 180deg,rgba(212,175,55,0) 0deg,rgba(212,175,55,0.5) 90deg,rgba(255,255,255,0.3) 180deg,rgba(212,175,55,0.5) 270deg,rgba(212,175,55,0) 360deg);opacity:.5;filter:blur(3px)}
 .pf-av::before{content:'';position:absolute;inset:-2px;border-radius:50%;background:linear-gradient(145deg,rgba(212,175,55,0.7) 0%,rgba(255,255,255,0.2) 35%,rgba(212,175,55,0.4) 65%,rgba(180,150,40,0.8) 100%)}
 .pf-av-inner{position:relative;z-index:1;width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:200;letter-spacing:2px;color:rgba(255,255,255,0.95);font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;text-shadow:0 1px 8px rgba(0,0,0,0.5)}
+
+/* ── 创始人专属：黄金旋转光环 ── */
+.pf-av.founder-halo{width:72px;height:72px}
+/* 外层：多圈旋转光环 */
+.pf-av.founder-halo::after{
+  content:'';position:absolute;inset:-10px;border-radius:50%;
+  background:conic-gradient(from 0deg,
+    rgba(212,175,55,0) 0deg,
+    rgba(255,215,0,0.9) 40deg,
+    rgba(255,255,200,1) 80deg,
+    rgba(212,175,55,0.6) 120deg,
+    rgba(255,215,0,0) 180deg,
+    rgba(180,140,20,0.5) 220deg,
+    rgba(255,215,0,0.8) 280deg,
+    rgba(255,255,180,0.9) 320deg,
+    rgba(212,175,55,0) 360deg
+  );
+  animation:founderSpin 3s linear infinite;
+  opacity:0.85;filter:blur(2px)
+}
+/* 内层：金圈高亮 */
+.pf-av.founder-halo::before{
+  content:'';position:absolute;inset:-3px;border-radius:50%;
+  background:conic-gradient(from 0deg,
+    rgba(255,215,0,0.9) 0deg,
+    rgba(255,255,180,0.5) 90deg,
+    rgba(212,175,55,0.3) 180deg,
+    rgba(255,215,0,0.9) 360deg
+  );
+  animation:founderSpin 3s linear infinite;
+}
+/* 最外扩散光晕 */
+.pf-av.founder-halo .pf-av-halo-glow{
+  position:absolute;inset:-18px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,215,0,0.18) 0%,rgba(212,175,55,0.08) 50%,transparent 72%);
+  animation:founderPulse 2.5s ease-in-out infinite;
+  pointer-events:none;z-index:0
+}
+@keyframes founderSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes founderPulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
 .pf-info{flex:1;min-width:0}
 /* 黑卡风格：全字体统一，粗细一致层次用字号+透明度区分 */
 .pf-en-name{font-size:10px;font-weight:400;letter-spacing:4px;text-transform:uppercase;color:rgba(212,175,55,0.6);line-height:1;margin-bottom:8px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
@@ -1038,7 +1078,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
   <div class="pg" id="pg-profile">
     <div class="pf-card">
       <div class="pf-card-inner">
-        <div class="pf-av">
+        <div class="pf-av" id="pfAvWrap">
+          <div class="pf-av-halo-glow"></div>
           <div class="pf-av-inner" id="pfAv"></div>
         </div>
         <div class="pf-info">
@@ -1060,21 +1101,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     </div>
     <!-- 快捷工具入口 -->
     <div class="shortcut-grid">
-      <div class="shortcut-item" onclick="openModal();switchForm('insight')">
-        <span class="shortcut-icon shortcut-icon--teal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
-        <div><div class="shortcut-title">记录心得</div><div class="shortcut-sub">创业思考</div></div>
+      <div class="shortcut-item" onclick="openAddGameAcc()">
+        <span class="shortcut-icon shortcut-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="5"/><line x1="8" y1="12" x2="12" y2="12"/><line x1="10" y1="10" x2="10" y2="14"/><circle cx="16" cy="12" r="1" fill="currentColor"/></svg></span>
+        <div><div class="shortcut-title">游戏账号</div><div class="shortcut-sub">新增账号</div></div>
       </div>
       <div class="shortcut-item" onclick="openAddAcc()">
         <span class="shortcut-icon shortcut-icon--blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
         <div><div class="shortcut-title">平台账号</div><div class="shortcut-sub">账号管理</div></div>
       </div>
-      <div class="shortcut-item" onclick="openAddGameAcc()">
-        <span class="shortcut-icon shortcut-icon--purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="5"/><line x1="8" y1="12" x2="12" y2="12"/><line x1="10" y1="10" x2="10" y2="14"/><circle cx="16" cy="12" r="1" fill="currentColor"/></svg></span>
-        <div><div class="shortcut-title">游戏账号</div><div class="shortcut-sub">新增账号</div></div>
-      </div>
       <div class="shortcut-item" onclick="openRoadmapEdit()">
         <span class="shortcut-icon shortcut-icon--amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
         <div><div class="shortcut-title">创业路线</div><div class="shortcut-sub">编辑规划</div></div>
+      </div>
+      <div class="shortcut-item" onclick="openModal();switchForm('insight')">
+        <span class="shortcut-icon shortcut-icon--teal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+        <div><div class="shortcut-title">全团队心得</div><div class="shortcut-sub">记录思考</div></div>
       </div>
     </div>
     <!-- 数据概览卡 -->
@@ -1158,18 +1199,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       </div>
     </div>
     <div class="coll-card">
-      <div class="coll-hdr" onclick="toggleColl('profileActCard')">
-        <div class="coll-title">全部动态</div>
-        <div class="coll-actions">
-          <button class="action-btn-ghost" onclick="event.stopPropagation();openAddAct()">＋ 记录</button>
-          <span class="coll-arrow" id="profileActCard-arrow">▼</span>
-        </div>
-      </div>
-      <div class="coll-body" id="profileActCard-body">
-        <div class="tl" id="profileActList"></div>
-      </div>
-    </div>
-    <div class="coll-card">
       <div class="coll-hdr" onclick="toggleColl('insightCard')">
         <div class="coll-title">全团队心得</div>
         <div class="coll-actions">
@@ -1180,6 +1209,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       <div class="coll-body" id="insightCard-body">
         <!-- 全员公开可读 -->
         <div id="profileInsightList"></div>
+      </div>
+    </div>
+    <div class="coll-card">
+      <div class="coll-hdr" onclick="toggleColl('profileActCard')">
+        <div class="coll-title">全部动态</div>
+        <div class="coll-actions">
+          <button class="action-btn-ghost" onclick="event.stopPropagation();openAddAct()">＋ 记录</button>
+          <span class="coll-arrow" id="profileActCard-arrow">▼</span>
+        </div>
+      </div>
+      <div class="coll-body" id="profileActCard-body">
+        <div class="tl" id="profileActList"></div>
       </div>
     </div>
     <!-- 成员管理：仅管理员可见 -->
@@ -2453,6 +2494,15 @@ function initApp() {
   setEl('bnrTitle', titleText);
   setEl('bnrDate', `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`);
   setEl('pfAv', init); document.getElementById('pfAv').style.background = _avBg;
+  // 创始人专属黄金旋转光环（仅 jiashuo & yixin）
+  const _pfAvWrap = document.getElementById('pfAvWrap');
+  if (_pfAvWrap) {
+    if (CU === 'jiashuo' || CU === 'yixin') {
+      _pfAvWrap.classList.add('founder-halo');
+    } else {
+      _pfAvWrap.classList.remove('founder-halo');
+    }
+  }
   // 黑卡风格：英文小字在上（全大写宽间距），中文大字在下（细体）
   const _pfEnName = document.getElementById('pfEnName');
   const _pfCnName = document.getElementById('pfCnName');
