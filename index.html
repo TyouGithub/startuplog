@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-025';
+  var VER = '20260314-026';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -503,6 +503,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .form-label{font-size:11px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;display:block}
 .form-group{margin-bottom:8px;overflow:visible}
+
+/* ── 自定义日期选择器 ── */
+.date-input-btn{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:11px;font-size:14px;font-family:inherit;outline:none;background:var(--card2);color:var(--text);cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;transition:all .2s;box-sizing:border-box}
+.date-input-btn.has-value{color:var(--text)}
+.date-input-btn:not(.has-value){color:var(--hint)}
+.date-input-btn.active{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(22,119,255,.07)}
+.date-input-btn .cal-icon{font-size:15px;opacity:.5}
+/* 日期弹出面板 —— 固定在视口底部，z-index 高于一切 */
+.date-picker-overlay{display:none;position:fixed;inset:0;z-index:3000;align-items:flex-end}
+.date-picker-overlay.show{display:flex}
+.date-picker-overlay .dp-bg{position:absolute;inset:0;background:rgba(15,23,42,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.date-picker-panel{position:relative;z-index:1;background:rgba(255,255,255,0.96);backdrop-filter:blur(32px) saturate(200%);-webkit-backdrop-filter:blur(32px) saturate(200%);border-radius:24px 24px 0 0;width:100%;padding:0 0 36px;border-top:1px solid rgba(255,255,255,.8)}
+.dp-toolbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 10px;border-bottom:1px solid rgba(0,0,0,.06)}
+.dp-toolbar-title{font-size:15px;font-weight:700;color:var(--text)}
+.dp-toolbar-btn{font-size:14px;font-weight:700;padding:6px 14px;border:none;background:none;cursor:pointer;font-family:inherit;border-radius:10px}
+.dp-toolbar-btn.cancel{color:var(--hint)}
+.dp-toolbar-btn.confirm{color:var(--blue)}
+/* 三列滚轮容器 */
+.dp-wheels{display:flex;gap:0;overflow:hidden;height:216px;position:relative}
+.dp-wheels::before,.dp-wheels::after{content:'';position:absolute;left:0;right:0;height:72px;pointer-events:none;z-index:2}
+.dp-wheels::before{top:0;background:linear-gradient(to bottom,rgba(255,255,255,.95),rgba(255,255,255,0))}
+.dp-wheels::after{bottom:0;background:linear-gradient(to top,rgba(255,255,255,.95),rgba(255,255,255,0))}
+/* 选中高亮条 */
+.dp-selector{position:absolute;top:50%;left:10px;right:10px;height:44px;margin-top:-22px;background:rgba(0,0,0,.04);border-radius:11px;pointer-events:none;z-index:1}
+.dp-col{flex:1;overflow-y:auto;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative;z-index:0}
+.dp-col::-webkit-scrollbar{display:none}
+.dp-col-item{height:44px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:500;color:var(--sub);scroll-snap-align:center;transition:color .15s,font-weight .15s;cursor:pointer;user-select:none;-webkit-user-select:none}
+.dp-col-item.selected{color:var(--text);font-weight:700}
+/* 上下留白让首尾也能居中 */
+.dp-col::before,.dp-col::after{content:'';display:block;height:86px;flex-shrink:0}
+
 .save-btn{width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:14px;letter-spacing:.2px;box-shadow:0 3px 12px rgba(22,119,255,.25);transition:all .15s}
 .save-btn:active{transform:scale(.98);opacity:.9}
 .cancel-link{display:block;text-align:center;font-size:13px;color:var(--hint);cursor:pointer;margin-top:10px;padding:6px}
@@ -953,7 +984,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       <div class="frow"><label>状态</label>
         <select id="f-t-status"><option value="todo">待处理</option><option value="doing">进行中</option><option value="done">已完成</option></select>
       </div>
-      <div class="frow"><label>截止日期（可选）</label><input id="f-t-due" type="date"/></div>
+      <div class="frow"><label>截止日期（可选）</label><button type="button" class="date-input-btn" id="f-t-due" onclick="openDatePicker('f-t-due','任务截止日期',false)"><span id="f-t-due-text">点击选择日期</span><span class="cal-icon">📅</span></button></div>
       <div class="frow"><label>备注</label>
         <textarea id="f-t-note" placeholder="补充说明..."></textarea>
         <button onclick="aiPolish('f-t-note','task-note')" class="ai-btn" id="ai-f-t-note">✨ AI 整理备注</button>
@@ -1030,7 +1061,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
             <option value="其他">其他</option>
           </select>
         </div>
-        <div class="frow" style="margin:0"><label>日期</label><input id="f-m-date" type="date"/></div>
+        <div class="frow" style="margin:0"><label>日期</label><button type="button" class="date-input-btn" id="f-m-date" onclick="openDatePicker('f-m-date','会议日期',true)"><span id="f-m-date-text">点击选择日期</span><span class="cal-icon">📅</span></button></div>
       </div>
       <div class="frow2">
         <div class="frow" style="margin:0"><label>开始时间</label>
@@ -1249,7 +1280,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div class="stitle" id="incomeModalTitle">记录收入</div>
     <div class="form-group">
       <label class="form-label">日期 *</label>
-      <input class="form-input" id="inc-date" type="date"/>
+      <button type="button" class="date-input-btn has-value" id="inc-date" onclick="openDatePicker('inc-date','收入日期',true)"><span id="inc-date-text">今天</span><span class="cal-icon">📅</span></button>
     </div>
     <div class="form-group">
       <label class="form-label">金额(¥) *</label>
@@ -1389,6 +1420,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <!-- 使用提示 -->
     <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:12px 14px;margin-top:14px;font-size:12px;color:#92400e;line-height:1.7">
       💡 <b>推荐工作流：</b>用 <b>Pic Copilot</b> 一站式搞定（抠图+换背景+翻译）；需要极致抠图精度用 <b>Remove.bg</b>；做整体设计排版用 <b>Canva</b>
+    </div>
+  </div>
+</div>
+
+<!-- ── 自定义日期选择器（固定在视口最顶层，避免被 sheet overflow 遮挡）── -->
+<div class="date-picker-overlay" id="datePickerOverlay">
+  <div class="dp-bg" onclick="dpCancel()"></div>
+  <div class="date-picker-panel">
+    <div class="dp-toolbar">
+      <button class="dp-toolbar-btn cancel" onclick="dpCancel()">取消</button>
+      <div class="dp-toolbar-title" id="dpTitle">选择日期</div>
+      <button class="dp-toolbar-btn confirm" onclick="dpConfirm()">确定</button>
+    </div>
+    <div style="position:relative;padding:0 10px">
+      <div class="dp-selector"></div>
+      <div class="dp-wheels">
+        <div class="dp-col" id="dpYearCol"></div>
+        <div class="dp-col" id="dpMonthCol"></div>
+        <div class="dp-col" id="dpDayCol"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1993,7 +2044,7 @@ function initApp() {
   setEl('bnrDate', `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`);
   setEl('pfAv', init); document.getElementById('pfAv').style.background = u.color;
   setEl('pfNm', u.name); setEl('pfRl', u.role);
-  document.getElementById('f-m-date').value = now.toISOString().split('T')[0];
+  setDateVal('f-m-date', now.toISOString().split('T')[0]);
   renderAll();
   goPage('home');
   // 确保 FAB 初始绑定（首页 → 添加动态）
@@ -2837,7 +2888,7 @@ function editMeeting(id) {
   switchForm('meeting');
   document.getElementById('f-m-title').value      = m.title;
   document.getElementById('f-m-platform').value   = m.platform || '腾讯会议';
-  document.getElementById('f-m-date').value       = m.date || '';
+  setDateVal('f-m-date', m.date || '');
   // 回填时间段到开始/结束选择器
   parseMeetingDurToSelects(m.duration || '');
   // conclusion 可能是旧的字符串格式或新的数组格式
@@ -2927,7 +2978,7 @@ function editTask(id) {
   document.getElementById('f-t-cat').value    = t.cat;
   document.getElementById('f-t-owner').value  = t.owner;
   document.getElementById('f-t-status').value = t.status;
-  document.getElementById('f-t-due').value    = t.due || '';
+  setDateVal('f-t-due', t.due || '');
   document.getElementById('f-t-note').value   = t.note || '';
   document.getElementById('modal').dataset.editTaskId = id;
   document.getElementById('modal').classList.add('show');
@@ -3361,8 +3412,8 @@ function switchForm(type) {
 }
 
 function clearForms() {
-  document.querySelectorAll('.sheet input,.sheet textarea').forEach(e => { if(e.type!=='date'&&e.type!=='file') e.value=''; });
-  document.getElementById('f-m-date').value = new Date().toISOString().split('T')[0];
+  document.querySelectorAll('.sheet input,.sheet textarea').forEach(e => { if(e.type!=='file') e.value=''; });
+  setDateVal('f-m-date', new Date().toISOString().split('T')[0]);
   document.getElementById('f-m-platform').value = '腾讯会议';
   // 清空时间选择器
   const startSel = document.getElementById('f-m-start');
@@ -3370,7 +3421,7 @@ function clearForms() {
   if (startSel) startSel.value = '';
   if (endSel)   endSel.value   = '';
   document.getElementById('f-m-dur').value = '';
-  document.getElementById('f-t-due').value = '';
+  setDateVal('f-t-due', '');
   pendingProdImgs = [];
   const preview = document.getElementById('f-p-img-preview');
   if (preview) preview.innerHTML = '';
@@ -3421,11 +3472,11 @@ function saveRecord() {
     const editId = modal.dataset.editTaskId;
     if (editId) {
       const t = s.tasks.find(x => x.id === editId);
-      if (t) { stampNow(t); t.title = title; t.cat = document.getElementById('f-t-cat').value; t.owner = document.getElementById('f-t-owner').value; t.status = document.getElementById('f-t-status').value; t.due = document.getElementById('f-t-due').value || ''; t.note = document.getElementById('f-t-note').value.trim(); }
+      if (t) { stampNow(t); t.title = title; t.cat = document.getElementById('f-t-cat').value; t.owner = document.getElementById('f-t-owner').value; t.status = document.getElementById('f-t-status').value; t.due = getDateVal('f-t-due'); t.note = document.getElementById('f-t-note').value.trim(); }
       addAct('更新了任务「' + title + '」', 'o');
       toast('任务已更新 ✓');
     } else {
-      s.tasks.unshift(stampNow({ id:'t'+Date.now(), title, cat:document.getElementById('f-t-cat').value, owner:document.getElementById('f-t-owner').value, status:document.getElementById('f-t-status').value, due:document.getElementById('f-t-due').value||'', note:document.getElementById('f-t-note').value.trim(), date:today, by:CU }));
+      s.tasks.unshift(stampNow({ id:'t'+Date.now(), title, cat:document.getElementById('f-t-cat').value, owner:document.getElementById('f-t-owner').value, status:document.getElementById('f-t-status').value, due:getDateVal('f-t-due'), note:document.getElementById('f-t-note').value.trim(), date:today, by:CU }));
       addAct('新增任务「' + title + '」', 'o');
       toast('任务已添加 ✓');
     }
@@ -3467,7 +3518,7 @@ function saveRecord() {
     const topics      = _getListValues('topics-list');
     const conclusions = _getListValues('conclusion-list');
     const dur = document.getElementById('f-m-dur').value.trim() || '-';
-    const mDate = document.getElementById('f-m-date').value || today;
+    const mDate = getDateVal('f-m-date') || today;
     const editId = modal.dataset.editMeetingId;
     if (editId) {
       const m = s.meetings.find(x => x.id === editId);
@@ -3866,7 +3917,7 @@ function calcIncomeFee() {
 
 function openAddIncome() {
   const today = new Date().toISOString().split('T')[0];
-  document.getElementById('inc-date').value   = today;
+  setDateVal('inc-date', today);
   document.getElementById('inc-amount').value = '';
   document.getElementById('inc-fee').value    = '';
   document.getElementById('inc-net').value    = '';
@@ -3880,7 +3931,7 @@ function closeIncomeModal() {
 
 function saveIncome() {
   const amount = parseFloat(document.getElementById('inc-amount').value);
-  const date   = document.getElementById('inc-date').value;
+  const date   = getDateVal('inc-date');
   if (!date || isNaN(amount) || amount <= 0) { toast('请填写日期和金额'); return; }
   const fee = Math.round(amount * 0.02 * 100) / 100;
   const net = Math.round((amount - fee) * 100) / 100;
@@ -4041,6 +4092,161 @@ function closeImgGen() {
 }
 function openToolUrl(url) {
   window.open(url, '_blank');
+}
+
+// ══════════════════════════════════════════════
+//  自定义日期选择器（替代 iOS Safari type=date 弹窗被遮挡问题）
+//  用法：openDatePicker(fieldId, title, required)
+//  值存在 el.dataset.dateValue = 'YYYY-MM-DD'
+//  读值：getDateVal(fieldId) → 'YYYY-MM-DD' or ''
+// ══════════════════════════════════════════════
+let _dpTargetId = null;
+let _dpRequired = false;
+const _dpYears  = [];
+const _dpMonths = Array.from({length:12}, (_,i) => String(i+1).padStart(2,'0'));
+
+(function initDPYears() {
+  const cur = new Date().getFullYear();
+  for (let y = cur - 3; y <= cur + 2; y++) _dpYears.push(String(y));
+})();
+
+function _dpDaysInMonth(y, m) {
+  return new Date(parseInt(y), parseInt(m), 0).getDate();
+}
+
+function _dpPopulateCol(colId, items, selectedVal) {
+  const col = document.getElementById(colId);
+  col.innerHTML = '';
+  items.forEach(val => {
+    const div = document.createElement('div');
+    div.className = 'dp-col-item' + (val === selectedVal ? ' selected' : '');
+    div.textContent = val;
+    div.dataset.val = val;
+    col.appendChild(div);
+  });
+}
+
+function _dpGetSelected(colId) {
+  const col = document.getElementById(colId);
+  const sel = col.querySelector('.selected');
+  return sel ? sel.dataset.val : col.querySelector('.dp-col-item')?.dataset.val || '';
+}
+
+function _dpScrollToSelected(colId) {
+  const col = document.getElementById(colId);
+  const sel = col.querySelector('.selected');
+  if (sel) {
+    // 86px 是 ::before 上边距
+    col.scrollTop = sel.offsetTop - 86;
+  }
+}
+
+function _dpOnScroll(colId) {
+  const col = document.getElementById(colId);
+  const itemH = 44;
+  const topPad = 86;
+  const idx = Math.round((col.scrollTop) / itemH);
+  const items = col.querySelectorAll('.dp-col-item');
+  items.forEach((it, i) => it.classList.toggle('selected', i === idx));
+  // 如果是年或月列，重新生成天数
+  if (colId === 'dpYearCol' || colId === 'dpMonthCol') {
+    const y = _dpGetSelected('dpYearCol');
+    const m = _dpGetSelected('dpMonthCol');
+    const curDay = _dpGetSelected('dpDayCol');
+    const days = _dpDaysInMonth(y, m);
+    const dayArr = Array.from({length:days}, (_,i) => String(i+1).padStart(2,'0'));
+    const clampDay = dayArr.includes(curDay) ? curDay : dayArr[dayArr.length-1];
+    _dpPopulateCol('dpDayCol', dayArr, clampDay);
+    setTimeout(() => _dpScrollToSelected('dpDayCol'), 0);
+  }
+}
+
+function openDatePicker(fieldId, title, required) {
+  _dpTargetId = fieldId;
+  _dpRequired = !!required;
+  document.getElementById('dpTitle').textContent = title || '选择日期';
+
+  // 读取当前值
+  const el = document.getElementById(fieldId);
+  let cur = (el.dataset.dateValue || new Date().toISOString().split('T')[0]);
+  const [cy, cm, cd] = cur.split('-');
+  const y  = _dpYears.includes(cy)  ? cy  : _dpYears[3];
+  const m  = _dpMonths.includes(cm) ? cm  : _dpMonths[new Date().getMonth()];
+  const days = Array.from({length: _dpDaysInMonth(y, m)}, (_,i) => String(i+1).padStart(2,'0'));
+  const d  = days.includes(cd) ? cd : days[new Date().getDate()-1] || days[0];
+
+  _dpPopulateCol('dpYearCol',  _dpYears,  y);
+  _dpPopulateCol('dpMonthCol', _dpMonths, m);
+  _dpPopulateCol('dpDayCol',   days,      d);
+
+  // 绑定滚动事件（每次打开重新绑）
+  ['dpYearCol','dpMonthCol','dpDayCol'].forEach(id => {
+    const col = document.getElementById(id);
+    col.onscroll = null;
+    let t;
+    col.addEventListener('scroll', () => {
+      clearTimeout(t);
+      t = setTimeout(() => _dpOnScroll(id), 80);
+    }, {passive:true});
+  });
+
+  document.getElementById('datePickerOverlay').classList.add('show');
+  // 滚动到选中项
+  requestAnimationFrame(() => {
+    ['dpYearCol','dpMonthCol','dpDayCol'].forEach(_dpScrollToSelected);
+  });
+}
+
+function dpCancel() {
+  document.getElementById('datePickerOverlay').classList.remove('show');
+}
+
+function dpConfirm() {
+  const y = _dpGetSelected('dpYearCol');
+  const m = _dpGetSelected('dpMonthCol');
+  const d = _dpGetSelected('dpDayCol');
+  const val = `${y}-${m}-${d}`;
+  // 把值写入按钮
+  const el = document.getElementById(_dpTargetId);
+  if (el) {
+    el.dataset.dateValue = val;
+    const txt = document.getElementById(_dpTargetId + '-text');
+    if (txt) txt.textContent = `${parseInt(y)}年${parseInt(m)}月${parseInt(d)}日`;
+    el.classList.add('has-value');
+    el.classList.add('active');
+    setTimeout(() => el.classList.remove('active'), 400);
+  }
+  document.getElementById('datePickerOverlay').classList.remove('show');
+}
+
+// 统一读取日期值（兼容 button.dataset.dateValue 和旧 input.value）
+function getDateVal(fieldId) {
+  const el = document.getElementById(fieldId);
+  if (!el) return '';
+  return el.dataset.dateValue || el.value || '';
+}
+
+// 统一设置日期值（同时更新显示文字）
+function setDateVal(fieldId, val) {
+  const el = document.getElementById(fieldId);
+  if (!el) return;
+  if (el.tagName === 'BUTTON') {
+    el.dataset.dateValue = val || '';
+    const txt = document.getElementById(fieldId + '-text');
+    if (txt) {
+      if (val) {
+        const [y,m,d] = val.split('-');
+        txt.textContent = `${parseInt(y)}年${parseInt(m)}月${parseInt(d)}日`;
+        el.classList.add('has-value');
+      } else {
+        txt.textContent = '点击选择日期';
+        el.classList.remove('has-value');
+        el.dataset.dateValue = '';
+      }
+    }
+  } else {
+    el.value = val || '';
+  }
 }
 
 // ══════════════════════════════════════════════
