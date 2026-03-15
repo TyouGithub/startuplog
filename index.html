@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-030';
+  var VER = '20260314-031';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -289,24 +289,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .ac2actions{display:flex;gap:6px;margin-top:4px}
 
 /* ── PROFILE ── */
-.pf-card{background:linear-gradient(145deg,#09090f 0%,#0f1628 45%,#131026 75%,#0a0814 100%);border-radius:var(--r-lg);padding:0;margin-bottom:12px;color:#fff;position:relative;overflow:hidden;border:1px solid rgba(212,160,23,0.25);box-shadow:0 0 0 1px rgba(255,255,255,0.04),0 12px 48px rgba(0,0,0,0.6)}
-.pf-card::before{content:'';position:absolute;top:-80px;right:-80px;width:260px;height:260px;background:radial-gradient(circle,rgba(212,160,23,0.12) 0%,transparent 70%);border-radius:50%;pointer-events:none}
-.pf-card::after{content:'';position:absolute;bottom:-60px;left:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(37,99,235,0.1) 0%,transparent 70%);border-radius:50%;pointer-events:none}
-.pf-card-inner{position:relative;z-index:1;display:flex;align-items:center;gap:18px;padding:24px 20px 20px}
-.pf-av{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;flex-shrink:0;position:relative}
-.pf-av::before{content:'';position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(from 0deg,#d4a017,#fde68a,#b8860b,#ffd700,#d4a017);opacity:.7}
-.pf-av::after{content:'';position:absolute;inset:-5px;border-radius:50%;background:rgba(212,160,23,0.15);filter:blur(6px)}
-.pf-av-inner{position:relative;z-index:1;width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff}
+.pf-card{background:linear-gradient(160deg,#0c0e16 0%,#0f1322 40%,#0d1028 75%,#090b12 100%);border-radius:var(--r-lg);padding:0;margin-bottom:12px;color:#fff;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.07);box-shadow:0 1px 0 rgba(255,255,255,0.05) inset,0 16px 56px rgba(0,0,0,0.7)}
+.pf-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(212,175,55,0.4) 30%,rgba(255,255,255,0.15) 50%,rgba(212,175,55,0.4) 70%,transparent 100%)}
+.pf-card::after{content:'';position:absolute;top:-120px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(212,175,55,0.06) 0%,transparent 65%);border-radius:50%;pointer-events:none}
+.pf-card-inner{position:relative;z-index:1;display:flex;align-items:center;gap:20px;padding:26px 22px 18px}
+.pf-av{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0;position:relative}
+.pf-av::before{content:'';position:absolute;inset:-2px;border-radius:50%;background:linear-gradient(135deg,rgba(212,175,55,0.5),rgba(255,255,255,0.15) 40%,rgba(212,175,55,0.3) 70%,rgba(255,255,255,0.1) 100%)}
+.pf-av-inner{position:relative;z-index:1;width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:rgba(255,255,255,0.9)}
 .pf-info{flex:1;min-width:0}
-.pf-en-name{font-size:22px;font-weight:300;letter-spacing:2px;color:#fff;line-height:1;margin-bottom:2px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
-.pf-en-name strong{font-weight:700;letter-spacing:1px}
-.pf-nm{font-size:14px;font-weight:400;font-family:'Ma Shan Zheng',cursive;letter-spacing:6px;background:linear-gradient(135deg,#fde68a 0%,#d4a017 60%,#b8860b 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.3;margin-bottom:6px}
-.pf-rl{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:rgba(253,230,138,0.85);letter-spacing:1.5px;text-transform:uppercase;background:rgba(212,160,23,0.12);border:1px solid rgba(212,160,23,0.25);border-radius:20px;padding:3px 10px}
-.pf-card-bottom{border-top:1px solid rgba(255,255,255,0.06);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
-.pf-card-bottom-left{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:.3px}
-.pf-founder-badge{display:flex;align-items:center;gap:6px;background:rgba(212,160,23,0.15);border:1px solid rgba(212,160,23,0.3);border-radius:20px;padding:4px 12px}
-.pf-founder-badge-icon{font-size:12px;line-height:1}
-.pf-founder-badge-text{font-size:10px;font-weight:800;color:#fde68a;letter-spacing:1.5px}
+/* 支付宝黑卡风格英文名：超细字重 + 极宽字间距 + 铂金色 */
+.pf-en-name{font-size:11px;font-weight:300;letter-spacing:5px;text-transform:uppercase;color:rgba(212,175,55,0.7);line-height:1;margin-bottom:6px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.pf-cn-name{font-size:28px;font-weight:200;letter-spacing:3px;color:rgba(255,255,255,0.92);line-height:1;margin-bottom:10px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.pf-cn-name em{font-style:normal;font-weight:600;background:linear-gradient(135deg,#fff 0%,#d4af37 50%,#fff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pf-nm{display:none} /* 旧的书法字体隐藏，用新布局替代 */
+.pf-rl{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;color:rgba(212,175,55,0.75);letter-spacing:2.5px;text-transform:uppercase;border-bottom:1px solid rgba(212,175,55,0.2);padding-bottom:2px}
+.pf-card-bottom{border-top:1px solid rgba(255,255,255,0.05);padding:12px 22px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.pf-card-bottom-left{font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:.5px}
+.pf-founder-badge{display:flex;align-items:center;gap:5px;padding:0}
+.pf-founder-badge-icon{font-size:10px;line-height:1;opacity:.7}
+.pf-founder-badge-text{font-size:9px;font-weight:700;color:rgba(212,175,55,0.65);letter-spacing:2px}
+.pf-brand-mark{font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:2px;font-weight:400;text-transform:uppercase}
 
 /* 头部右上角用户区 */
 .hdr-user-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 8px 4px 4px;border-radius:20px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);backdrop-filter:blur(8px);transition:all .2s;-webkit-tap-highlight-color:transparent}
@@ -448,13 +450,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .ga-kpi.white .ga-kpi-val{color:#fff}
 
 /* ── 商品图工具箱入口 ── */
-.imggen-entry{background:linear-gradient(135deg,#1677ff,#7c3aed);border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:opacity .15s;-webkit-tap-highlight-color:transparent}
-.imggen-entry:active{opacity:.88}
+.imggen-entry{background:rgba(18,22,34,0.85);border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .2s;-webkit-tap-highlight-color:transparent;border:1px solid rgba(255,255,255,0.08)}
+.imggen-entry:active{background:rgba(30,36,54,0.95)}
 .imggen-entry-left{display:flex;align-items:center;gap:12px}
-.imggen-entry-icon{font-size:28px;flex-shrink:0}
-.imggen-entry-title{font-size:14px;font-weight:800;color:#fff;letter-spacing:-.2px}
-.imggen-entry-sub{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px}
-.imggen-entry-arrow{font-size:18px;color:rgba(255,255,255,.7);font-weight:700}
+.imggen-entry-icon{font-size:24px;flex-shrink:0;width:42px;height:42px;background:rgba(255,255,255,0.06);border-radius:12px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.08)}
+.imggen-entry-title{font-size:14px;font-weight:700;color:var(--text);letter-spacing:-.2px}
+.imggen-entry-sub{font-size:11px;color:var(--hint);margin-top:2px}
+.imggen-entry-arrow{font-size:14px;color:var(--hint);font-weight:400}
 
 /* ── 工具箱弹窗内容 ── */
 .igtool-main{background:linear-gradient(135deg,#1677ff,#7c3aed);border-radius:16px;padding:16px;margin-bottom:14px;cursor:pointer;position:relative;overflow:hidden;transition:opacity .15s}
@@ -503,6 +505,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .ga-pwd-text{font-family:monospace;font-size:12px;letter-spacing:1px;color:var(--text)}
 .ga-eye-btn{background:none;border:none;color:var(--blue);font-size:12px;cursor:pointer;padding:0;line-height:1;opacity:.7;transition:opacity .15s}
 .ga-eye-btn:active{opacity:1}
+
+/* 游戏账号管理主折叠卡片 */
+.ga-master-card{background:rgba(15,20,32,0.85);border-color:rgba(255,255,255,0.08)}
+.ga-master-hdr{padding:14px 16px;background:rgba(255,255,255,0.02)}
+.ga-master-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:linear-gradient(135deg,rgba(30,41,59,0.9),rgba(49,46,129,0.5));border:1px solid rgba(255,255,255,0.1)}
+.ga-master-title{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.ga-master-sub{font-size:11px;color:var(--hint);margin-top:2px}
+.ga-master-card .coll-body{padding:14px 14px 8px}
 
 /* 游戏分组折叠层（第二层） */
 .ga-game-group{background:rgba(15,20,30,0.7);border-radius:14px;margin-bottom:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.06)}
@@ -844,49 +854,58 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 
   <!-- GAME ACCOUNTS -->
   <div class="pg" id="pg-gameacc">
-    <!-- 英雄区：数据看板 -->
-    <div class="ga-hero">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div class="ga-hero-title" style="margin-bottom:0">🎮 游戏账号管理</div>
-        <button onclick="openPhoneBindDetail()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.2px;font-family:inherit;display:flex;align-items:center;gap:4px;transition:background .15s;-webkit-tap-highlight-color:transparent" onmouseenter="this.style.background='rgba(255,255,255,.25)'" onmouseleave="this.style.background='rgba(255,255,255,.15)'">📱 绑定详情</button>
-      </div>
-      <div class="ga-kpi-grid" id="gameaccDashboard"></div>
-    </div>
-
-    <!-- 状态筛选 -->
-    <div class="fbar" style="margin-bottom:12px">
-      <button class="fbtn on" id="gaf-all"      onclick="filterGameAcc('all')">全部</button>
-      <button class="fbtn"    id="gaf-normal"   onclick="filterGameAcc('normal')">✅ 正常</button>
-      <button class="fbtn"    id="gaf-frozen"   onclick="filterGameAcc('frozen')">⚠️ 冻结</button>
-      <button class="fbtn"    id="gaf-sold"     onclick="filterGameAcc('sold')">🔒 已出售</button>
-      <button class="fbtn"    id="gaf-returned" onclick="filterGameAcc('returned')">❌ 被找回</button>
-    </div>
-
-    <!-- 账号列表（折叠卡片） -->
-    <div class="coll-card">
-      <div class="coll-hdr" onclick="toggleColl('gameaccListCard')">
-        <div class="coll-title">🎮 账号列表</div>
-        <div class="coll-actions">
-          <button class="action-btn-ghost" onclick="event.stopPropagation();openAddGameAcc()">＋ 新增</button>
-          <span class="coll-arrow" id="gameaccListCard-arrow">▼</span>
+    <!-- 游戏账号管理 大折叠卡片 -->
+    <div class="coll-card ga-master-card">
+      <div class="coll-hdr ga-master-hdr" onclick="toggleColl('gameMasterCard')">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="ga-master-icon">🎮</div>
+          <div>
+            <div class="ga-master-title">游戏账号管理</div>
+            <div class="ga-master-sub" id="gaMasterSub1">加载中...</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="action-btn-ghost" onclick="event.stopPropagation();openPhoneBindDetail()" style="padding:4px 10px;font-size:11px">📱 绑定</button>
+          <span class="coll-arrow" id="gameMasterCard-arrow">▼</span>
         </div>
       </div>
-      <div class="coll-body" id="gameaccListCard-body">
-        <div id="gameaccList"></div>
-      </div>
-    </div>
-
-    <!-- 收入记录 -->
-    <div class="coll-card" style="margin-top:4px">
-      <div class="coll-hdr" onclick="toggleColl('incomeCard')">
-        <div class="coll-title">💵 收入记录</div>
-        <div class="coll-actions">
-          <button class="action-btn-ghost" onclick="event.stopPropagation();openAddIncome()">＋ 记录收入</button>
-          <span class="coll-arrow" id="incomeCard-arrow">▼</span>
+      <div class="coll-body" id="gameMasterCard-body">
+        <!-- KPI看板 -->
+        <div class="ga-kpi-grid" id="gameaccDashboard" style="margin-bottom:10px"></div>
+        <!-- 状态筛选 -->
+        <div class="fbar" style="margin-bottom:10px">
+          <button class="fbtn on" id="gaf-all"      onclick="filterGameAcc('all')">全部</button>
+          <button class="fbtn"    id="gaf-normal"   onclick="filterGameAcc('normal')">✅ 正常</button>
+          <button class="fbtn"    id="gaf-frozen"   onclick="filterGameAcc('frozen')">⚠️ 冻结</button>
+          <button class="fbtn"    id="gaf-sold"     onclick="filterGameAcc('sold')">🔒 已出售</button>
+          <button class="fbtn"    id="gaf-returned" onclick="filterGameAcc('returned')">❌ 被找回</button>
         </div>
-      </div>
-      <div class="coll-body" id="incomeCard-body">
-        <div id="incomeList"></div>
+        <!-- 账号列表（第三层折叠） -->
+        <div class="coll-card" style="margin-bottom:8px;background:rgba(255,255,255,0.02)">
+          <div class="coll-hdr" onclick="toggleColl('gameaccListCard')">
+            <div class="coll-title" style="font-size:13px">账号列表</div>
+            <div class="coll-actions">
+              <button class="action-btn-ghost" onclick="event.stopPropagation();openAddGameAcc()">＋ 新增</button>
+              <span class="coll-arrow" id="gameaccListCard-arrow">▼</span>
+            </div>
+          </div>
+          <div class="coll-body" id="gameaccListCard-body">
+            <div id="gameaccList"></div>
+          </div>
+        </div>
+        <!-- 收入记录（第三层折叠） -->
+        <div class="coll-card" style="background:rgba(255,255,255,0.02)">
+          <div class="coll-hdr" onclick="toggleColl('incomeCard')">
+            <div class="coll-title" style="font-size:13px">收入记录</div>
+            <div class="coll-actions">
+              <button class="action-btn-ghost" onclick="event.stopPropagation();openAddIncome()">＋ 记录收入</button>
+              <span class="coll-arrow" id="incomeCard-arrow">▼</span>
+            </div>
+          </div>
+          <div class="coll-body" id="incomeCard-body">
+            <div id="incomeList"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -903,19 +922,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         </div>
         <div class="pf-info">
           <div class="pf-en-name" id="pfEnName"></div>
-          <div class="pf-nm" id="pfNm"></div>
+          <div class="pf-cn-name" id="pfCnName"></div>
           <div class="pf-rl" id="pfRl"></div>
         </div>
-        <div id="pfFounderBadge" style="display:none;flex-shrink:0">
+        <div id="pfFounderBadge" style="display:none;flex-shrink:0;align-self:flex-start;margin-top:2px">
           <div class="pf-founder-badge">
-            <span class="pf-founder-badge-icon">👑</span>
+            <span class="pf-founder-badge-icon">◆</span>
             <span class="pf-founder-badge-text">FOUNDER</span>
           </div>
         </div>
       </div>
       <div class="pf-card-bottom">
         <div class="pf-card-bottom-left" id="pfSubline">与搭档共同创业中 · 云端同步</div>
-        <div style="font-size:10px;color:rgba(212,160,23,0.5);letter-spacing:.5px;font-weight:600">StartupLog</div>
+        <div class="pf-brand-mark">StartupLog</div>
       </div>
     </div>
     <!-- 快捷工具入口 -->
@@ -950,43 +969,57 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       </div>
     </div>
     <!-- 游戏账号（并入我的） -->
-    <div class="ga-hero" style="margin-bottom:8px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div class="ga-hero-title" style="margin-bottom:0">🎮 游戏账号管理</div>
-        <button onclick="openPhoneBindDetail()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.2px;font-family:inherit;display:flex;align-items:center;gap:4px;transition:background .15s;-webkit-tap-highlight-color:transparent">📱 绑定详情</button>
-      </div>
-      <div class="ga-kpi-grid" id="gameaccDashboard2"></div>
-    </div>
-    <!-- 状态筛选 -->
-    <div class="fbar" style="margin-bottom:12px">
-      <button class="fbtn on" id="gaf2-all"      onclick="filterGameAcc2('all')">全部</button>
-      <button class="fbtn"    id="gaf2-normal"   onclick="filterGameAcc2('normal')">✅ 正常</button>
-      <button class="fbtn"    id="gaf2-frozen"   onclick="filterGameAcc2('frozen')">⚠️ 冻结</button>
-      <button class="fbtn"    id="gaf2-sold"     onclick="filterGameAcc2('sold')">🔒 已出售</button>
-      <button class="fbtn"    id="gaf2-returned" onclick="filterGameAcc2('returned')">❌ 被找回</button>
-    </div>
-    <div class="coll-card">
-      <div class="coll-hdr" onclick="toggleColl('gameaccListCard2')">
-        <div class="coll-title">🎮 账号列表</div>
-        <div class="coll-actions">
-          <button class="action-btn-ghost" onclick="event.stopPropagation();openAddGameAcc()">＋ 新增</button>
-          <span class="coll-arrow" id="gameaccListCard2-arrow">▼</span>
+    <div class="coll-card ga-master-card">
+      <div class="coll-hdr ga-master-hdr" onclick="toggleColl('gameMasterCard2')">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="ga-master-icon">🎮</div>
+          <div>
+            <div class="ga-master-title">游戏账号管理</div>
+            <div class="ga-master-sub" id="gaMasterSub2">加载中...</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="action-btn-ghost" onclick="event.stopPropagation();openPhoneBindDetail()" style="padding:4px 10px;font-size:11px">📱 绑定</button>
+          <span class="coll-arrow" id="gameMasterCard2-arrow">▼</span>
         </div>
       </div>
-      <div class="coll-body" id="gameaccListCard2-body">
-        <div id="gameaccList2"></div>
-      </div>
-    </div>
-    <div class="coll-card" style="margin-top:4px">
-      <div class="coll-hdr" onclick="toggleColl('incomeCard2')">
-        <div class="coll-title">💵 收入记录</div>
-        <div class="coll-actions">
-          <button class="action-btn-ghost" onclick="event.stopPropagation();openAddIncome()">＋ 记录收入</button>
-          <span class="coll-arrow" id="incomeCard2-arrow">▼</span>
+      <div class="coll-body" id="gameMasterCard2-body">
+        <!-- KPI看板 -->
+        <div class="ga-kpi-grid" id="gameaccDashboard2" style="margin-bottom:10px"></div>
+        <!-- 状态筛选 -->
+        <div class="fbar" style="margin-bottom:10px">
+          <button class="fbtn on" id="gaf2-all"      onclick="filterGameAcc2('all')">全部</button>
+          <button class="fbtn"    id="gaf2-normal"   onclick="filterGameAcc2('normal')">✅ 正常</button>
+          <button class="fbtn"    id="gaf2-frozen"   onclick="filterGameAcc2('frozen')">⚠️ 冻结</button>
+          <button class="fbtn"    id="gaf2-sold"     onclick="filterGameAcc2('sold')">🔒 已出售</button>
+          <button class="fbtn"    id="gaf2-returned" onclick="filterGameAcc2('returned')">❌ 被找回</button>
         </div>
-      </div>
-      <div class="coll-body" id="incomeCard2-body">
-        <div id="incomeList2"></div>
+        <!-- 账号列表 -->
+        <div class="coll-card" style="margin-bottom:8px;background:rgba(255,255,255,0.02)">
+          <div class="coll-hdr" onclick="toggleColl('gameaccListCard2')">
+            <div class="coll-title" style="font-size:13px">账号列表</div>
+            <div class="coll-actions">
+              <button class="action-btn-ghost" onclick="event.stopPropagation();openAddGameAcc()">＋ 新增</button>
+              <span class="coll-arrow" id="gameaccListCard2-arrow">▼</span>
+            </div>
+          </div>
+          <div class="coll-body" id="gameaccListCard2-body">
+            <div id="gameaccList2"></div>
+          </div>
+        </div>
+        <!-- 收入记录 -->
+        <div class="coll-card" style="background:rgba(255,255,255,0.02)">
+          <div class="coll-hdr" onclick="toggleColl('incomeCard2')">
+            <div class="coll-title" style="font-size:13px">收入记录</div>
+            <div class="coll-actions">
+              <button class="action-btn-ghost" onclick="event.stopPropagation();openAddIncome()">＋ 记录收入</button>
+              <span class="coll-arrow" id="incomeCard2-arrow">▼</span>
+            </div>
+          </div>
+          <div class="coll-body" id="incomeCard2-body">
+            <div id="incomeList2"></div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="coll-card">
@@ -2163,13 +2196,19 @@ function initApp() {
   setEl('bnrTitle', titleText);
   setEl('bnrDate', `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`);
   setEl('pfAv', init); document.getElementById('pfAv').style.background = u.color;
-  // 英文名 + 汉字连笔名
+  // 黑卡风格：英文小字在上（全大写宽间距），中文大字在下（细体）
   const _pfEnName = document.getElementById('pfEnName');
-  const _pfNm = document.getElementById('pfNm');
+  const _pfCnName = document.getElementById('pfCnName');
+  const _pfNm = document.getElementById('pfNm'); // 兼容旧引用
   if (_pfEnName) {
-    if (CU === 'jiashuo') { _pfEnName.innerHTML = 'Zhang <strong>Jiashuo</strong>'; }
-    else if (CU === 'yixin') { _pfEnName.innerHTML = 'Zhu <strong>Yixin</strong>'; }
-    else { _pfEnName.innerHTML = u.name; }
+    if (CU === 'jiashuo') { _pfEnName.textContent = 'ZHANG JIASHUO'; }
+    else if (CU === 'yixin') { _pfEnName.textContent = 'ZHU YIXIN'; }
+    else { _pfEnName.textContent = u.name.toUpperCase(); }
+  }
+  if (_pfCnName) {
+    if (CU === 'jiashuo') { _pfCnName.innerHTML = '张<em>佳硕</em>'; }
+    else if (CU === 'yixin') { _pfCnName.innerHTML = '朱<em>一新</em>'; }
+    else { _pfCnName.textContent = u.name; }
   }
   if (_pfNm) { _pfNm.textContent = CU === 'jiashuo' ? '张佳硕' : CU === 'yixin' ? '朱一新' : u.name; }
   setEl('pfRl', u.role);
@@ -2206,9 +2245,15 @@ function renderAll() {
     if (document.getElementById('pfAv')) document.getElementById('pfAv').style.background = u.color;
     const _pfen = document.getElementById('pfEnName');
     if (_pfen) {
-      if (CU === 'jiashuo') _pfen.innerHTML = 'Zhang <strong>Jiashuo</strong>';
-      else if (CU === 'yixin') _pfen.innerHTML = 'Zhu <strong>Yixin</strong>';
-      else _pfen.textContent = u.name;
+      if (CU === 'jiashuo') _pfen.textContent = 'ZHANG JIASHUO';
+      else if (CU === 'yixin') _pfen.textContent = 'ZHU YIXIN';
+      else _pfen.textContent = u.name.toUpperCase();
+    }
+    const _pfcn = document.getElementById('pfCnName');
+    if (_pfcn) {
+      if (CU === 'jiashuo') _pfcn.innerHTML = '张<em>佳硕</em>';
+      else if (CU === 'yixin') _pfcn.innerHTML = '朱<em>一新</em>';
+      else _pfcn.textContent = u.name;
     }
     const _pfn = document.getElementById('pfNm');
     if (_pfn) _pfn.textContent = CU === 'jiashuo' ? '张佳硕' : CU === 'yixin' ? '朱一新' : u.name;
@@ -2463,9 +2508,29 @@ function renderNewsTicker() {
   ticker.style.display = 'flex';
 
   const iconMap = { g:'✅', b:'📋', o:'⚡', p:'💡', r:'🔴' };
+  const _relTime = (raw) => {
+    // raw 形如 "2026-03-13 09:21" 或 ISO 或空
+    if (!raw) return '';
+    const d = new Date(raw.replace(' ', 'T'));
+    if (isNaN(d)) return '';
+    const now = new Date();
+    const diffMs = now - d;
+    const diffD = Math.floor(diffMs / 86400000);
+    if (diffD === 0) {
+      // 今天，显示 HH:MM
+      return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+    } else if (diffD === 1) {
+      return '昨天';
+    } else if (diffD < 7) {
+      return diffD + '天前';
+    } else {
+      return (d.getMonth()+1) + '/' + d.getDate();
+    }
+  };
   const buildItems = () => acts.map(a => {
     const icon = iconMap[a.type] || '📌';
-    const timeStr = (a.time || (a.createdAt||'').slice(0,16).replace('T',' ') || '').replace(/:\d{2}$/,'');
+    const rawTime = a.time || (a.createdAt||'').slice(0,16).replace('T',' ') || '';
+    const timeStr = _relTime(rawTime);
     return `<span class="news-ticker-item"><span class="ti-icon">${icon}</span>${a.text.slice(0,40).replace(/</g,'&lt;').replace(/>/g,'&gt;')}${a.text.length>40?'…':''}<span class="ti-time">${timeStr}</span></span>`;
   }).join('');
 
@@ -2523,31 +2588,35 @@ function renderHomePulse() {
     {
       icon:'✅', val: taskDoing,
       sub: taskOverdue > 0 ? `⚠️${taskOverdue}逾期` : '进行中',
-      color: taskOverdue > 0 ? '#dc2626' : '#1677ff',
-      bg: taskOverdue > 0 ? '#fef2f2' : '#eff6ff',
+      color: taskOverdue > 0 ? '#f87171' : '#60a5fa',
+      bg: 'rgba(20,26,40,0.9)',
+      border: taskOverdue > 0 ? 'rgba(248,113,113,0.2)' : 'rgba(96,165,250,0.15)',
       onclick:"goPage('tasks')"
     },
     {
       icon:'📋', val: meetings.length, sub:'场会议',
-      color:'#7c3aed', bg:'#f5f3ff',
+      color:'#a78bfa', bg:'rgba(20,26,40,0.9)',
+      border:'rgba(167,139,250,0.15)',
       onclick:"goPage('meetings')"
     },
     {
       icon:'🛒', val: products.filter(p => p.status === '在售').length, sub:'款在售',
-      color:'#16a34a', bg:'#f0fdf4',
+      color:'#4ade80', bg:'rgba(20,26,40,0.9)',
+      border:'rgba(74,222,128,0.15)',
       onclick:"goPage('products')"
     },
     {
       icon:'🎯', val: taskDone, sub:'已完成',
-      color:'#d97706', bg:'#fffbeb',
+      color:'#fbbf24', bg:'rgba(20,26,40,0.9)',
+      border:'rgba(251,191,36,0.15)',
       onclick:"goPage('tasks')"
     },
   ];
   el.innerHTML = items.map(it => `
-    <div onclick="${it.onclick}" style="background:${it.bg};border-radius:12px;padding:10px 8px;cursor:pointer;text-align:center;transition:transform .15s;border:1px solid rgba(0,0,0,0.04)" ontouchstart="this.style.transform='scale(.96)'" ontouchend="this.style.transform=''">
-      <div style="font-size:18px;line-height:1;margin-bottom:4px">${it.icon}</div>
+    <div onclick="${it.onclick}" style="background:${it.bg};border-radius:12px;padding:10px 8px;cursor:pointer;text-align:center;transition:transform .15s;border:1px solid ${it.border}" ontouchstart="this.style.transform='scale(.96)'" ontouchend="this.style.transform=''">
+      <div style="font-size:16px;line-height:1;margin-bottom:4px;opacity:.8">${it.icon}</div>
       <div style="font-size:20px;font-weight:800;color:${it.color};line-height:1;letter-spacing:-.5px">${it.val}</div>
-      <div style="font-size:10px;color:var(--hint);margin-top:3px;font-weight:500;line-height:1.3">${it.sub}</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px;font-weight:500;line-height:1.3">${it.sub}</div>
     </div>`).join('');
 }
 
@@ -3900,7 +3969,22 @@ function filterGameAcc2(f) {
   renderGameAccList2();
 }
 
+function _updateGaMasterSub(subId) {
+  const s = getLocal();
+  const acc = alive(s.gameAccounts);
+  const normal = acc.filter(a => a.status === '正常').length;
+  const frozen = acc.filter(a => a.status === '冻结').length;
+  const el = document.getElementById(subId);
+  if (!el) return;
+  const parts = [];
+  if (normal) parts.push(`${normal} 个正常`);
+  if (frozen) parts.push(`${frozen} 冻结`);
+  if (!parts.length) parts.push(`共 ${acc.length} 个账号`);
+  el.textContent = parts.join(' · ');
+}
+
 function renderGameAccPage() {
+  _updateGaMasterSub('gaMasterSub1');
   renderGameAccDashboard();
   renderGameAccList();
   renderIncomeList();
@@ -3908,6 +3992,7 @@ function renderGameAccPage() {
 
 // 新版：渲染到 profile 页内嵌的游戏账号区（id 带 2 后缀）
 function renderGameAccInProfile() {
+  _updateGaMasterSub('gaMasterSub2');
   renderGameAccDashboard2();
   renderGameAccList2();
   renderIncomeList2();
