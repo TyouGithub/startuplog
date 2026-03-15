@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-031';
+  var VER = '20260314-032';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -291,31 +291,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 /* ── PROFILE ── */
 .pf-card{background:linear-gradient(160deg,#0c0e16 0%,#0f1322 40%,#0d1028 75%,#090b12 100%);border-radius:var(--r-lg);padding:0;margin-bottom:12px;color:#fff;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.07);box-shadow:0 1px 0 rgba(255,255,255,0.05) inset,0 16px 56px rgba(0,0,0,0.7)}
 .pf-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(212,175,55,0.4) 30%,rgba(255,255,255,0.15) 50%,rgba(212,175,55,0.4) 70%,transparent 100%)}
-.pf-card::after{content:'';position:absolute;top:-120px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(212,175,55,0.06) 0%,transparent 65%);border-radius:50%;pointer-events:none}
+.pf-card::after{content:'';position:absolute;top:-100px;right:-50px;width:200px;height:200px;background:radial-gradient(circle,rgba(212,175,55,0.07) 0%,transparent 65%);border-radius:50%;pointer-events:none}
 .pf-card-inner{position:relative;z-index:1;display:flex;align-items:center;gap:20px;padding:26px 22px 18px}
-.pf-av{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0;position:relative}
-.pf-av::before{content:'';position:absolute;inset:-2px;border-radius:50%;background:linear-gradient(135deg,rgba(212,175,55,0.5),rgba(255,255,255,0.15) 40%,rgba(212,175,55,0.3) 70%,rgba(255,255,255,0.1) 100%)}
-.pf-av-inner{position:relative;z-index:1;width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:rgba(255,255,255,0.9)}
+/* 精致头像：多层构造（光晕→金圈→底色→首字母） */
+.pf-av{width:64px;height:64px;border-radius:50%;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center}
+.pf-av::after{content:'';position:absolute;inset:-6px;border-radius:50%;background:conic-gradient(from 180deg,rgba(212,175,55,0) 0deg,rgba(212,175,55,0.5) 90deg,rgba(255,255,255,0.3) 180deg,rgba(212,175,55,0.5) 270deg,rgba(212,175,55,0) 360deg);opacity:.5;filter:blur(3px)}
+.pf-av::before{content:'';position:absolute;inset:-2px;border-radius:50%;background:linear-gradient(145deg,rgba(212,175,55,0.7) 0%,rgba(255,255,255,0.2) 35%,rgba(212,175,55,0.4) 65%,rgba(180,150,40,0.8) 100%)}
+.pf-av-inner{position:relative;z-index:1;width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:200;letter-spacing:2px;color:rgba(255,255,255,0.95);font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;text-shadow:0 1px 8px rgba(0,0,0,0.5)}
 .pf-info{flex:1;min-width:0}
-/* 支付宝黑卡风格英文名：超细字重 + 极宽字间距 + 铂金色 */
-.pf-en-name{font-size:11px;font-weight:300;letter-spacing:5px;text-transform:uppercase;color:rgba(212,175,55,0.7);line-height:1;margin-bottom:6px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
-.pf-cn-name{font-size:28px;font-weight:200;letter-spacing:3px;color:rgba(255,255,255,0.92);line-height:1;margin-bottom:10px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
-.pf-cn-name em{font-style:normal;font-weight:600;background:linear-gradient(135deg,#fff 0%,#d4af37 50%,#fff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.pf-nm{display:none} /* 旧的书法字体隐藏，用新布局替代 */
-.pf-rl{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;color:rgba(212,175,55,0.75);letter-spacing:2.5px;text-transform:uppercase;border-bottom:1px solid rgba(212,175,55,0.2);padding-bottom:2px}
-.pf-card-bottom{border-top:1px solid rgba(255,255,255,0.05);padding:12px 22px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
-.pf-card-bottom-left{font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:.5px}
+/* 黑卡风格：全字体统一，粗细一致层次用字号+透明度区分 */
+.pf-en-name{font-size:10px;font-weight:400;letter-spacing:4px;text-transform:uppercase;color:rgba(212,175,55,0.6);line-height:1;margin-bottom:8px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.pf-cn-name{font-size:26px;font-weight:300;letter-spacing:4px;color:rgba(255,255,255,0.88);line-height:1;margin-bottom:10px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.pf-cn-name em{font-style:normal;font-weight:300;background:linear-gradient(135deg,rgba(255,255,255,0.95) 0%,rgba(212,175,55,0.9) 50%,rgba(255,255,255,0.95) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pf-nm{display:none}
+.pf-rl{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:400;color:rgba(212,175,55,0.65);letter-spacing:2.5px;text-transform:uppercase;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.pf-card-bottom{border-top:1px solid rgba(255,255,255,0.05);padding:11px 22px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.pf-card-bottom-left{font-size:10px;color:rgba(255,255,255,0.25);letter-spacing:.5px;font-weight:400;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
 .pf-founder-badge{display:flex;align-items:center;gap:5px;padding:0}
-.pf-founder-badge-icon{font-size:10px;line-height:1;opacity:.7}
-.pf-founder-badge-text{font-size:9px;font-weight:700;color:rgba(212,175,55,0.65);letter-spacing:2px}
-.pf-brand-mark{font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:2px;font-weight:400;text-transform:uppercase}
+.pf-founder-badge-icon{font-size:9px;line-height:1;color:rgba(212,175,55,0.6)}
+.pf-founder-badge-text{font-size:9px;font-weight:400;color:rgba(212,175,55,0.6);letter-spacing:2.5px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.pf-brand-mark{font-size:9px;color:rgba(255,255,255,0.18);letter-spacing:2px;font-weight:400;text-transform:uppercase;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
 
 /* 头部右上角用户区 */
-.hdr-user-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 8px 4px 4px;border-radius:20px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);backdrop-filter:blur(8px);transition:all .2s;-webkit-tap-highlight-color:transparent}
-.hdr-user-wrap:active{background:rgba(255,255,255,0.1)}
-.hdr-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;box-shadow:0 0 0 2px rgba(212,160,23,0.4),0 0 8px rgba(212,160,23,0.2);flex-shrink:0}
-.hdr-nm{font-size:12px;color:#e2e8f0;font-weight:600;letter-spacing:.3px;max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hdr-nm-sub{font-size:9.5px;color:var(--hint);font-weight:500;letter-spacing:.2px;line-height:1;margin-top:1px}
+.hdr-user-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 10px 3px 3px;border-radius:20px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);backdrop-filter:blur(8px);transition:all .2s;-webkit-tap-highlight-color:transparent}
+.hdr-user-wrap:active{background:rgba(255,255,255,0.08)}
+.hdr-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:300;letter-spacing:1px;color:rgba(255,255,255,0.92);flex-shrink:0;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;position:relative;box-shadow:0 0 0 1.5px rgba(212,175,55,0.45),0 0 10px rgba(212,175,55,0.15)}
+.hdr-nm{font-size:12px;color:rgba(255,255,255,0.75);font-weight:400;letter-spacing:.5px;max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.hdr-nm-sub{font-size:9.5px;color:var(--hint);font-weight:400;letter-spacing:.2px;line-height:1;margin-top:1px}
 
 /* 快捷工具入口 */
 .shortcut-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
@@ -678,12 +680,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <div class="hdr-date" id="hdrDate"></div>
       </div>
       <div class="hdr-right">
-        <span class="sync-icon" id="syncIcon" onclick="syncNow()" title="手动同步">☁️</span>
+        <span class="sync-icon" id="syncIcon" onclick="syncNow()" title="手动同步" style="display:none">☁️</span>
         <div class="hdr-user-wrap" onclick="goPage('profile')">
           <div class="hdr-av" id="hdrAv"></div>
           <div style="display:flex;flex-direction:column;line-height:1">
             <div class="hdr-nm" id="hdrNm"></div>
-            <div class="hdr-nm-sub" id="hdrNmSub"></div>
+            <div class="hdr-nm-sub" id="hdrNmSub" style="display:none"></div>
           </div>
         </div>
       </div>
@@ -933,7 +935,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         </div>
       </div>
       <div class="pf-card-bottom">
-        <div class="pf-card-bottom-left" id="pfSubline">与搭档共同创业中 · 云端同步</div>
+        <div class="pf-card-bottom-left" id="pfSubline">与搭档共同创业中</div>
         <div class="pf-brand-mark">StartupLog</div>
       </div>
     </div>
@@ -954,18 +956,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       <div class="shortcut-item" onclick="openModal();switchForm('insight')">
         <span class="shortcut-icon">💡</span>
         <div><div class="shortcut-title">记录心得</div><div class="shortcut-sub">分享创业思考</div></div>
-      </div>
-    </div>
-    <div class="coll-card">
-      <div class="coll-hdr" onclick="toggleColl('accCard')">
-        <div class="coll-title">🔑 平台账号</div>
-        <div class="coll-actions">
-          <span class="action-btn-ghost" onclick="event.stopPropagation();openAddAcc()">+ 添加</span>
-          <span class="coll-arrow" id="accCard-arrow">▼</span>
-        </div>
-      </div>
-      <div class="coll-body" id="accCard-body">
-        <div id="accList"></div>
       </div>
     </div>
     <!-- 游戏账号（并入我的） -->
@@ -1020,6 +1010,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
             <div id="incomeList2"></div>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="coll-card">
+      <div class="coll-hdr" onclick="toggleColl('accCard')">
+        <div class="coll-title">🔑 平台账号</div>
+        <div class="coll-actions">
+          <span class="action-btn-ghost" onclick="event.stopPropagation();openAddAcc()">+ 添加</span>
+          <span class="coll-arrow" id="accCard-arrow">▼</span>
+        </div>
+      </div>
+      <div class="coll-body" id="accCard-body">
+        <div id="accList"></div>
       </div>
     </div>
     <div class="coll-card">
@@ -2220,7 +2222,7 @@ function initApp() {
     ? '创始人 · 掌舵人'
     : isFounder
       ? '联合创始人 · 掌舵人'
-      : '与创始人共同创业中 ☁️ 数据云端同步';
+      : '与创始人共同创业中';
   setDateVal('f-m-date', now.toISOString().split('T')[0]);
   renderAll();
   goPage('home');
@@ -4204,6 +4206,53 @@ function _renderIncomeToEl(elId) {
   }
   const totalAmount = inc.reduce((s, r) => s + r.amount, 0);
   const totalNet    = inc.reduce((s, r) => s + r.net, 0);
+
+  // 按月分组
+  const monthMap = {};
+  inc.forEach(r => {
+    const ym = r.date ? r.date.slice(0, 7) : '未知';
+    if (!monthMap[ym]) monthMap[ym] = [];
+    monthMap[ym].push(r);
+  });
+  const months = Object.keys(monthMap).sort((a, b) => b.localeCompare(a));
+
+  const uid = elId; // 唯一前缀
+  let monthsHtml = months.map((ym, idx) => {
+    const mInc = monthMap[ym];
+    const mAmt = mInc.reduce((s, r) => s + r.amount, 0);
+    const mNet = mInc.reduce((s, r) => s + r.net, 0);
+    const [yr, mo] = ym.split('-');
+    const label = `${yr}年${parseInt(mo)}月`;
+    const bodyId = `${uid}-m-${ym.replace('-','_')}`;
+    // 第一个月默认展开，其余折叠
+    const open = idx === 0;
+    const rows = mInc.map(r => `
+      <div style="display:flex;align-items:center;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.04);gap:8px">
+        <div style="font-size:11px;color:var(--hint);width:70px;flex-shrink:0">${r.date ? r.date.slice(5) : '—'}</div>
+        <div style="flex:1;font-size:12px;color:var(--text);font-weight:500">${r.note||r.game||''}</div>
+        <div style="font-size:12px;color:#60a5fa;font-weight:600;flex-shrink:0">¥${r.amount}</div>
+        <div style="font-size:11px;color:rgba(74,222,128,0.8);flex-shrink:0">→¥${r.net}</div>
+        <button onclick="delIncome('${r.id}')" style="font-size:12px;color:var(--hint);background:none;border:none;cursor:pointer;padding:2px 5px;border-radius:5px;flex-shrink:0;-webkit-tap-highlight-color:transparent" ontouchstart="this.style.color='#f87171'" ontouchend="this.style.color='var(--hint)'">✕</button>
+      </div>`).join('');
+    return `
+    <div style="border-bottom:1px solid rgba(255,255,255,0.05)">
+      <div onclick="(function(b,a){b.style.display=b.style.display==='none'?'block':'none';a.textContent=b.style.display==='none'?'▶':'▼'})(document.getElementById('${bodyId}'),this.querySelector('.inc-m-arrow'))" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="inc-m-arrow" style="font-size:9px;color:var(--hint);width:10px">${open?'▼':'▶'}</span>
+          <span style="font-size:13px;font-weight:500;color:var(--text)">${label}</span>
+          <span style="font-size:10px;color:var(--hint);background:rgba(255,255,255,0.06);padding:2px 7px;border-radius:10px">${mInc.length}笔</span>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <span style="font-size:12px;color:#60a5fa;font-weight:600">¥${mAmt.toLocaleString()}</span>
+          <span style="font-size:11px;color:rgba(74,222,128,0.7)">到手¥${mNet.toFixed(0)}</span>
+        </div>
+      </div>
+      <div id="${bodyId}" style="display:${open?'block':'none'}">
+        ${rows}
+      </div>
+    </div>`;
+  }).join('');
+
   el.innerHTML = `
     <div class="income-summary">
       <div class="income-summary-card">
@@ -4215,28 +4264,8 @@ function _renderIncomeToEl(elId) {
         <div class="income-summary-lab">实际到手</div>
       </div>
     </div>
-    <div class="income-table-wrap">
-      <table class="income-table">
-        <thead>
-          <tr>
-            <th>日期</th>
-            <th>金额</th>
-            <th>手续费</th>
-            <th>到手</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          ${inc.map(r => `
-          <tr>
-            <td class="inc-date">${r.date}</td>
-            <td class="inc-amount">¥${r.amount}</td>
-            <td class="inc-fee">¥${r.fee}</td>
-            <td class="inc-net">¥${r.net}</td>
-            <td><button onclick="delIncome('${r.id}')" style="font-size:13px;color:var(--hint);background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:all .15s" onmouseover="this.style.background='#fee2e2';this.style.color='#dc2626'" onmouseout="this.style.background='none';this.style.color='var(--hint)'">🗑</button></td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
+    <div style="border-radius:10px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
+      ${monthsHtml}
     </div>`;
 }
 
@@ -4690,9 +4719,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     _ptrStartY = e.touches[0].clientY;
     _ptrTriggered = false;
   }, { passive: true });
+  let _ptrHideTimer = null;
+  const _ptrHide = () => {
+    if (_ptrHideTimer) clearTimeout(_ptrHideTimer);
+    _ptrTip.classList.remove('visible');
+  };
   document.addEventListener('touchmove', e => {
-    if (window.scrollY > 0) return; // 只在顶部才触发
+    if (window.scrollY > 0) { _ptrHide(); return; }
     const dy = e.touches[0].clientY - _ptrStartY;
+    if (_ptrHideTimer) clearTimeout(_ptrHideTimer);
     if (dy > 55 && !_ptrTriggered) {
       _ptrTip.textContent = '☁️ 松开即可同步';
       _ptrTip.classList.add('visible');
@@ -4700,14 +4735,16 @@ window.addEventListener('DOMContentLoaded', async () => {
       _ptrTip.textContent = '↓ 下拉同步';
       _ptrTip.classList.add('visible');
     } else {
-      _ptrTip.classList.remove('visible');
+      _ptrHide();
     }
   }, { passive: true });
   document.addEventListener('touchend', e => {
     const dy = e.changedTouches[0].clientY - _ptrStartY;
-    _ptrTip.classList.remove('visible');
+    _ptrHide();
     if (dy > 55 && window.scrollY === 0 && !_ptrTriggered) {
       _ptrTriggered = true;
+      // 触发同步后2秒自动消失（syncNow内部会setSyncBar）
+      _ptrHideTimer = setTimeout(_ptrHide, 100);
       syncNow();
     }
   }, { passive: true });
