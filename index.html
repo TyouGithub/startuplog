@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-032';
+  var VER = '20260314-033';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -137,7 +137,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .hdr-brand{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
 .hdr-date{font-size:11px;color:var(--hint);margin-top:1px}
 .hdr-right{display:flex;align-items:center;gap:10px}
-.sync-icon{font-size:20px;cursor:pointer;opacity:.85;transition:transform .3s,opacity .2s;display:inline-block;line-height:1}
+.sync-icon{font-size:20px;cursor:pointer;opacity:.85;transition:transform .3s,opacity .2s;display:inline-block;line-height:1;width:20px;height:20px;display:flex;align-items:center;justify-content:center}
+.sync-icon.spinning .spin-svg{animation:spinIcon .8s linear infinite;transform-origin:center}
+.sync-icon.ok svg,.sync-icon.error svg{display:block}
 .sync-icon.spinning{animation:spinIcon .8s linear infinite}
 .sync-icon.ok{color:var(--green)}
 .sync-icon.error{color:var(--red)}
@@ -718,13 +720,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       </div>
     </div>
 
-    <!-- 数据脉搏（4个小方块） -->
-    <div id="homePulse" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px"></div>
+    <!-- 数据脉搏（可自定义widget） -->
+    <div id="homePulse" style="margin-bottom:10px"></div>
 
     <!-- 进行中任务 -->
     <div class="coll-card">
       <div class="coll-hdr" onclick="toggleColl('homeTasksCard')">
-        <div class="coll-title">🔥 进行中任务</div>
+        <div class="coll-title">进行中任务</div>
         <div class="coll-actions">
           <span class="cm" onclick="event.stopPropagation();goPage('tasks')">全部 →</span>
           <span class="coll-arrow" id="homeTasksCard-arrow">▼</span>
@@ -790,7 +792,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
   <!-- MEETINGS 独立页 -->
   <div class="pg" id="pg-meetings">
     <div class="page-hdr">
-      <div class="page-hdr-title">📋 会议记录</div>
+      <div class="page-hdr-title">会议记录</div>
     </div>
     <div id="meetingList"></div>
   </div>
@@ -798,7 +800,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
   <!-- PRODUCTS -->
   <div class="pg" id="pg-products">
     <div class="page-hdr">
-      <div class="page-hdr-title">🛒 选品库</div>
+      <div class="page-hdr-title">选品库</div>
     </div>
     <!-- 商品图工具箱入口 -->
     <div class="imggen-entry" onclick="openImgGen()">
@@ -1014,7 +1016,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     </div>
     <div class="coll-card">
       <div class="coll-hdr" onclick="toggleColl('accCard')">
-        <div class="coll-title">🔑 平台账号</div>
+        <div class="coll-title">平台账号</div>
         <div class="coll-actions">
           <span class="action-btn-ghost" onclick="event.stopPropagation();openAddAcc()">+ 添加</span>
           <span class="coll-arrow" id="accCard-arrow">▼</span>
@@ -1026,7 +1028,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     </div>
     <div class="coll-card">
       <div class="coll-hdr" onclick="toggleColl('roadmapCard')">
-        <div class="coll-title">🌏 创业路线</div>
+        <div class="coll-title">创业路线</div>
         <div class="coll-actions">
           <span class="cm" onclick="event.stopPropagation();openRoadmapEdit()">编辑</span>
           <span class="coll-arrow" id="roadmapCard-arrow">▼</span>
@@ -1038,9 +1040,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     </div>
     <div class="coll-card">
       <div class="coll-hdr" onclick="toggleColl('insightCard')">
-        <div class="coll-title">💡 全团队心得</div>
+        <div class="coll-title">全团队心得</div>
         <div class="coll-actions">
-          <span class="cm" onclick="event.stopPropagation();openModal();switchForm('insight')">+ 添加</span>
+          <button class="action-btn-ghost" onclick="event.stopPropagation();openModal();switchForm('insight')">＋ 添加</button>
           <span class="coll-arrow" id="insightCard-arrow">▼</span>
         </div>
       </div>
@@ -1195,20 +1197,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
         <button onclick="aiPolish('f-m-title','meeting-title')" class="ai-btn" id="ai-f-m-title">✨ AI 整理主题</button>
       </div>
       <div class="frow2">
-        <div class="frow" style="margin:0"><label>平台</label>
-          <select id="f-m-platform">
-            <option value="腾讯会议">腾讯会议</option>
-            <option value="腾讯视频">腾讯视频</option>
-            <option value="微信">微信</option>
-            <option value="Zoom">Zoom</option>
-            <option value="飞书">飞书</option>
-            <option value="线下">线下面谈</option>
-            <option value="电话">电话</option>
-            <option value="其他">其他</option>
+        <div class="frow" style="margin:0"><label>日期</label><button type="button" class="date-input-btn" id="f-m-date" onclick="openDatePicker('f-m-date','会议日期',true)"><span id="f-m-date-text">点击选择日期</span><span class="cal-icon">📅</span></button></div>
+        <div class="frow" style="margin:0"><label>状态</label>
+          <select id="f-m-status">
+            <option value="pending">待开</option>
+            <option value="done">已完成</option>
           </select>
         </div>
-        <div class="frow" style="margin:0"><label>日期</label><button type="button" class="date-input-btn" id="f-m-date" onclick="openDatePicker('f-m-date','会议日期',true)"><span id="f-m-date-text">点击选择日期</span><span class="cal-icon">📅</span></button></div>
       </div>
+      <div class="frow"><label>会议链接</label><input id="f-m-link" placeholder="腾讯会议链接（可选）..."/></div>
       <div class="frow2">
         <div class="frow" style="margin:0"><label>开始时间</label>
           <select id="f-m-start" onchange="updateMeetingDur()">
@@ -1774,8 +1771,8 @@ function defaultData() {
   const today = new Date().toISOString().split('T')[0];
   return {
     users: {
-      jiashuo: { name:'佳硕', role:'创始人 & CEO', pwd:'5201314', color:'#1677ff' },
-      yixin:   { name:'一新', role:'联合创始人 & 掌舵人', pwd:'5201314', color:'#7c3aed' }
+      jiashuo: { name:'佳硕', role:'创始人 & CEO', pwd:'5201314', color:'#1a1f2e' },
+      yixin:   { name:'一新', role:'联合创始人 & 掌舵人', pwd:'5201314', color:'#141820' }
     },
     roadmap: [
       { id:'r1', dot:'g', label:'当前重点', text:'TEMU 跨境电商 · 羽毛球手胶' },
@@ -2018,22 +2015,22 @@ function setSyncBar(state) {
   bar.className = 'sync-bar ' + state;
   icon.className = 'sync-icon';
   if (state === 'syncing') {
-    icon.textContent = '🔄';
+    icon.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" class="spin-svg"><path d="M9 2a7 7 0 0 1 7 7" stroke="rgba(96,165,250,0.8)" stroke-width="1.8" stroke-linecap="round"/><path d="M9 16a7 7 0 0 1-7-7" stroke="rgba(96,165,250,0.3)" stroke-width="1.8" stroke-linecap="round"/></svg>';
     icon.classList.add('spinning');
   } else if (state === 'ok') {
-    icon.textContent = '✅';
+    icon.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" stroke="rgba(74,222,128,0.7)" stroke-width="1.5" fill="none"/><path d="M5.5 9l2.5 2.5 4.5-5" stroke="#4ade80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     icon.classList.add('ok');
     setTimeout(() => {
       bar.className = 'sync-bar';
-      icon.textContent = '☁️';
+      icon.innerHTML = '';
       icon.className = 'sync-icon';
     }, 2000);
   } else if (state === 'error') {
-    icon.textContent = '❌';
+    icon.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" stroke="rgba(248,113,113,0.7)" stroke-width="1.5" fill="none"/><path d="M6 6l6 6M12 6l-6 6" stroke="#f87171" stroke-width="1.8" stroke-linecap="round"/></svg>';
     icon.classList.add('error');
     setTimeout(() => {
       bar.className = 'sync-bar';
-      icon.textContent = '☁️';
+      icon.innerHTML = '';
       icon.className = 'sync-icon';
     }, 3000);
   }
@@ -2180,7 +2177,10 @@ function changePwd() {
 function initApp() {
   const s = getLocal(), u = s.users[CU];
   const init = u.name.charAt(0);
-  setEl('hdrAv', init); document.getElementById('hdrAv').style.background = u.color;
+  const _avBg = CU === 'jiashuo'
+    ? 'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)'
+    : 'linear-gradient(145deg,#141820 0%,#0c101a 60%,#141825 100%)';
+  setEl('hdrAv', init); document.getElementById('hdrAv').style.background = _avBg;
   setEl('hdrNm', u.name);
   // 右上角职位小标签（简洁）
   const _hdrSub = document.getElementById('hdrNmSub');
@@ -2197,7 +2197,7 @@ function initApp() {
     : `${greeting}，${u.name} 👋`;
   setEl('bnrTitle', titleText);
   setEl('bnrDate', `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`);
-  setEl('pfAv', init); document.getElementById('pfAv').style.background = u.color;
+  setEl('pfAv', init); document.getElementById('pfAv').style.background = _avBg;
   // 黑卡风格：英文小字在上（全大写宽间距），中文大字在下（细体）
   const _pfEnName = document.getElementById('pfEnName');
   const _pfCnName = document.getElementById('pfCnName');
@@ -2239,12 +2239,15 @@ function renderAll() {
   if (CU && s.users[CU]) {
     const u = s.users[CU];
     setEl('hdrAv', u.name.charAt(0));
-    document.getElementById('hdrAv').style.background = u.color;
+    const _rAvBg = (CU === 'jiashuo')
+      ? 'linear-gradient(145deg,#1a1f2e 0%,#0f1322 60%,#1a1f35 100%)'
+      : 'linear-gradient(145deg,#141820 0%,#0c101a 60%,#141825 100%)';
+    document.getElementById('hdrAv').style.background = _rAvBg;
     setEl('hdrNm', u.name);
     const _sub = document.getElementById('hdrNmSub');
     if (_sub) _sub.textContent = CU === 'jiashuo' ? '👑 创始人' : CU === 'yixin' ? '👑 联创' : u.role;
     setEl('pfAv', u.name.charAt(0));
-    if (document.getElementById('pfAv')) document.getElementById('pfAv').style.background = u.color;
+    if (document.getElementById('pfAv')) document.getElementById('pfAv').style.background = _rAvBg;
     const _pfen = document.getElementById('pfEnName');
     if (_pfen) {
       if (CU === 'jiashuo') _pfen.textContent = 'ZHANG JIASHUO';
@@ -2501,33 +2504,28 @@ function renderNewsTicker() {
   const inner  = document.getElementById('newsTickerInner');
   if (!ticker || !inner) return;
 
-  // 收集最新10条动态
+  // 收集最新3条动态
   const acts = alive(s.activities).slice().sort((a,b) =>
     new Date(b.updatedAt||b.createdAt||0) - new Date(a.updatedAt||a.createdAt||0)
-  ).slice(0, 10);
+  ).slice(0, 3);
 
   if (!acts.length) { ticker.style.display = 'none'; return; }
   ticker.style.display = 'flex';
 
-  const iconMap = { g:'✅', b:'📋', o:'⚡', p:'💡', r:'🔴' };
+  const iconMap = { g:'·', b:'·', o:'·', p:'·', r:'·' };
   const _relTime = (raw) => {
-    // raw 形如 "2026-03-13 09:21" 或 ISO 或空
     if (!raw) return '';
     const d = new Date(raw.replace(' ', 'T'));
     if (isNaN(d)) return '';
     const now = new Date();
-    const diffMs = now - d;
-    const diffD = Math.floor(diffMs / 86400000);
-    if (diffD === 0) {
-      // 今天，显示 HH:MM
-      return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
-    } else if (diffD === 1) {
-      return '昨天';
-    } else if (diffD < 7) {
-      return diffD + '天前';
-    } else {
-      return (d.getMonth()+1) + '/' + d.getDate();
-    }
+    // 按日历日期差（非24h）
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const dDay  = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const diffD = Math.round((today - dDay) / 86400000);
+    if (diffD === 0) return '今天';
+    if (diffD === 1) return '昨天';
+    if (diffD === 2) return '前天';
+    return (d.getMonth()+1) + '/' + d.getDate();
   };
   const buildItems = () => acts.map(a => {
     const icon = iconMap[a.type] || '📌';
@@ -2575,51 +2573,95 @@ function renderNewsTicker() {
   });
 }
 
-// ── 首页数据脉搏（4格横排，紧凑版）──
+// ── 首页可自定义 Widget ──
+const WIDGET_DEFS = {
+  task_doing:   (s) => { const n=alive(s.tasks).filter(t=>t.status==='doing').length; const od=alive(s.tasks).filter(t=>t.status!=='done'&&t.due&&t.due<new Date().toISOString().split('T')[0]).length; return {val:n,sub:od>0?`${od}逾期`:'进行中',color:od>0?'#f87171':'#60a5fa',border:od>0?'rgba(248,113,113,0.2)':'rgba(96,165,250,0.15)',onclick:"goPage('tasks')",label:'任务'}; },
+  task_done:    (s) => { const n=alive(s.tasks).filter(t=>t.status==='done').length; return {val:n,sub:'已完成',color:'#fbbf24',border:'rgba(251,191,36,0.15)',onclick:"goPage('tasks')",label:'完成'}; },
+  meeting_all:  (s) => { const n=alive(s.meetings).length; const p=alive(s.meetings).filter(m=>m.status!=='done').length; return {val:p,sub:`${n}场总计`,color:'#a78bfa',border:'rgba(167,139,250,0.15)',onclick:"goPage('meetings')",label:'会议'}; },
+  product_sale: (s) => { const n=alive(s.products).filter(p=>p.status==='在售').length; return {val:n,sub:'款在售',color:'#4ade80',border:'rgba(74,222,128,0.15)',onclick:"goPage('products')",label:'在售'}; },
+  product_all:  (s) => { const n=alive(s.products).length; return {val:n,sub:'款商品',color:'#34d399',border:'rgba(52,211,153,0.15)',onclick:"goPage('products')",label:'选品'}; },
+  income_total: (s) => { const t=alive(s.incomeRecords).reduce((a,r)=>a+r.amount,0); return {val:'¥'+t.toLocaleString(),sub:'累计收入',color:'#fbbf24',border:'rgba(251,191,36,0.15)',onclick:"goPage('profile')",label:'收入'}; },
+  gameacc_cnt:  (s) => { const n=alive(s.gameAccounts).filter(a=>a.status==='正常').length; return {val:n,sub:'个正常账号',color:'#818cf8',border:'rgba(129,140,248,0.15)',onclick:"goPage('gameacc')",label:'账号'}; },
+  task_todo:    (s) => { const n=alive(s.tasks).filter(t=>t.status==='todo').length; return {val:n,sub:'待处理',color:'rgba(255,255,255,0.6)',border:'rgba(255,255,255,0.08)',onclick:"goPage('tasks')",label:'待办'}; },
+};
+const WIDGET_DEFAULT = ['task_doing','meeting_all','product_sale','task_done'];
+const WIDGET_KEY = 'sl_widgets';
+
+function getWidgets() {
+  try { const v = localStorage.getItem(WIDGET_KEY); return v ? JSON.parse(v) : WIDGET_DEFAULT; } catch(e) { return WIDGET_DEFAULT; }
+}
+function setWidgets(arr) { localStorage.setItem(WIDGET_KEY, JSON.stringify(arr)); }
+
+function openWidgetEditor() {
+  const cur = getWidgets();
+  const all = Object.keys(WIDGET_DEFS);
+  const s = getLocal();
+  let html = '<div style="padding:16px 20px"><div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:14px;letter-spacing:.3px">自定义数据卡片</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px">';
+  all.forEach(k => {
+    const def = WIDGET_DEFS[k](s);
+    const on = cur.includes(k);
+    html += `<div onclick="toggleWidget('${k}',this)" data-key="${k}" style="border-radius:10px;padding:10px 12px;cursor:pointer;border:1px solid ${on?def.color.replace(/[^,]+\)$/,'0.5)'):'rgba(255,255,255,0.08)'};background:${on?'rgba(255,255,255,0.07)':'rgba(255,255,255,0.03)'};transition:all .2s;-webkit-tap-highlight-color:transparent">
+      <div style="font-size:18px;font-weight:700;color:${def.color};line-height:1">${def.val}</div>
+      <div style="font-size:11px;font-weight:600;color:var(--text);margin-top:3px">${def.label}</div>
+      <div style="font-size:10px;color:var(--hint);margin-top:1px">${def.sub}</div>
+      ${on?'<div style="font-size:9px;color:'+def.color+';margin-top:4px;font-weight:600">已显示</div>':''}
+    </div>`;
+  });
+  html += '</div><div style="display:flex;gap:8px"><button onclick="document.getElementById(\'widgetModal\').remove()" style="flex:1;padding:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:var(--text);font-size:13px;cursor:pointer">完成</button></div></div>';
+  const overlay = document.createElement('div');
+  overlay.id = 'widgetModal';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:flex;align-items:flex-end';
+  const sheet = document.createElement('div');
+  sheet.style.cssText = 'background:#0f1322;border-radius:20px 20px 0 0;width:100%;max-height:80vh;overflow-y:auto;border-top:1px solid rgba(255,255,255,0.1)';
+  sheet.innerHTML = html;
+  overlay.appendChild(sheet);
+  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+  document.body.appendChild(overlay);
+}
+
+function toggleWidget(key, el) {
+  let cur = getWidgets();
+  if (cur.includes(key)) {
+    cur = cur.filter(k=>k!==key);
+    el.style.background = 'rgba(255,255,255,0.03)';
+    el.style.borderColor = 'rgba(255,255,255,0.08)';
+    const tag = el.querySelector('[style*="已显示"]');
+    if (tag) tag.remove();
+  } else {
+    cur.push(key);
+    const s = getLocal(), def = WIDGET_DEFS[key](s);
+    el.style.background = 'rgba(255,255,255,0.07)';
+    el.style.borderColor = def.color.replace(/[^,]+\)$/,'0.5)');
+    el.innerHTML += `<div style="font-size:9px;color:${def.color};margin-top:4px;font-weight:600">已显示</div>`;
+  }
+  setWidgets(cur);
+  renderHomePulse();
+}
+
 function renderHomePulse() {
   const s = getLocal();
   const el = document.getElementById('homePulse');
   if (!el) return;
-  const todayStr = new Date().toISOString().split('T')[0];
-  const tasks = alive(s.tasks), meetings = alive(s.meetings), products = alive(s.products);
-  const taskDoing   = tasks.filter(t => t.status === 'doing').length;
-  const taskOverdue = tasks.filter(t => t.status !== 'done' && t.due && t.due < todayStr).length;
-  const taskDone    = tasks.filter(t => t.status === 'done').length;
-
-  const items = [
-    {
-      icon:'✅', val: taskDoing,
-      sub: taskOverdue > 0 ? `⚠️${taskOverdue}逾期` : '进行中',
-      color: taskOverdue > 0 ? '#f87171' : '#60a5fa',
-      bg: 'rgba(20,26,40,0.9)',
-      border: taskOverdue > 0 ? 'rgba(248,113,113,0.2)' : 'rgba(96,165,250,0.15)',
-      onclick:"goPage('tasks')"
-    },
-    {
-      icon:'📋', val: meetings.length, sub:'场会议',
-      color:'#a78bfa', bg:'rgba(20,26,40,0.9)',
-      border:'rgba(167,139,250,0.15)',
-      onclick:"goPage('meetings')"
-    },
-    {
-      icon:'🛒', val: products.filter(p => p.status === '在售').length, sub:'款在售',
-      color:'#4ade80', bg:'rgba(20,26,40,0.9)',
-      border:'rgba(74,222,128,0.15)',
-      onclick:"goPage('products')"
-    },
-    {
-      icon:'🎯', val: taskDone, sub:'已完成',
-      color:'#fbbf24', bg:'rgba(20,26,40,0.9)',
-      border:'rgba(251,191,36,0.15)',
-      onclick:"goPage('tasks')"
-    },
-  ];
-  el.innerHTML = items.map(it => `
-    <div onclick="${it.onclick}" style="background:${it.bg};border-radius:12px;padding:10px 8px;cursor:pointer;text-align:center;transition:transform .15s;border:1px solid ${it.border}" ontouchstart="this.style.transform='scale(.96)'" ontouchend="this.style.transform=''">
-      <div style="font-size:16px;line-height:1;margin-bottom:4px;opacity:.8">${it.icon}</div>
-      <div style="font-size:20px;font-weight:800;color:${it.color};line-height:1;letter-spacing:-.5px">${it.val}</div>
-      <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px;font-weight:500;line-height:1.3">${it.sub}</div>
-    </div>`).join('');
+  const keys = getWidgets();
+  if (!keys.length) {
+    el.innerHTML = `<div onclick="openWidgetEditor()" style="text-align:center;padding:14px;color:var(--hint);font-size:12px;cursor:pointer;border:1px dashed rgba(255,255,255,0.1);border-radius:12px">+ 添加数据卡片</div>`;
+    return;
+  }
+  const cols = keys.length <= 2 ? keys.length : keys.length <= 4 ? (keys.length === 3 ? 3 : 4) : keys.length <= 6 ? 3 : 4;
+  let html = `<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:8px">`;
+  keys.forEach(k => {
+    const def = WIDGET_DEFS[k] ? WIDGET_DEFS[k](s) : null;
+    if (!def) return;
+    html += `<div onclick="${def.onclick}" style="background:rgba(14,18,30,0.9);border-radius:12px;padding:11px 8px;cursor:pointer;text-align:center;transition:transform .15s;border:1px solid ${def.border}" ontouchstart="this.style.transform='scale(.96)'" ontouchend="this.style.transform=''">
+      <div style="font-size:18px;font-weight:700;color:${def.color};line-height:1;letter-spacing:-.5px">${def.val}</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.38);margin-top:4px;font-weight:500;line-height:1.3">${def.sub}</div>
+    </div>`;
+  });
+  html += '</div>';
+  // 编辑按钮
+  html += `<div onclick="openWidgetEditor()" style="text-align:right;padding:4px 2px 0;font-size:10px;color:rgba(255,255,255,0.2);cursor:pointer;letter-spacing:.5px">自定义 ›</div>`;
+  el.innerHTML = html;
 }
 
 // ── 首页心得公开展示（所有人可读） ──
@@ -3094,30 +3136,48 @@ function renderHomeMeetings() {
 function meetingHTML(m) {
   const topicsHtml = m.topics && m.topics.length
     ? `<div class="msec-t">议题</div><ul class="blist">${m.topics.map(t=>`<li>${t}</li>`).join('')}</ul>` : '';
-  // 兼容旧字符串 conclusion 和新数组 conclusions
   const concs = Array.isArray(m.conclusions) && m.conclusions.length ? m.conclusions
     : (m.conclusion ? m.conclusion.split('\n').filter(Boolean) : []);
   const conclusionHtml = concs.length
     ? `<div class="msec-t">结论 / 行动项</div><ul class="blist">${concs.map(c=>`<li>${c}</li>`).join('')}</ul>` : '';
-  return `<div class="mcard">
+  const isDone = m.status === 'done';
+  const linkBtn = m.link ? `<a href="${m.link}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#60a5fa;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);border-radius:8px;padding:5px 12px;text-decoration:none;-webkit-tap-highlight-color:transparent">进入会议</a>` : '';
+  const doneBtn = !isDone ? `<button onclick="markMeetingDone('${m.id}')" style="font-size:12px;font-weight:600;color:rgba(74,222,128,0.85);background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.18);border-radius:8px;padding:5px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent">已完成</button>` : '';
+  const statusDot = isDone
+    ? '<span style="width:6px;height:6px;border-radius:50%;background:#4ade80;flex-shrink:0;display:inline-block"></span>'
+    : '<span style="width:6px;height:6px;border-radius:50%;background:#fbbf24;flex-shrink:0;display:inline-block;animation:pulse 2s infinite"></span>';
+  return `<div class="mcard" style="${isDone?'opacity:0.7':''}">
     <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 0;-webkit-tap-highlight-color:transparent" onclick="toggleMeeting('${m.id}')">
-      <div style="flex:1;min-width:0">
-        <div class="mt">${m.title}</div>
-        <div class="mtime">${m.date} · ${m.platform}</div>
+      <div style="flex:1;min-width:0;display:flex;align-items:center;gap:8px">
+        ${statusDot}
+        <div style="flex:1;min-width:0">
+          <div class="mt">${m.title}</div>
+          <div class="mtime">${m.date}${m.duration?' · '+m.duration:''}</div>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:10px">
-        <span class="mdur">${m.duration}</span>
-        <span style="font-size:18px;color:var(--hint);line-height:1;transition:transform .2s" id="marrow-${m.id}">⌄</span>
-      </div>
+      <span style="font-size:16px;color:var(--hint);line-height:1;transition:transform .2s;flex-shrink:0;margin-left:8px" id="marrow-${m.id}">⌄</span>
     </div>
     <div class="m-detail" id="mdetail-${m.id}">
       ${topicsHtml}${conclusionHtml}
-      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px">
+      <div style="display:flex;justify-content:flex-start;gap:8px;margin-top:10px;flex-wrap:wrap">
+        ${linkBtn}
+        ${doneBtn}
         <button class="edit-btn" onclick="editMeeting('${m.id}')">编辑</button>
-        <button class="del-btn" onclick="delMeeting('${m.id}')">🗑 删除</button>
+        <button class="del-btn" onclick="delMeeting('${m.id}')">删除</button>
       </div>
     </div>
   </div>`;
+}
+
+function markMeetingDone(id) {
+  const s = getLocal();
+  const m = s.meetings.find(x => x.id === id);
+  if (!m) return;
+  m.status = 'done';
+  stampNow(m);
+  addAct(`「${m.title}」会议已完成`, 'b');
+  setLocal(s); renderAll(); forcePushAndPull();
+  toast('会议已标记完成');
 }
 
 function toggleMeeting(id) {
@@ -3176,9 +3236,11 @@ function editMeeting(id) {
   const s = getLocal(), m = s.meetings.find(x => x.id === id); if (!m) return;
   switchForm('meeting');
   document.getElementById('f-m-title').value      = m.title;
-  document.getElementById('f-m-platform').value   = m.platform || '腾讯会议';
+  const statusEl = document.getElementById('f-m-status');
+  if (statusEl) statusEl.value = m.status || 'pending';
+  const linkEl = document.getElementById('f-m-link');
+  if (linkEl) linkEl.value = m.link || '';
   setDateVal('f-m-date', m.date || '');
-  // 回填时间段到开始/结束选择器
   parseMeetingDurToSelects(m.duration || '');
   // conclusion 可能是旧的字符串格式或新的数组格式
   const conclusions = Array.isArray(m.conclusions) ? m.conclusions
@@ -3226,17 +3288,49 @@ function taskHTML(t, compact) {
 
 function renderTaskList() {
   const s = getLocal();
-  let list = alive(s.tasks);
-  if (taskFilter !== 'all') list = list.filter(t => t.status === taskFilter);
-  // 按 updatedAt/date 降序，最新在最上面
-  list = list.slice().sort((a, b) => {
-    const ta = new Date(b.updatedAt || b.date || 0).getTime();
-    const tb = new Date(a.updatedAt || a.date || 0).getTime();
-    return ta - tb;
-  });
+  let all = alive(s.tasks);
   const el = document.getElementById('taskList');
-  if (!list.length) { el.innerHTML = '<div class="empty"><div class="ei">📭</div>暂无任务</div>'; return; }
-  el.innerHTML = list.map(t => taskHTML(t, false)).join('');
+  if (!el) return;
+
+  // 分组顺序：doing → todo → done
+  const groups = [
+    { key:'doing', label:'进行中', color:'#60a5fa' },
+    { key:'todo',  label:'待处理', color:'rgba(255,255,255,0.5)' },
+    { key:'done',  label:'已完成', color:'#4ade80' },
+  ];
+
+  // 筛选器影响
+  const filterKeys = taskFilter === 'all' ? groups.map(g=>g.key) : [taskFilter];
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const sortFn = (a, b) => {
+    // 逾期优先（在进行中/待处理内）
+    const aOver = a.due && a.due < todayStr && a.status !== 'done';
+    const bOver = b.due && b.due < todayStr && b.status !== 'done';
+    if (aOver !== bOver) return aOver ? -1 : 1;
+    // 有截止日期的排前面
+    if (a.due && !b.due) return -1;
+    if (!a.due && b.due) return 1;
+    if (a.due && b.due) return a.due.localeCompare(b.due);
+    return new Date(b.updatedAt||b.date||0) - new Date(a.updatedAt||a.date||0);
+  };
+
+  let html = '';
+  let total = 0;
+  filterKeys.forEach(key => {
+    const g = groups.find(x=>x.key===key);
+    const list = all.filter(t=>t.status===key).sort(sortFn);
+    if (!list.length) return;
+    total += list.length;
+    html += `<div style="padding:6px 0 2px;display:flex;align-items:center;gap:6px">
+      <span style="font-size:10px;font-weight:600;color:${g.color};letter-spacing:1px;text-transform:uppercase">${g.label}</span>
+      <span style="font-size:10px;color:var(--hint);background:rgba(255,255,255,0.06);padding:1px 7px;border-radius:10px">${list.length}</span>
+    </div>`;
+    html += list.map(t => taskHTML(t, false)).join('');
+  });
+
+  if (!total) { el.innerHTML = '<div class="empty"><div style="font-size:32px;margin-bottom:8px;opacity:.4">◻</div>暂无任务</div>'; return; }
+  el.innerHTML = html;
 }
 
 function filterTask(f) {
@@ -3450,17 +3544,50 @@ function prodHTML(p) {
 
 function renderProdList() {
   const s = getLocal();
-  let list = alive(s.products);
-  if (prodFilter !== 'all') list = list.filter(p => p.platform === prodFilter);
-  // 按 updatedAt/date 降序，最新在最上面
-  list = list.slice().sort((a, b) => {
-    const ta = new Date(b.updatedAt || b.date || 0).getTime();
-    const tb = new Date(a.updatedAt || a.date || 0).getTime();
-    return ta - tb;
-  });
+  const all = alive(s.products);
   const el = document.getElementById('prodList');
-  if (!list.length) { el.innerHTML = '<div class="empty"><div class="ei">📦</div>暂无选品</div>'; return; }
-  el.innerHTML = list.map(p => prodHTML(p)).join('');
+  if (!el) return;
+
+  // 按平台筛选（原有功能保留）
+  let filtered = prodFilter === 'all' ? all : all.filter(p => p.platform === prodFilter);
+
+  // 按状态分组
+  const groups = [
+    { key:'在售',  label:'在售',  color:'#4ade80' },
+    { key:'备货中',label:'备货中',color:'#fbbf24' },
+    { key:'选品中',label:'选品中',color:'#60a5fa' },
+    { key:'下架',  label:'下架',  color:'rgba(255,255,255,0.3)' },
+  ];
+
+  const byStatus = {};
+  filtered.forEach(p => {
+    const st = p.status || '选品中';
+    if (!byStatus[st]) byStatus[st] = [];
+    byStatus[st].push(p);
+  });
+
+  let html = '';
+  let total = 0;
+  groups.forEach(g => {
+    const list = (byStatus[g.key] || []).slice().sort((a,b) =>
+      new Date(b.updatedAt||b.date||0) - new Date(a.updatedAt||a.date||0)
+    );
+    if (!list.length) return;
+    total += list.length;
+    html += `<div style="padding:6px 0 2px;display:flex;align-items:center;gap:6px">
+      <span style="font-size:10px;font-weight:600;color:${g.color};letter-spacing:1px">${g.label}</span>
+      <span style="font-size:10px;color:var(--hint);background:rgba(255,255,255,0.06);padding:1px 7px;border-radius:10px">${list.length}</span>
+    </div>`;
+    html += list.map(p => prodHTML(p)).join('');
+  });
+
+  // 收集未匹配状态的（兜底）
+  const knownKeys = groups.map(g=>g.key);
+  const others = filtered.filter(p => !knownKeys.includes(p.status||'选品中'));
+  if (others.length) { html += others.map(p=>prodHTML(p)).join(''); total += others.length; }
+
+  if (!total) { el.innerHTML = '<div class="empty"><div style="font-size:32px;margin-bottom:8px;opacity:.4">◻</div>暂无选品</div>'; return; }
+  el.innerHTML = html;
 }
 
 function filterProd(f) {
@@ -3562,18 +3689,33 @@ function renderMeetingList() {
   const s = getLocal();
   const el = document.getElementById('meetingList');
   if (!el) return;
-  // 按日期+开始时间降序，最新/最晚在最上面
-  const mtgs = alive(s.meetings).slice().sort((a, b) => {
-    const aStart = (a.duration || '').replace(/\s/g,'').match(/^(\d{2}:\d{2})/);
-    const bStart = (b.duration || '').replace(/\s/g,'').match(/^(\d{2}:\d{2})/);
-    const aTs = new Date((a.date||'1970-01-01') + 'T' + (aStart ? aStart[1] : '00:00') + ':00').getTime();
-    const bTs = new Date((b.date||'1970-01-01') + 'T' + (bStart ? bStart[1] : '00:00') + ':00').getTime();
-    return bTs - aTs;
-  });
-  if (!mtgs.length) {
-    el.innerHTML = '<div class="empty"><div class="ei">📋</div>暂无会议记录<br><span style="font-size:13px">点右上角「+ 新会议」开始记录</span></div>'; return;
+  const all = alive(s.meetings);
+  if (!all.length) {
+    el.innerHTML = '<div class="empty"><div style="font-size:32px;margin-bottom:8px;opacity:.4">◻</div>暂无会议记录</div>'; return;
   }
-  el.innerHTML = mtgs.map(m => meetingHTML(m)).join('');
+  const sortByDate = (a, b) => {
+    const aTs = new Date((a.date||'1970-01-01') + 'T00:00:00').getTime();
+    const bTs = new Date((b.date||'1970-01-01') + 'T00:00:00').getTime();
+    return bTs - aTs;
+  };
+  const pending = all.filter(m => m.status !== 'done').sort(sortByDate);
+  const done    = all.filter(m => m.status === 'done').sort(sortByDate);
+  let html = '';
+  if (pending.length) {
+    html += `<div style="padding:6px 0 4px;display:flex;align-items:center;gap:6px">
+      <span style="font-size:10px;font-weight:600;color:#fbbf24;letter-spacing:1px">待开会议</span>
+      <span style="font-size:10px;color:var(--hint);background:rgba(255,255,255,0.06);padding:1px 7px;border-radius:10px">${pending.length}</span>
+    </div>`;
+    html += pending.map(m => meetingHTML(m)).join('');
+  }
+  if (done.length) {
+    html += `<div style="padding:10px 0 4px;display:flex;align-items:center;gap:6px">
+      <span style="font-size:10px;font-weight:600;color:#4ade80;letter-spacing:1px">已完成</span>
+      <span style="font-size:10px;color:var(--hint);background:rgba(255,255,255,0.06);padding:1px 7px;border-radius:10px">${done.length}</span>
+    </div>`;
+    html += done.map(m => meetingHTML(m)).join('');
+  }
+  el.innerHTML = html;
 }
 
 // ══════════════════════════════════════════════
@@ -3714,7 +3856,10 @@ function switchForm(type) {
 function clearForms() {
   document.querySelectorAll('.sheet input,.sheet textarea').forEach(e => { if(e.type!=='file') e.value=''; });
   setDateVal('f-m-date', new Date().toISOString().split('T')[0]);
-  document.getElementById('f-m-platform').value = '腾讯会议';
+  const _mstatus = document.getElementById('f-m-status');
+  if (_mstatus) _mstatus.value = 'pending';
+  const _mlink = document.getElementById('f-m-link');
+  if (_mlink) _mlink.value = '';
   // 清空时间选择器
   const startSel = document.getElementById('f-m-start');
   const endSel   = document.getElementById('f-m-end');
@@ -3820,23 +3965,27 @@ function saveRecord() {
     const dur = document.getElementById('f-m-dur').value.trim() || '-';
     const mDate = getDateVal('f-m-date') || today;
     const editId = modal.dataset.editMeetingId;
+    const mStatus = (document.getElementById('f-m-status')||{}).value || 'pending';
+    const mLink   = (document.getElementById('f-m-link')||{}).value?.trim() || '';
     if (editId) {
       const m = s.meetings.find(x => x.id === editId);
       if (m) {
         stampNow(m);
         m.title       = title;
-        m.platform    = document.getElementById('f-m-platform').value.trim() || '腾讯会议';
+        m.platform    = '腾讯会议';
         m.duration    = dur;
         m.date        = mDate;
         m.topics      = topics;
         m.conclusions = conclusions;
         m.conclusion  = conclusions.join('\n');
+        m.status      = mStatus;
+        m.link        = mLink;
       }
       addAct('更新了会议「' + title + '」', 'b');
       toast('会议已更新 ✓');
     } else {
       const conclusion = conclusions.join('\n');
-      const newMeeting = stampNow({ id:'m'+Date.now(), title, platform:document.getElementById('f-m-platform').value.trim()||'腾讯会议', duration:dur, date:mDate, topics, conclusions, conclusion, by:CU });
+      const newMeeting = stampNow({ id:'m'+Date.now(), title, platform:'腾讯会议', duration:dur, date:mDate, topics, conclusions, conclusion, status:mStatus, link:mLink, by:CU });
       s.meetings.unshift(newMeeting);
       // 先生成 fallback 动态并保存
       const actId = 'act_' + Date.now();
