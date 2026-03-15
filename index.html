@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-050';
+  var VER = '20260314-051';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -816,7 +816,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
       <div class="lother">
         <span onclick="toggleMemberList()">其他成员登录</span>
       </div>
-      <input class="finp" type="password" id="pwdIn" placeholder="输入密码" autocomplete="current-password" onkeydown="if(event.key==='Enter'||event.keyCode===13){event.preventDefault();login();}"/>
+      <input class="finp" type="password" id="pwdIn" placeholder="输入密码" autocomplete="current-password" onkeydown="if(event.key==='Enter'||event.key==='Go'||event.keyCode===13){event.preventDefault();}" onkeyup="if(event.key==='Enter'||event.key==='Go'||event.keyCode===13){event.preventDefault();login();}"/>
       <button class="lbtn" onclick="login()">进入工作台</button>
       <div class="lerr" id="lerr"></div>
     </div>
