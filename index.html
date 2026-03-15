@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-020';
+  var VER = '20260314-021';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -42,6 +42,11 @@ window.addEventListener('unhandledrejection', function(e) {
 });
 </script>
 <title>StartupLog · 创业工作台</title>
+<link rel="apple-touch-icon" href="data:image/png;base64,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"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="StartupLog"/>
+<meta name="theme-color" content="#1677ff"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -111,11 +116,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .hdr-nm{font-size:13px;color:var(--sub);font-weight:600}
 
 /* ── BOTTOM NAV ── */
-.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
-.btab{flex:1;padding:7px 4px 9px;text-align:center;cursor:pointer;-webkit-user-select:none;user-select:none;transition:opacity .15s;position:relative}
-.btab .bi{font-size:20px;display:block;margin-bottom:1px;transition:transform .2s}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,.06);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+.btab{flex:1;padding:8px 2px 10px;text-align:center;cursor:pointer;-webkit-user-select:none;user-select:none;transition:opacity .15s;position:relative;display:flex;flex-direction:column;align-items:center;gap:3px}
+.btab .bi{width:24px;height:24px;display:block;transition:transform .2s;flex-shrink:0}
+.btab .bi svg{width:24px;height:24px;fill:none;stroke:var(--hint);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transition:stroke .15s}
+.btab.on .bi svg{stroke:var(--blue)}
 .btab.on .bi{transform:scale(1.1)}
-.btab .bl{font-size:9.5px;color:var(--hint);font-weight:500;transition:color .15s;letter-spacing:.1px}
+.btab .bl{font-size:9.5px;color:var(--hint);font-weight:500;transition:color .15s;letter-spacing:.1px;line-height:1}
 .btab.on .bl{color:var(--blue);font-weight:700}
 .btab.on::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:20px;height:2.5px;background:var(--blue);border-radius:2px 2px 0 0}
 
@@ -262,8 +269,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .page-hdr-action:active{opacity:.8}
 
 /* ── MODAL ── */
-.overlay{display:flex;position:fixed;inset:0;background:rgba(0,0,0,0);z-index:100;align-items:flex-end;backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);pointer-events:none;transition:background .25s,backdrop-filter .25s}
-.overlay.show{background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);pointer-events:auto}
+.overlay{display:flex;position:fixed;inset:0;background:rgba(0,0,0,0);z-index:100;align-items:flex-end;backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);pointer-events:none;visibility:hidden;transition:background .25s,backdrop-filter .25s,visibility 0s .32s}
+.overlay.show{background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);pointer-events:auto;visibility:visible;transition:background .25s,backdrop-filter .25s,visibility 0s 0s}
 .sheet{background:#fff;border-radius:22px 22px 0 0;padding:18px 16px 36px;width:100%;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .32s cubic-bezier(.32,1,.32,1)}
 .overlay.show .sheet{transform:translateY(0)}
 .handle{width:36px;height:4px;background:#dee5ed;border-radius:4px;margin:0 auto 14px}
@@ -860,12 +867,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
   </div>
 
   <div class="bnav">
-    <div class="btab on" id="bt-home" onclick="goPage('home')"><span class="bi">🏠</span><span class="bl">首页</span></div>
-    <div class="btab" id="bt-tasks" onclick="goPage('tasks')"><span class="bi">✅</span><span class="bl">任务</span></div>
-    <div class="btab" id="bt-products" onclick="goPage('products')"><span class="bi">🛒</span><span class="bl">选品库</span></div>
-    <div class="btab" id="bt-meetings" onclick="goPage('meetings')"><span class="bi">📋</span><span class="bl">会议</span></div>
-    <div class="btab" id="bt-gameacc" onclick="goPage('gameacc')"><span class="bi">🎮</span><span class="bl">账号</span></div>
-    <div class="btab" id="bt-profile" onclick="goPage('profile')"><span class="bi">👤</span><span class="bl">我的</span></div>
+    <div class="btab on" id="bt-home" onclick="goPage('home')">
+      <span class="bi"><svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></span>
+      <span class="bl">首页</span>
+    </div>
+    <div class="btab" id="bt-tasks" onclick="goPage('tasks')">
+      <span class="bi"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
+      <span class="bl">任务</span>
+    </div>
+    <div class="btab" id="bt-products" onclick="goPage('products')">
+      <span class="bi"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
+      <span class="bl">选品库</span>
+    </div>
+    <div class="btab" id="bt-meetings" onclick="goPage('meetings')">
+      <span class="bi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+      <span class="bl">会议</span>
+    </div>
+    <div class="btab" id="bt-gameacc" onclick="goPage('gameacc')">
+      <span class="bi"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M12 10v4M10 12h4"/><circle cx="17" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="10.5" r="1" fill="currentColor" stroke="none"/></svg></span>
+      <span class="bl">账号</span>
+    </div>
+    <div class="btab" id="bt-profile" onclick="goPage('profile')">
+      <span class="bi"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+      <span class="bl">我的</span>
+    </div>
   </div>
   <button class="fab" id="fab">＋</button>
 </div>
@@ -1223,9 +1248,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div class="handle"></div>
 
     <!-- 标题 -->
-    <div style="text-align:center;margin-bottom:18px">
-      <div style="font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px">🖼️ 商品图工具箱</div>
-      <div style="font-size:12px;color:var(--hint);margin-top:3px">精选跨境电商商品图制作工具，点击直接打开</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <div>
+        <div style="font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px">🖼️ 商品图工具箱</div>
+        <div style="font-size:12px;color:var(--hint);margin-top:3px">精选跨境电商商品图制作工具，点击直接打开</div>
+      </div>
+      <button onclick="closeImgGen()" style="width:32px;height:32px;border-radius:50%;background:#f1f5f9;border:none;cursor:pointer;font-size:18px;color:var(--sub);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s">×</button>
     </div>
 
     <!-- 主推工具：Pic Copilot -->
@@ -1313,8 +1341,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:12px 14px;margin-top:14px;font-size:12px;color:#92400e;line-height:1.7">
       💡 <b>推荐工作流：</b>用 <b>Pic Copilot</b> 一站式搞定（抠图+换背景+翻译）；需要极致抠图精度用 <b>Remove.bg</b>；做整体设计排版用 <b>Canva</b>
     </div>
-
-    <span class="cancel-link" onclick="closeImgGen()" style="margin-top:16px;display:block;text-align:center">关闭</span>
   </div>
 </div>
 
@@ -2602,8 +2628,16 @@ function renderHomeMeetings() {
   const el = document.getElementById('homeMeetings');
   const mtgs = alive(s.meetings);
   if (!mtgs.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px;padding:8px 0">暂无会议记录</div>'; return; }
+  // 按 date+开始时间 降序，最新/最晚在最上面
+  const sorted = mtgs.slice().sort((a, b) => {
+    const aStart = (a.duration || '').replace(/\s/g,'').match(/^(\d{2}:\d{2})/);
+    const bStart = (b.duration || '').replace(/\s/g,'').match(/^(\d{2}:\d{2})/);
+    const aTs = new Date((a.date||'1970-01-01') + 'T' + (aStart ? aStart[1] : '00:00') + ':00').getTime();
+    const bTs = new Date((b.date||'1970-01-01') + 'T' + (bStart ? bStart[1] : '00:00') + ':00').getTime();
+    return bTs - aTs;
+  });
   // 首页只展示摘要，点击跳转到会议页（避免与会议页 id 冲突导致下拉失效）
-  el.innerHTML = mtgs.slice(0,3).map(m => `
+  el.innerHTML = sorted.slice(0,3).map(m => `
     <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="goPage('meetings')">
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.title}</div>
@@ -3084,11 +3118,13 @@ function renderMeetingList() {
   const s = getLocal();
   const el = document.getElementById('meetingList');
   if (!el) return;
-  // 按日期降序，最新在最上面
+  // 按日期+开始时间降序，最新/最晚在最上面
   const mtgs = alive(s.meetings).slice().sort((a, b) => {
-    const ta = new Date(b.updatedAt || b.date || 0).getTime();
-    const tb = new Date(a.updatedAt || a.date || 0).getTime();
-    return ta - tb;
+    const aStart = (a.duration || '').replace(/\s/g,'').match(/^(\d{2}:\d{2})/);
+    const bStart = (b.duration || '').replace(/\s/g,'').match(/^(\d{2}:\d{2})/);
+    const aTs = new Date((a.date||'1970-01-01') + 'T' + (aStart ? aStart[1] : '00:00') + ':00').getTime();
+    const bTs = new Date((b.date||'1970-01-01') + 'T' + (bStart ? bStart[1] : '00:00') + ':00').getTime();
+    return bTs - aTs;
   });
   if (!mtgs.length) {
     el.innerHTML = '<div class="empty"><div class="ei">📋</div>暂无会议记录<br><span style="font-size:13px">点右上角「+ 新会议」开始记录</span></div>'; return;
