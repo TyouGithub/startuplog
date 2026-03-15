@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-040';
+  var VER = '20260314-041';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -53,7 +53,7 @@ window.addEventListener('unhandledrejection', function(e) {
 <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet"/>
 <script>
 // ── Service Worker 注册 + 自动更新检测 ──
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   // controllerchange = 新SW接管，直接静默刷新
   var _swRefreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', function() {
