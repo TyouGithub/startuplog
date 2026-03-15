@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-038';
+  var VER = '20260314-039';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -251,9 +251,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 /* ── TASK ── */
 .titem{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
 .titem:last-child{border-bottom:none}
-.tchk{width:22px;height:22px;border:1.5px solid rgba(255,255,255,0.15);border-radius:50%;cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .2s}
-.tchk.doing{background:var(--orange);border-color:var(--orange);color:#fff}
-.tchk.done{background:var(--green);border-color:var(--green);color:#fff}
+.tchk{width:24px;height:24px;border:1.5px solid rgba(255,255,255,0.18);border-radius:50%;cursor:pointer;flex-shrink:0;margin-top:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .25s}
+.tchk.doing{background:linear-gradient(135deg,rgba(96,165,250,0.2),rgba(59,130,246,0.15));border-color:rgba(96,165,250,0.7);box-shadow:0 0 0 3px rgba(96,165,250,0.1)}
+.tchk.done{background:linear-gradient(135deg,rgba(74,222,128,0.2),rgba(34,197,94,0.15));border-color:rgba(74,222,128,0.7)}
 .tcon{flex:1;min-width:0}
 .ttl{font-size:14px;font-weight:500;margin-bottom:4px;line-height:1.4}
 .ttl.stk{text-decoration:line-through;color:var(--hint)}
@@ -2426,23 +2426,39 @@ function initApp() {
   if (_pfEnName) {
     if (CU === 'jiashuo') { _pfEnName.textContent = 'ZHANG JIASHUO'; }
     else if (CU === 'yixin') { _pfEnName.textContent = 'ZHU YIXIN'; }
+    else if (CU === 'lingling') { _pfEnName.textContent = 'ZHANG LINGLING'; }
     else { _pfEnName.textContent = u.name.toUpperCase(); }
   }
   if (_pfCnName) {
     if (CU === 'jiashuo') { _pfCnName.innerHTML = '张<em>佳硕</em>'; }
     else if (CU === 'yixin') { _pfCnName.innerHTML = '朱<em>一新</em>'; }
+    else if (CU === 'lingling') { _pfCnName.innerHTML = '张<em>灵灵</em>'; }
     else { _pfCnName.textContent = u.name; }
   }
-  if (_pfNm) { _pfNm.textContent = CU === 'jiashuo' ? '张佳硕' : CU === 'yixin' ? '朱一新' : u.name; }
+  if (_pfNm) { _pfNm.textContent = CU === 'jiashuo' ? '张佳硕' : CU === 'yixin' ? '朱一新' : CU === 'lingling' ? '张灵灵' : u.name; }
   setEl('pfRl', u.role);
   // 创始人专属：FOUNDER 徽章 + 专属副标题（佳硕 & 一新都有，去掉 StartupLog 前缀）
   const _pfBadge = document.getElementById('pfFounderBadge');
   const _pfSub = document.getElementById('pfSubline');
-  if (_pfBadge) _pfBadge.style.display = isFounder ? 'block' : 'none';
+  if (_pfBadge) _pfBadge.style.display = (isFounder || CU === 'lingling') ? 'block' : 'none';
+  // 动态切换徽章文字
+  if (_pfBadge) {
+    const badgeIcon = _pfBadge.querySelector('.pf-founder-badge-icon');
+    const badgeText = _pfBadge.querySelector('.pf-founder-badge-text');
+    if (CU === 'lingling') {
+      if (badgeIcon) badgeIcon.textContent = '★';
+      if (badgeText) badgeText.textContent = 'SUPERVISOR';
+    } else {
+      if (badgeIcon) badgeIcon.textContent = '◆';
+      if (badgeText) badgeText.textContent = 'FOUNDER';
+    }
+  }
   if (_pfSub) _pfSub.textContent = CU === 'jiashuo'
     ? '创始人 · 掌舵人'
-    : isFounder
-      ? '联合创始人 · 掌舵人'
+    : CU === 'lingling'
+      ? '运营主管 · 共创伙伴'
+      : isFounder
+        ? '联合创始人 · 掌舵人'
       : '与创始人共同创业中';
   setDateVal('f-m-date', now.toISOString().split('T')[0]);
   renderAll();
@@ -2475,16 +2491,18 @@ function renderAll() {
     if (_pfen) {
       if (CU === 'jiashuo') _pfen.textContent = 'ZHANG JIASHUO';
       else if (CU === 'yixin') _pfen.textContent = 'ZHU YIXIN';
+      else if (CU === 'lingling') _pfen.textContent = 'ZHANG LINGLING';
       else _pfen.textContent = u.name.toUpperCase();
     }
     const _pfcn = document.getElementById('pfCnName');
     if (_pfcn) {
       if (CU === 'jiashuo') _pfcn.innerHTML = '张<em>佳硕</em>';
       else if (CU === 'yixin') _pfcn.innerHTML = '朱<em>一新</em>';
+      else if (CU === 'lingling') _pfcn.innerHTML = '张<em>灵灵</em>';
       else _pfcn.textContent = u.name;
     }
     const _pfn = document.getElementById('pfNm');
-    if (_pfn) _pfn.textContent = CU === 'jiashuo' ? '张佳硕' : CU === 'yixin' ? '朱一新' : u.name;
+    if (_pfn) _pfn.textContent = CU === 'jiashuo' ? '张佳硕' : CU === 'yixin' ? '朱一新' : CU === 'lingling' ? '张灵灵' : u.name;
     setEl('pfRl', u.role);
   }
   renderStats(); renderActs(); renderHomeTasks(); renderHomeMeetings();
@@ -3561,7 +3579,12 @@ function editMeeting(id) {
 // ══════════════════════════════════════════════
 function taskHTML(t, compact) {
   const sc = { todo:'', doing:'doing', done:'done' };
-  const si = { todo:'', doing:'⏳', done:'✓' };
+  // 优化图标：todo=空圆圈，doing=进行中SVG，done=对勾
+  const siMap = {
+    todo: '',
+    doing: `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="display:block"><circle cx="6" cy="6" r="4.5" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-dasharray="6 3" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 6 6" to="360 6 6" dur="2s" repeatCount="indefinite"/></circle><circle cx="6" cy="6" r="1.5" fill="rgba(255,255,255,0.9)"/></svg>`,
+    done: `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="display:block"><polyline points="2,6.5 5,9.5 10,3" stroke="rgba(255,255,255,0.95)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+  };
   const bc = { todo:'b-todo', doing:'b-doing', done:'b-done' };
   const sl = { todo:'待处理', doing:'进行中', done:'已完成' };
   // 逾期判断
@@ -3572,7 +3595,7 @@ function taskHTML(t, compact) {
         ${isOverdue?'已逾期':t.due}
        </span>` : '';
   return `<div class="titem">
-    <div class="tchk ${sc[t.status]}" onclick="cycleTask('${t.id}')">${si[t.status]}</div>
+    <div class="tchk ${sc[t.status]}" onclick="cycleTask('${t.id}')">${siMap[t.status]||''}</div>
     <div class="tcon">
       <div class="ttl ${t.status==='done'?'stk':''}">${t.title}</div>
       <div class="tmeta">
@@ -3787,6 +3810,62 @@ function delProdImg(idx) {
   renderProdImgPreview();
 }
 
+// ── 选品库列表页：直接上传图片（无需进编辑） ──
+function uploadProdImgDirect(prodId, input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  const s = getLocal();
+  const p = (s.products || []).find(x => x.id === prodId);
+  if (!p) return;
+  let done = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      // 压缩到最长边 800px
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 800;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else       { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        p.imgs = p.imgs || [];
+        p.imgs.push(dataUrl);
+        done++;
+        if (done === files.length) {
+          setLocal(s);
+          forcePushAndPull();
+          renderProdList();
+          toast(`已上传 ${done} 张图片 ✓`);
+        }
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+// ── 选品库列表页：直接删除某张图片 ──
+function deleteProdImgDirect(prodId, imgIdx) {
+  showConfirm('删除图片', '确定删除这张图片吗？').then(ok => {
+    if (!ok) return;
+    const s = getLocal();
+    const p = (s.products || []).find(x => x.id === prodId);
+    if (!p || !p.imgs) return;
+    p.imgs.splice(imgIdx, 1);
+    setLocal(s);
+    forcePushAndPull();
+    renderProdList();
+    toast('图片已删除 ✓');
+  });
+}
+
 // ══════════════════════════════════════════════
 //  PRODUCTS
 // ══════════════════════════════════════════════
@@ -3803,7 +3882,18 @@ function prodHTML(p) {
   };
   const ss = PROD_STATUS_STYLE[p.status] || { bg:'#f1f5f9', color:'#64748b' };
   const imgsHtml = p.imgs && p.imgs.length
-    ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${p.imgs.map((src,i)=>`<div class="prod-img-item" style="display:inline-block"><img src="${src}" onclick="openImgLightboxFromProd('${p.id}',${i})" title="点击放大" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1.5px solid var(--border);cursor:pointer"></div>`).join('')}</div>` : '';
+    ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;align-items:center">
+        ${p.imgs.map((src,i)=>`<div class="prod-img-item" style="display:inline-block"><img src="${src}" onclick="openImgLightboxFromProd('${p.id}',${i})" title="点击放大" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1.5px solid var(--border);cursor:pointer"><button class="prod-img-del" onclick="event.stopPropagation();deleteProdImgDirect('${p.id}',${i})" title="删除">×</button></div>`).join('')}
+        <label style="width:72px;height:72px;border-radius:10px;border:1.5px dashed rgba(255,255,255,0.18);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(255,255,255,0.03);flex-shrink:0;transition:all .2s" onmousedown="this.style.background='rgba(37,99,235,0.1)'" onmouseup="this.style.background='rgba(255,255,255,0.03)'" title="添加图片">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <input type="file" accept="image/*" multiple style="display:none" onchange="uploadProdImgDirect('${p.id}',this)"/>
+        </label>
+      </div>`
+    : `<label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1.5px dashed rgba(255,255,255,0.12);cursor:pointer;margin-bottom:10px;background:rgba(255,255,255,0.02);transition:all .2s" onmousedown="this.style.background='rgba(37,99,235,0.08)'" onmouseup="this.style.background='rgba(255,255,255,0.02)'" title="上传商品图片">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span style="font-size:12px;color:rgba(255,255,255,0.3)">点击上传商品图片</span>
+        <input type="file" accept="image/*" multiple style="display:none" onchange="uploadProdImgDirect('${p.id}',this)"/>
+      </label>`;
   const keywordsHtml = p.keywords ? `<div class="pfull"><div class="pflab">关键词</div><div style="font-size:13px;color:var(--text);margin-top:3px">${p.keywords}</div></div>` : '';
   const skuHtml = p.sku ? `<div class="pfull"><div class="pflab">SKU / 变体</div><div style="font-size:13px;color:var(--text);margin-top:3px">${p.sku}</div></div>` : '';
   const cardId = 'prod-coll-' + p.id;
