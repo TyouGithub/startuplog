@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-051';
+  var VER = '20260314-052';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -338,46 +338,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .pf-av::before{content:'';position:absolute;inset:-2px;border-radius:50%;background:linear-gradient(145deg,rgba(212,175,55,0.7) 0%,rgba(255,255,255,0.2) 35%,rgba(212,175,55,0.4) 65%,rgba(180,150,40,0.8) 100%)}
 .pf-av-inner{position:relative;z-index:1;width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:200;letter-spacing:2px;color:rgba(255,255,255,0.95);font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;text-shadow:0 1px 8px rgba(0,0,0,0.5)}
 
-/* ── 创始人专属：黄金旋转光环 ── */
+/* ── 创始人专属：黄金旋转光环（单圈极细） ── */
 .pf-av.founder-halo{width:72px;height:72px}
-/* 外层：细而亮的旋转光弧 */
+/* 唯一一圈：用 conic-gradient 做渐隐光弧，mask 裁成极细描边 */
 .pf-av.founder-halo::after{
-  content:'';position:absolute;inset:-7px;border-radius:50%;
+  content:'';position:absolute;inset:-4px;border-radius:50%;
   background:conic-gradient(from 0deg,
-    rgba(255,215,0,0) 0deg,
-    rgba(255,235,80,1) 30deg,
-    rgba(255,255,220,1) 60deg,
-    rgba(255,215,0,0.8) 90deg,
-    rgba(255,215,0,0) 140deg,
-    rgba(255,215,0,0) 200deg,
-    rgba(255,235,100,0.9) 260deg,
-    rgba(255,255,200,1) 290deg,
-    rgba(255,215,0,0) 360deg
+    rgba(255,255,220,1) 0deg,
+    rgba(255,215,0,0.9) 50deg,
+    rgba(212,175,55,0.3) 120deg,
+    rgba(212,175,55,0) 180deg,
+    rgba(212,175,55,0) 270deg,
+    rgba(255,235,80,0.5) 330deg,
+    rgba(255,255,220,1) 360deg
   );
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#fff calc(100% - 2px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#fff calc(100% - 2px));
   animation:founderSpin 2.5s linear infinite;
-  opacity:1;filter:blur(1px)
+  filter:blur(0.4px)
 }
-/* 内层：极细金边轮廓 */
-.pf-av.founder-halo::before{
-  content:'';position:absolute;inset:-2px;border-radius:50%;
-  background:conic-gradient(from 0deg,
-    rgba(255,235,80,1) 0deg,
-    rgba(255,255,180,0.4) 60deg,
-    rgba(212,175,55,0.2) 140deg,
-    rgba(255,215,0,0.15) 200deg,
-    rgba(255,235,80,1) 360deg
-  );
-  animation:founderSpin 2.5s linear infinite;
-}
-/* 最外扩散光晕 */
+/* ::before 不用，清空 */
+.pf-av.founder-halo::before{display:none}
+/* 外扩散光晕（柔和呼吸） */
 .pf-av.founder-halo .pf-av-halo-glow{
-  position:absolute;inset:-16px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,215,0,0.22) 0%,rgba(212,175,55,0.1) 50%,transparent 70%);
+  position:absolute;inset:-14px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,215,0,0.15) 0%,rgba(212,175,55,0.06) 55%,transparent 70%);
   animation:founderPulse 2.5s ease-in-out infinite;
   pointer-events:none;z-index:0
 }
 @keyframes founderSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes founderPulse{0%,100%{opacity:.65;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+@keyframes founderPulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
 .pf-info{flex:1;min-width:0;overflow:hidden}
 /* 黑卡风格：全字体统一，粗细一致层次用字号+透明度区分 */
 .pf-en-name{font-size:9.5px;font-weight:400;letter-spacing:2px;text-transform:uppercase;color:rgba(212,175,55,0.65);line-height:1;margin-bottom:8px;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
