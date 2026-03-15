@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-008';
+  var VER = '20260314-009';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -1310,15 +1310,67 @@ function getLocal() {
 function setLocal(d) {
   localStorage.setItem(SYNC_KEY, JSON.stringify(d));
 }
-// 写入云端数据：直接以云端数据为准，仅补全云端完全不存在的字段（不覆盖已有数据）
+// ══════════════════════════════════════════════
+//  大厂级智能合并：per-item 时间戳 + 墓碑删除
+//  原则：每条数据独立比较 updatedAt，谁新谁赢；
+//        删除 = 写入 _deleted:true 墓碑，不真删；
+//        渲染时过滤掉 _deleted:true 的条目。
+// ══════════════════════════════════════════════
+
+// 对某个数组字段做逐条合并
+function mergeArray(localArr, remoteArr) {
+  // 以 id 为 key 建 map
+  const localMap  = Object.fromEntries((localArr  || []).map(x => [x.id, x]));
+  const remoteMap = Object.fromEntries((remoteArr || []).map(x => [x.id, x]));
+  const allIds = new Set([...Object.keys(localMap), ...Object.keys(remoteMap)]);
+  const merged = [];
+  allIds.forEach(id => {
+    const l = localMap[id], r = remoteMap[id];
+    if (!l) { merged.push(r); return; }           // 本地没有 → 用远端
+    if (!r) { merged.push(l); return; }           // 远端没有 → 用本地
+    // 两边都有：比较 updatedAt，取更新的
+    const lt = new Date(l.updatedAt || l.date || 0).getTime();
+    const rt = new Date(r.updatedAt || r.date || 0).getTime();
+    merged.push(rt >= lt ? r : l);
+  });
+  // 排序：按 updatedAt 降序（新的在前），过滤墓碑不在这里做（渲染时过滤）
+  return merged.sort((a, b) => {
+    const ta = new Date(b.updatedAt || b.date || 0).getTime();
+    const tb = new Date(a.updatedAt || a.date || 0).getTime();
+    return ta - tb;
+  });
+}
+
+// 顶层合并：所有列表字段逐条 merge，非列表字段取 remote 的（用户信息等）
 function mergeAndSetLocal(remote) {
   if (!remote) return;
-  const def = defaultData();
-  // 只有云端该字段完全不存在（undefined）时才回退默认，绝不覆盖空数组
-  if (remote.roadmap === undefined)       remote.roadmap       = def.roadmap;
-  if (remote.gameAccounts === undefined)  remote.gameAccounts  = def.gameAccounts;
-  if (remote.incomeRecords === undefined) remote.incomeRecords = def.incomeRecords;
-  setLocal(remote);
+  const local = getLocal();
+  const LIST_FIELDS = ['tasks','products','meetings','insights','accounts','gameAccounts','incomeRecords','activities','roadmap'];
+  const merged = { ...remote }; // 先用 remote 的非列表字段（users等）
+  LIST_FIELDS.forEach(f => {
+    merged[f] = mergeArray(local[f], remote[f]);
+  });
+  setLocal(merged);
+}
+
+// 给一条数据盖上当前时间戳（写/改时调用）
+function stampNow(item) {
+  item.updatedAt = new Date().toISOString();
+  return item;
+}
+
+// 软删除：打墓碑标记，而不是直接 splice（防止多设备冲突复活）
+function softDelete(arr, id) {
+  const idx = (arr || []).findIndex(x => x.id === id);
+  if (idx !== -1) {
+    arr[idx] = stampNow({ ...arr[idx], _deleted: true });
+  }
+  return arr;
+}
+
+// 渲染时使用：过滤掉墓碑条目
+function alive(arr) {
+  return (arr || []).filter(x => !x._deleted);
 }
 
 // ══════════════════════════════════════════════
@@ -1604,7 +1656,7 @@ function renderAll() {
 function renderStats() {
   // 统计数据供其他地方使用，方块已从首页移除
   const s = getLocal();
-  const taskCount = s.tasks.filter(t => t.status !== 'done').length;
+  const taskCount = alive(s.tasks).filter(t => t.status !== 'done').length;
   const tcEl = document.getElementById('myTaskCount');
   if (tcEl) tcEl.textContent = taskCount + ' 项待处理';
 }
@@ -1639,9 +1691,10 @@ function nowBJStr() {
 function renderActs() {
   const s = getLocal();
   const el = document.getElementById('actList');
-  if (!s.activities.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态，点「+ 添加」记录第一条</div>'; return; }
+  const acts = alive(s.activities);
+  if (!acts.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态，点「+ 添加」记录第一条</div>'; return; }
   const map = { b:'', g:'g', o:'o', p:'p' };
-  el.innerHTML = s.activities.slice(0,8).map((a, idx) => {
+  el.innerHTML = acts.slice(0,8).map((a, idx) => {
     const uname = a.author && s.users && s.users[a.author] ? s.users[a.author].name : (a.author || '');
     const authorTag = uname ? `<span style="font-size:11px;color:var(--hint);background:#f1f5f9;border-radius:10px;padding:1px 7px;margin-left:5px">@${uname}</span>` : '';
     const canEdit = isAdmin() || a.author === CU;
@@ -1653,7 +1706,7 @@ function renderActs() {
       <div class="tlc" style="flex:1">${a.text}${authorTag}</div>
       ${editBtn}${delBtn}
     </div></div>`;
-  }).join('') + (s.activities.length > 8 ? `<div style="text-align:center;padding-top:10px"><span style="font-size:12px;color:var(--hint)">共 ${s.activities.length} 条记录</span></div>` : '');
+  }).join('') + (acts.length > 8 ? `<div style="text-align:center;padding-top:10px"><span style="font-size:12px;color:var(--hint)">共 ${acts.length} 条记录</span></div>` : '');
 }
 
 // ── 首页账号快捷入口 ──
@@ -1661,10 +1714,11 @@ function renderHomeAccounts() {
   const s = getLocal();
   const el = document.getElementById('homeAccounts');
   if (!el) return;
-  if (!s.accounts || !s.accounts.length) {
+  const accs = alive(s.accounts);
+  if (!accs.length) {
     el.innerHTML = '<div style="color:var(--hint);font-size:13px;padding:4px 0">暂无账号，点「管理」添加</div>'; return;
   }
-  el.innerHTML = s.accounts.slice(0,3).map(a => {
+  el.innerHTML = accs.slice(0,3).map(a => {
     const icon = a.name.includes('TEMU') ? '🛒' : a.name.includes('亚马逊') ? '📦' : '🔑';
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f5f7fa">
       <div style="display:flex;align-items:center;gap:8px">
@@ -1676,7 +1730,7 @@ function renderHomeAccounts() {
       </div>
       <button class="copy-btn" onclick="copyTxt('${a.pwd}','${a.name}密码')">复制密码</button>
     </div>`;
-  }).join('') + (s.accounts.length > 3 ? `<div style="text-align:center;padding-top:8px"><span class="cm" onclick="goPage('accounts')">查看全部 ${s.accounts.length} 个账号 →</span></div>` : '');
+  }).join('') + (accs.length > 3 ? `<div style="text-align:center;padding-top:8px"><span class="cm" onclick="goPage('accounts')">查看全部 ${accs.length} 个账号 →</span></div>` : '');
 }
 
 // ── 首页心得摘要 ──
@@ -1684,10 +1738,11 @@ function renderHomeInsights() {
   const s = getLocal();
   const el = document.getElementById('homeInsights');
   if (!el) return;
-  if (!s.insights || !s.insights.length) {
+  const insights = alive(s.insights);
+  if (!insights.length) {
     el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无心得，点 + 分享第一条</div>'; return;
   }
-  const latest = s.insights[0];
+  const latest = insights[0];
   const u = (s.users || {})[latest.author] || { name: latest.author || '?', color:'#94a3b8' };
   el.innerHTML = `<div class="icard" style="margin-bottom:0">
     <div class="ihead">
@@ -1695,7 +1750,7 @@ function renderHomeInsights() {
       <div><div class="iau">${latest.title}</div><div class="iac">${u.name} · ${latest.cat}</div></div>
     </div>
     <div class="ico" style="-webkit-line-clamp:3;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden">${latest.content}</div>
-  </div>` + (s.insights.length > 1 ? `<div style="text-align:center;padding-top:8px"><span class="cm" onclick="goPage('insights')">查看全部 ${s.insights.length} 条心得 →</span></div>` : '');
+  </div>` + (insights.length > 1 ? `<div style="text-align:center;padding-top:8px"><span class="cm" onclick="goPage('insights')">查看全部 ${insights.length} 条心得 →</span></div>` : '');
 }
 
 // ── 我的页面：创业路线渲染 ──
@@ -1718,7 +1773,7 @@ function renderProfileInsights() {
   const s = getLocal();
   const el = document.getElementById('profileInsightList');
   if (!el) return;
-  const list = s.insights || [];
+  const list = alive(s.insights);
   const users = s.users || {};
   if (!list.length) {
     el.innerHTML = '<div style="color:var(--hint);font-size:13px">还没有心得，点「+ 添加」记录第一条</div>';
@@ -1748,20 +1803,23 @@ function renderProfileActs() {
   const s = getLocal();
   const el = document.getElementById('profileActList');
   if (!el) return;
-  if (!s.activities.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态</div>'; return; }
+  const acts = alive(s.activities);
+  if (!acts.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无动态</div>'; return; }
   const map = { b:'', g:'g', o:'o', p:'p' };
-  el.innerHTML = s.activities.map((a, idx) => {
+  el.innerHTML = acts.map((a, idx) => {
     const uname = a.author && s.users && s.users[a.author] ? s.users[a.author].name : (a.author || '');
     const authorTag = uname ? `<span style="font-size:11px;color:var(--hint);background:#f1f5f9;border-radius:10px;padding:1px 7px;margin-left:5px">@${uname}</span>` : '';
     const canEdit = isAdmin() || a.author === CU;
+    // 找到在原始数组中的真实下标（用于编辑/删除）
+    const realIdx = s.activities.findIndex(x => x.id === a.id);
     return `<div class="tli">
       <div class="tldot ${map[a.type]||''}"></div>
       <div class="tlt">${fmtTime(a.time)}</div>
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
         <div class="tlc" style="flex:1">${a.text}${authorTag}</div>
         <div style="display:flex;gap:4px;flex-shrink:0">
-          ${canEdit ? `<button class="edit-btn" style="padding:2px 8px" onclick="openEditActByIdx(${idx})">编辑</button>` : ''}
-          <button class="del-btn" style="font-size:13px;opacity:.4" onclick="delAct(${idx})">🗑</button>
+          ${canEdit ? `<button class="edit-btn" style="padding:2px 8px" onclick="openEditActByIdx(${realIdx})">编辑</button>` : ''}
+          <button class="del-btn" style="font-size:13px;opacity:.4" onclick="delAct(${realIdx})">🗑</button>
         </div>
       </div>
     </div>`;
@@ -1807,11 +1865,10 @@ function renderHomePulse() {
   const el = document.getElementById('homePulse');
   if (!el) return;
   const todayStr = new Date().toISOString().split('T')[0];
-  const taskDoing   = s.tasks.filter(t => t.status === 'doing').length;
-  const taskOverdue = s.tasks.filter(t => t.status !== 'done' && t.due && t.due < todayStr).length;
-  const meetings    = (s.meetings || []).length;
-  const products    = (s.products || []).filter(p => p.status === '在售').length;
-  const taskDone    = s.tasks.filter(t => t.status === 'done').length;
+  const tasks = alive(s.tasks), meetings = alive(s.meetings), products = alive(s.products);
+  const taskDoing   = tasks.filter(t => t.status === 'doing').length;
+  const taskOverdue = tasks.filter(t => t.status !== 'done' && t.due && t.due < todayStr).length;
+  const taskDone    = tasks.filter(t => t.status === 'done').length;
 
   const items = [
     {
@@ -1822,12 +1879,12 @@ function renderHomePulse() {
       onclick:"goPage('tasks')"
     },
     {
-      icon:'📋', val: meetings, sub:'场会议',
+      icon:'📋', val: meetings.length, sub:'场会议',
       color:'#7c3aed', bg:'linear-gradient(135deg,#f5f3ff,#ede9fe)',
       onclick:"goPage('meetings')"
     },
     {
-      icon:'🛒', val: products, sub:'款在售',
+      icon:'🛒', val: products.filter(p => p.status === '在售').length, sub:'款在售',
       color:'#16a34a', bg:'linear-gradient(135deg,#f0fdf4,#dcfce7)',
       onclick:"goPage('products')"
     },
@@ -1852,11 +1909,12 @@ function renderHomeInsightsPublic() {
   const s = getLocal();
   const el = document.getElementById('homeInsightsPublic');
   if (!el) return;
-  if (!s.insights || !s.insights.length) {
+  const insights = alive(s.insights);
+  if (!insights.length) {
     el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无心得，去「心得」页分享</div>'; return;
   }
   const users = s.users || {};
-  el.innerHTML = s.insights.slice(0, 3).map(i => {
+  el.innerHTML = insights.slice(0, 3).map(i => {
     const u = users[i.author] || { name: i.author || '?', color: '#94a3b8' };
     return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f5f7fa;cursor:pointer" onclick="goPage('profile')">
       <div style="width:36px;height:36px;border-radius:50%;background:${u.color};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0">${u.name.charAt(0)}</div>
@@ -1866,7 +1924,7 @@ function renderHomeInsightsPublic() {
         <div style="font-size:12px;color:var(--sub);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${i.content}</div>
       </div>
     </div>`;
-  }).join('') + (s.insights.length > 3 ? `<div style="text-align:center;padding-top:8px"><span class="cm" onclick="goPage('profile')">查看全部 ${s.insights.length} 条 →</span></div>` : '');
+  }).join('') + (insights.length > 3 ? `<div style="text-align:center;padding-top:8px"><span class="cm" onclick="goPage('profile')">查看全部 ${insights.length} 条 →</span></div>` : '');
 }
 
 // ── 每日鸡汤（AI 生成，按日期缓存） ──
@@ -2037,22 +2095,24 @@ function saveAct() {
   if (editIdx !== '') {
     const idx = parseInt(editIdx);
     if (!isNaN(idx) && s.activities[idx]) {
-      s.activities[idx].text = text;
-      s.activities[idx].type = type;
-      s.activities[idx].time = time;
-      if (!s.activities[idx].id) s.activities[idx].id = 'act_' + Date.now(); // 顺便补 id
+      s.activities[idx] = stampNow({ ...s.activities[idx], text, type, time });
+      if (!s.activities[idx].id) s.activities[idx].id = 'act_' + Date.now();
       setLocal(s); renderAll(); closeActModal(); forcePushAndPull(); toast('动态已更新 ✓');
     } else { toast('保存失败，请重试'); }
   } else {
-    s.activities.unshift({ id: 'act_' + Date.now(), time, text, type, author: CU });
-    if (s.activities.length > 30) s.activities = s.activities.slice(0,30);
+    s.activities.unshift(stampNow({ id: 'act_' + Date.now(), time, text, type, author: CU }));
+    if (s.activities.filter(x=>!x._deleted).length > 30) {
+      // 只限制可见条目数量，墓碑保留
+    }
     setLocal(s); renderAll(); closeActModal(); forcePushAndPull(); toast('动态已保存 ✓');
   }
 }
 function delAct(idx) {
   showConfirm('删除动态', '确定删除这条动态吗？').then(ok => {
     if (!ok) return;
-    const s = getLocal(); s.activities.splice(idx, 1);
+    const s = getLocal();
+    const item = s.activities[idx];
+    if (item) { s.activities[idx] = stampNow({ ...item, _deleted: true }); }
     setLocal(s); renderAll(); forcePushAndPull(); toast('已删除');
   });
 }
@@ -2216,7 +2276,7 @@ function toggleMemberList() {
 
 function renderHomeTasks() {
   const s = getLocal();
-  const list = s.tasks.filter(t => t.status !== 'done').slice(0,4);
+  const list = alive(s.tasks).filter(t => t.status !== 'done').slice(0,4);
   const el = document.getElementById('homeTasks');
   if (!list.length) { el.innerHTML = '<div class="empty"><div class="ei">🎉</div>所有任务已完成！</div>'; return; }
   el.innerHTML = list.map(t => taskHTML(t, true)).join('');
@@ -2228,9 +2288,10 @@ function renderHomeTasks() {
 function renderHomeMeetings() {
   const s = getLocal();
   const el = document.getElementById('homeMeetings');
-  if (!s.meetings || !s.meetings.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px;padding:8px 0">暂无会议记录</div>'; return; }
+  const mtgs = alive(s.meetings);
+  if (!mtgs.length) { el.innerHTML = '<div style="color:var(--hint);font-size:13px;padding:8px 0">暂无会议记录</div>'; return; }
   // 首页只展示摘要，点击跳转到会议页（避免与会议页 id 冲突导致下拉失效）
-  el.innerHTML = s.meetings.slice(0,3).map(m => `
+  el.innerHTML = mtgs.slice(0,3).map(m => `
     <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="goPage('meetings')">
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.title}</div>
@@ -2283,7 +2344,7 @@ function toggleMeeting(id) {
 function delMeeting(id) {
   showConfirm('删除会议', '确定删除此会议记录吗？').then(ok => {
     if (!ok) return;
-    const s = getLocal(); s.meetings = s.meetings.filter(m => m.id !== id);
+    const s = getLocal(); s.meetings = softDelete(s.meetings, id);
     addAct('删除了会议记录', 'o');
     setLocal(s); renderAll(); forcePushAndPull(); toast('已删除');
   });
@@ -2375,7 +2436,7 @@ function taskHTML(t, compact) {
 
 function renderTaskList() {
   const s = getLocal();
-  let list = s.tasks;
+  let list = alive(s.tasks);
   if (taskFilter !== 'all') list = list.filter(t => t.status === taskFilter);
   const el = document.getElementById('taskList');
   if (!list.length) { el.innerHTML = '<div class="empty"><div class="ei">📭</div>暂无任务</div>'; return; }
@@ -2422,7 +2483,7 @@ function delTask(id) {
   const s = getLocal(), t = s.tasks.find(x => x.id === id);
   showConfirm('删除任务', `确定删除「${t ? t.title : '此任务'}」吗？`).then(ok => {
     if (!ok) return;
-    const s2 = getLocal(); s2.tasks = s2.tasks.filter(t => t.id !== id);
+    const s2 = getLocal(); s2.tasks = softDelete(s2.tasks, id);
     addAct('删除了任务', 'o');
     setLocal(s2); renderAll(); forcePushAndPull(); toast('已删除');
   });
@@ -2508,7 +2569,7 @@ function prodHTML(p) {
 
 function renderProdList() {
   const s = getLocal();
-  let list = s.products;
+  let list = alive(s.products);
   if (prodFilter !== 'all') list = list.filter(p => p.platform === prodFilter);
   const el = document.getElementById('prodList');
   if (!list.length) { el.innerHTML = '<div class="empty"><div class="ei">📦</div>暂无选品</div>'; return; }
@@ -2552,7 +2613,7 @@ function delProd(id) {
   const s = getLocal(), p = s.products.find(x => x.id === id);
   showConfirm('删除选品', `确定删除「${p ? p.name : '此选品'}」吗？`).then(ok => {
     if (!ok) return;
-    const s2 = getLocal(); s2.products = s2.products.filter(p => p.id !== id);
+    const s2 = getLocal(); s2.products = softDelete(s2.products, id);
     addAct('删除了选品', 'o');
     setLocal(s2); renderAll(); forcePushAndPull(); toast('已删除');
   });
@@ -2564,11 +2625,12 @@ function delProd(id) {
 function renderInsightList() {
   const s = getLocal();
   const el = document.getElementById('insightList');
-  if (!s.insights || !s.insights.length) {
+  const insights = alive(s.insights);
+  if (!insights.length) {
     el.innerHTML = '<div class="empty"><div class="ei">💡</div>还没有心得，点右下角 + 添加</div>'; return;
   }
   const users = s.users || {};
-  el.innerHTML = s.insights.map(i => {
+  el.innerHTML = insights.map(i => {
     const u = users[i.author] || { name: i.author || '未知', color:'#94a3b8' };
     return `<div class="icard">
       <div class="ihead">
@@ -2584,7 +2646,7 @@ function renderInsightList() {
 function delInsight(id) {
   showConfirm('删除心得', '确定删除此心得吗？').then(ok => {
     if (!ok) return;
-    const s = getLocal(); s.insights = s.insights.filter(i => i.id !== id);
+    const s = getLocal(); s.insights = softDelete(s.insights, id);
     addAct('删除了心得', 'o');
     setLocal(s); renderAll(); forcePushAndPull(); toast('已删除');
   });
@@ -2595,10 +2657,11 @@ function renderMeetingList() {
   const s = getLocal();
   const el = document.getElementById('meetingList');
   if (!el) return;
-  if (!s.meetings || !s.meetings.length) {
+  const mtgs = alive(s.meetings);
+  if (!mtgs.length) {
     el.innerHTML = '<div class="empty"><div class="ei">📋</div>暂无会议记录<br><span style="font-size:13px">点右上角「+ 新会议」开始记录</span></div>'; return;
   }
-  el.innerHTML = s.meetings.map(m => meetingHTML(m)).join('');
+  el.innerHTML = mtgs.map(m => meetingHTML(m)).join('');
 }
 
 // ══════════════════════════════════════════════
@@ -2608,14 +2671,15 @@ function renderAccList() {
   const s = getLocal();
   const el = document.getElementById('accList');
   if (!el) return;
-  if (!s.accounts.length) {
+  const accs = alive(s.accounts);
+  if (!accs.length) {
     el.innerHTML = `<div style="padding:16px 0;text-align:center">
       <div style="font-size:32px;margin-bottom:8px">🔑</div>
       <div style="font-size:13px;color:var(--hint);margin-bottom:12px">暂无账号，点右上角「+ 添加」</div>
     </div>`;
     return;
   }
-  el.innerHTML = s.accounts.map(a => {
+  el.innerHTML = accs.map(a => {
     const bg   = a.name.includes('TEMU') ? '#fff1f0' : a.name.includes('亚马逊') ? '#fff7e6' : '#f0f9ff';
     const icon = a.name.includes('TEMU') ? '🛒' : a.name.includes('亚马逊') ? '📦' : '🔑';
     return `<div class="accard">
@@ -2669,7 +2733,7 @@ function delAcc(id) {
   const s = getLocal(), a = s.accounts.find(x => x.id === id);
   showConfirm('删除账号', `确定删除「${a ? a.name : '此账号'}」吗？`).then(ok => {
     if (!ok) return;
-    const s2 = getLocal(); s2.accounts = s2.accounts.filter(a => a.id !== id);
+    const s2 = getLocal(); s2.accounts = softDelete(s2.accounts, id);
     addAct('删除了平台账号', 'o');
     setLocal(s2); renderAccList(); forcePushAndPull(); toast('已删除');
   });
@@ -2781,11 +2845,11 @@ function saveRecord() {
     const editId = modal.dataset.editTaskId;
     if (editId) {
       const t = s.tasks.find(x => x.id === editId);
-      if (t) { t.title = title; t.cat = document.getElementById('f-t-cat').value; t.owner = document.getElementById('f-t-owner').value; t.status = document.getElementById('f-t-status').value; t.due = document.getElementById('f-t-due').value || ''; t.note = document.getElementById('f-t-note').value.trim(); }
+      if (t) { stampNow(t); t.title = title; t.cat = document.getElementById('f-t-cat').value; t.owner = document.getElementById('f-t-owner').value; t.status = document.getElementById('f-t-status').value; t.due = document.getElementById('f-t-due').value || ''; t.note = document.getElementById('f-t-note').value.trim(); }
       addAct('更新了任务「' + title + '」', 'o');
       toast('任务已更新 ✓');
     } else {
-      s.tasks.unshift({ id:'t'+Date.now(), title, cat:document.getElementById('f-t-cat').value, owner:document.getElementById('f-t-owner').value, status:document.getElementById('f-t-status').value, due:document.getElementById('f-t-due').value||'', note:document.getElementById('f-t-note').value.trim(), date:today, by:CU });
+      s.tasks.unshift(stampNow({ id:'t'+Date.now(), title, cat:document.getElementById('f-t-cat').value, owner:document.getElementById('f-t-owner').value, status:document.getElementById('f-t-status').value, due:document.getElementById('f-t-due').value||'', note:document.getElementById('f-t-note').value.trim(), date:today, by:CU }));
       addAct('新增任务「' + title + '」', 'o');
       toast('任务已添加 ✓');
     }
@@ -2812,11 +2876,11 @@ function saveRecord() {
     };
     if (editId) {
       const p = s.products.find(x => x.id === editId);
-      if (p) Object.assign(p, prodData);
+      if (p) Object.assign(p, stampNow(prodData));
       addAct('更新了选品「' + name + '」', 'p');
       toast('选品已更新 ✓');
     } else {
-      s.products.unshift({ id:'p'+Date.now(), date:today, by:CU, ...prodData });
+      s.products.unshift(stampNow({ id:'p'+Date.now(), date:today, by:CU, ...prodData }));
       addAct('新增选品「' + name + '」', 'p');
       toast('选品已添加 ✓');
     }
@@ -2832,25 +2896,25 @@ function saveRecord() {
     if (editId) {
       const m = s.meetings.find(x => x.id === editId);
       if (m) {
+        stampNow(m);
         m.title       = title;
         m.platform    = document.getElementById('f-m-platform').value.trim() || '腾讯会议';
         m.duration    = dur;
         m.date        = mDate;
         m.topics      = topics;
         m.conclusions = conclusions;
-        m.conclusion  = conclusions.join('\n'); // 保留旧字段兼容
+        m.conclusion  = conclusions.join('\n');
       }
       addAct('更新了会议「' + title + '」', 'b');
       toast('会议已更新 ✓');
     } else {
       const conclusion = conclusions.join('\n');
-      const newMeeting = { id:'m'+Date.now(), title, platform:document.getElementById('f-m-platform').value.trim()||'腾讯会议', duration:dur, date:mDate, topics, conclusions, conclusion, by:CU };
+      const newMeeting = stampNow({ id:'m'+Date.now(), title, platform:document.getElementById('f-m-platform').value.trim()||'腾讯会议', duration:dur, date:mDate, topics, conclusions, conclusion, by:CU });
       s.meetings.unshift(newMeeting);
       // 先生成 fallback 动态并保存
       const actId = 'act_' + Date.now();
       const fallbackText = `📋 ${mDate} ${dur} 召开「${title}」` + (conclusion ? `，结论：${conclusion.slice(0,40)}` : '');
-      s.activities.unshift({ id: actId, time: nowBJStr(), text: fallbackText, type: 'b', author: CU });
-      if (s.activities.length > 30) s.activities = s.activities.slice(0, 30);
+      s.activities.unshift(stampNow({ id: actId, time: nowBJStr(), text: fallbackText, type: 'b', author: CU }));
       setLocal(s);
       renderAll();
       closeModal();
@@ -2867,21 +2931,29 @@ function saveRecord() {
             '你是会议记录助手。根据会议信息，生成一条简洁的会议动态，包含时间、主题和核心结论，1-2句话，格式：📋 [日期时间] 召开「xxx」会议，[核心成果/结论]。只返回动态文字，不要解释。',
             meetingDesc, 150
           );
-          if (!aiText || !aiText.trim()) return; // 空响应直接保留 fallback
+          if (!aiText || !aiText.trim()) return;
           const s2 = getLocal();
           const idx = s2.activities.findIndex(a => a.id === actId);
-          if (idx !== -1) { s2.activities[idx].text = aiText; setLocal(s2); renderAll(); forcePushAndPull(); toast('✓ AI 会议动态已生成'); }
+          if (idx !== -1) { s2.activities[idx] = stampNow({ ...s2.activities[idx], text: aiText }); setLocal(s2); renderAll(); forcePushAndPull(); toast('✓ AI 会议动态已生成'); }
         } catch(e) { /* 保留 fallback 动态 */ }
       })();
-      return; // 已手动完成保存流程，跳过末尾 setLocal/renderAll/closeModal
+      return;
     }
   } else if (curForm === 'insight') {
     const title = document.getElementById('f-i-title').value.trim();
     const content = document.getElementById('f-i-content').value.trim();
     if (!title || !content) { toast('请填写标题和内容'); return; }
-    s.insights.unshift({ id:'i'+Date.now(), title, cat:document.getElementById('f-i-cat').value, content, author:CU, date:today });
-    addAct('分享了心得「' + title + '」', 'p');
-    toast('心得已记录 ✓');
+    const editId = modal.dataset.editInsightId;
+    if (editId) {
+      const ins = s.insights.find(x => x.id === editId);
+      if (ins) { stampNow(ins); ins.title = title; ins.cat = document.getElementById('f-i-cat').value; ins.content = content; }
+      addAct('更新了心得「' + title + '」', 'p');
+      toast('心得已更新 ✓');
+    } else {
+      s.insights.unshift(stampNow({ id:'i'+Date.now(), title, cat:document.getElementById('f-i-cat').value, content, author:CU, date:today }));
+      addAct('分享了心得「' + title + '」', 'p');
+      toast('心得已记录 ✓');
+    }
   } else if (curForm === 'account') {
     const name = document.getElementById('f-a-name').value.trim();
     const user = document.getElementById('f-a-user').value.trim();
@@ -2890,11 +2962,11 @@ function saveRecord() {
     const editId = modal.dataset.editAccId;
     if (editId) {
       const a = s.accounts.find(x => x.id === editId);
-      if (a) { a.name = name; a.url = document.getElementById('f-a-url').value.trim(); a.user = user; a.pwd = pwd; a.note = document.getElementById('f-a-note').value.trim(); }
+      if (a) { stampNow(a); a.name = name; a.url = document.getElementById('f-a-url').value.trim(); a.user = user; a.pwd = pwd; a.note = document.getElementById('f-a-note').value.trim(); }
       addAct('更新了平台账号「' + name + '」', 'g');
       toast('账号已更新 ✓');
     } else {
-      s.accounts.unshift({ id:'a'+Date.now(), name, url:document.getElementById('f-a-url').value.trim(), user, pwd, note:document.getElementById('f-a-note').value.trim(), by:CU });
+      s.accounts.unshift(stampNow({ id:'a'+Date.now(), name, url:document.getElementById('f-a-url').value.trim(), user, pwd, note:document.getElementById('f-a-note').value.trim(), by:CU }));
       addAct('添加了平台账号「' + name + '」', 'g');
       toast('账号已保存 ✓');
     }
@@ -2949,8 +3021,8 @@ function renderGameAccPage() {
 
 function renderGameAccDashboard() {
   const s = getLocal();
-  const acc = s.gameAccounts || [];
-  const inc = s.incomeRecords || [];
+  const acc = alive(s.gameAccounts);
+  const inc = alive(s.incomeRecords);
   const stockAcc    = acc.filter(a => a.status === '正常' || a.status === '冻结');
   const stockValue  = stockAcc.reduce((sum, a) => sum + (a.cost || 0), 0);
   const totalIncome = inc.reduce((sum, r) => sum + (r.amount || 0), 0);
@@ -2979,7 +3051,7 @@ function renderGameAccDashboard() {
 function renderGameAccList() {
   const s = getLocal();
   const filterMap = { all: null, normal:'正常', frozen:'冻结', sold:'已出售', returned:'被找回' };
-  let acc = (s.gameAccounts || []).slice();
+  let acc = alive(s.gameAccounts);
   const fv = filterMap[gaFilter];
   if (fv) acc = acc.filter(a => a.status === fv);
   const el = document.getElementById('gameaccList');
@@ -3050,7 +3122,7 @@ function togglePwd(id, pwd) {
 
 function renderIncomeList() {
   const s = getLocal();
-  const inc = (s.incomeRecords || []).slice().sort((a, b) => b.date.localeCompare(a.date));
+  const inc = alive(s.incomeRecords).slice().sort((a, b) => b.date.localeCompare(a.date));
   const el = document.getElementById('incomeList');
   if (!el) return;
   if (!inc.length) {
@@ -3154,12 +3226,12 @@ function saveGameAcc() {
   const editId = document.getElementById('gameaccModal').dataset.editId;
   if (editId) {
     const idx = s.gameAccounts.findIndex(x => x.id === editId);
-    if (idx !== -1) s.gameAccounts[idx] = { ...s.gameAccounts[idx], ...obj };
+    if (idx !== -1) s.gameAccounts[idx] = stampNow({ ...s.gameAccounts[idx], ...obj });
     toast('账号已更新 ✓');
   } else {
     obj.id = 'ga' + Date.now();
     obj.date = new Date().toISOString().split('T')[0];
-    s.gameAccounts.unshift(obj);
+    s.gameAccounts.unshift(stampNow(obj));
     toast('账号已添加 ✓');
   }
   setLocal(s); renderGameAccPage(); closeGameAccModal(); forcePushAndPull();
@@ -3169,7 +3241,7 @@ async function delGameAcc(id) {
   const ok = await showConfirm('删除账号', '确认删除这个账号？此操作不可恢复。');
   if (!ok) return;
   const s = getLocal();
-  s.gameAccounts = (s.gameAccounts || []).filter(a => a.id !== id);
+  s.gameAccounts = softDelete(s.gameAccounts, id);
   setLocal(s); renderGameAccPage(); forcePushAndPull();
   toast('已删除 ✓');
 }
@@ -3218,7 +3290,7 @@ async function delIncome(id) {
   const ok = await showConfirm('删除收入记录', '确认删除这条收入记录？');
   if (!ok) return;
   const s = getLocal();
-  s.incomeRecords = (s.incomeRecords || []).filter(r => r.id !== id);
+  s.incomeRecords = softDelete(s.incomeRecords, id);
   setLocal(s); renderGameAccPage(); forcePushAndPull();
   toast('已删除 ✓');
 }
@@ -3307,7 +3379,7 @@ function closePhoneBindModal() {
 
 function renderPhoneBindList() {
   const s = getLocal();
-  const acc = s.gameAccounts || [];
+  const acc = alive(s.gameAccounts);
   const el = document.getElementById('phoneBindList');
   if (!el) return;
 
