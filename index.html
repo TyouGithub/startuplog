@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-021';
+  var VER = '20260314-022';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -370,8 +370,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .ai-btn:disabled{opacity:.5;cursor:not-allowed}
 
 /* ── GAME ACC PAGE ── */
-.ga-hero{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#1e1b4b 100%);border-radius:var(--r);padding:18px 16px;margin-bottom:10px;color:#fff;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.05)}
-.ga-hero::before{content:'🎮';position:absolute;right:-8px;top:-8px;font-size:80px;opacity:.1;transform:rotate(-15deg)}
+.ga-hero{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#1e1b4b 100%);border-radius:var(--r);padding:18px 16px;margin-bottom:10px;color:#fff;position:relative;border:1px solid rgba(255,255,255,.05)}
+.ga-hero::before{content:'🎮';position:absolute;right:-8px;top:-8px;font-size:80px;opacity:.1;transform:rotate(-15deg);pointer-events:none;overflow:hidden;max-width:100%;max-height:100%}
 .ga-hero-title{font-size:14px;font-weight:800;margin-bottom:10px;letter-spacing:-.3px;opacity:.9}
 .ga-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .ga-kpi{background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.07)}
@@ -1108,6 +1108,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
     <div class="mact">
       <button class="btn btn-c" onclick="closeAddMember()">取消</button>
       <button class="btn btn-p" onclick="saveNewMember()">添加成员</button>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑成员弹窗 -->
+<div class="overlay" id="editMemberModal" onclick="if(event.target===this)closeEditMember()">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <div class="stitle" style="margin-bottom:0">编辑成员信息</div>
+      <button onclick="closeEditMember()" style="width:32px;height:32px;border-radius:50%;background:#f1f5f9;border:none;cursor:pointer;font-size:18px;color:var(--sub);display:flex;align-items:center;justify-content:center;flex-shrink:0">×</button>
+    </div>
+    <input type="hidden" id="em-uid"/>
+    <div class="frow"><label>姓名 *</label><input id="em-name" placeholder="成员姓名"/></div>
+    <div class="frow"><label>职位 / 角色</label><input id="em-role" placeholder="如：运营、设计..."/></div>
+    <div class="frow"><label>新密码（留空不修改）</label><input type="password" id="em-pwd" placeholder="输入新密码（至少6位）"/></div>
+    <div class="mact">
+      <button class="btn btn-c" onclick="closeEditMember()">取消</button>
+      <button class="btn btn-p" onclick="saveEditMember()">保存</button>
     </div>
   </div>
 </div>
@@ -2103,11 +2122,11 @@ function renderProfileInsights() {
   const s = getLocal();
   const el = document.getElementById('profileInsightList');
   if (!el) return;
-  // 按日期降序，最新在最上面
+  // 按心得日期降序（date 字段），同日再按 updatedAt 降序
   const list = alive(s.insights).slice().sort((a, b) => {
-    const ta = new Date(b.updatedAt || b.date || 0).getTime();
-    const tb = new Date(a.updatedAt || a.date || 0).getTime();
-    return ta - tb;
+    const da = (a.date || '').localeCompare(b.date || '');
+    if (da !== 0) return -da; // date 降序
+    return new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime();
   });
   const users = s.users || {};
   if (!list.length) {
@@ -2527,23 +2546,73 @@ function renderMemberList() {
   const s = getLocal();
   const el = document.getElementById('memberList');
   if (!el) return;
-  const members = Object.entries(s.users)
-    .filter(([uid]) => !ADMINS.includes(uid));
+  // 显示所有成员（含管理员），管理员标注角色 & 不可删除
+  const members = Object.entries(s.users);
   if (!members.length) {
-    el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无普通成员</div>'; return;
+    el.innerHTML = '<div style="color:var(--hint);font-size:13px">暂无成员</div>'; return;
   }
-  el.innerHTML = members.map(([uid, u]) => `
+  el.innerHTML = members.map(([uid, u]) => {
+    const isAdm = ADMINS.includes(uid);
+    const roleLabel = isAdm ? '管理员 · 可编辑' : `${u.role||'成员'} · 只读`;
+    const badgeColor = isAdm ? 'var(--blue)' : 'var(--hint)';
+    const delBtnHtml = isAdm ? '' : `<button class="del-btn" onclick="delMember('${uid}')">🗑</button>`;
+    return `
     <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f5f7fa">
-      <div style="width:36px;height:36px;border-radius:50%;background:${u.color||'#94a3b8'};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff">${u.name.charAt(0)}</div>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:700">${u.name}</div>
-        <div style="font-size:11px;color:var(--hint)">${u.role||'成员'} · 只读</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:${u.color||'#94a3b8'};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0">${u.name.charAt(0)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="font-size:13px;font-weight:700">${u.name}</div>
+          ${isAdm ? '<span style="font-size:10px;font-weight:700;color:#fff;background:var(--blue);border-radius:6px;padding:1px 6px">管理员</span>' : ''}
+        </div>
+        <div style="font-size:11px;color:${badgeColor};margin-top:1px">${roleLabel}</div>
       </div>
-      <button class="del-btn" onclick="delMember('${uid}')">🗑</button>
-    </div>`).join('');
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button class="edit-btn" style="padding:2px 10px" onclick="openEditMember('${uid}')">编辑</button>
+        ${delBtnHtml}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function openAddMember() { document.getElementById('addMemberModal').classList.add('show'); }
+
+// ── 编辑成员 ──
+function openEditMember(uid) {
+  const s = getLocal();
+  const u = s.users[uid];
+  if (!u) return;
+  document.getElementById('em-uid').value  = uid;
+  document.getElementById('em-name').value = u.name || '';
+  document.getElementById('em-role').value = u.role || '';
+  document.getElementById('em-pwd').value  = '';
+  // 管理员不显示密码重置（或可选填）
+  document.getElementById('editMemberModal').classList.add('show');
+}
+function closeEditMember() {
+  document.getElementById('editMemberModal').classList.remove('show');
+  ['em-uid','em-name','em-role','em-pwd'].forEach(id => document.getElementById(id).value = '');
+}
+function saveEditMember() {
+  const uid  = document.getElementById('em-uid').value;
+  const name = document.getElementById('em-name').value.trim();
+  const role = document.getElementById('em-role').value.trim();
+  const pwd  = document.getElementById('em-pwd').value;
+  if (!name) { toast('姓名不能为空'); return; }
+  const s = getLocal();
+  if (!s.users[uid]) { toast('成员不存在'); return; }
+  s.users[uid].name = name;
+  if (role) s.users[uid].role = role;
+  if (pwd) {
+    if (pwd.length < 6) { toast('密码至少6位'); return; }
+    s.users[uid].pwd = pwd;
+  }
+  setLocal(s);
+  closeEditMember();
+  renderMemberList();
+  refreshLoginMembers();
+  forcePushAndPull();
+  toast(`${name} 已更新 ✓`);
+}
 function closeAddMember() {
   document.getElementById('addMemberModal').classList.remove('show');
   document.getElementById('am-name').value = '';
