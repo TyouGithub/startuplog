@@ -9,7 +9,7 @@
 <meta http-equiv="Expires" content="0"/>
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
-var VER = '20260314-058';
+var VER = '20260314-059';
 (function(){
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
@@ -556,10 +556,6 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
 .img-mobile-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border:1.5px solid rgba(37,99,235,0.4);border-radius:12px;background:rgba(37,99,235,0.1);color:#93c5fd;font-size:14px;font-weight:600;cursor:pointer;width:100%;font-family:inherit;transition:opacity .15s}
 .img-mobile-btn:active{opacity:.75}
 
-/* ── AI整理按钮 ── */
-.ai-btn{display:block;width:100%;margin-top:7px;background:linear-gradient(135deg,#7c3aed,#1677ff);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.2px;transition:opacity .15s}
-.ai-btn:active{opacity:.8}
-.ai-btn:disabled{opacity:.5;cursor:not-allowed}
 
 /* ── GAME ACC PAGE ── */
 .ga-hero{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#1e1b4b 100%);border-radius:var(--r);padding:18px 16px;margin-bottom:10px;color:#fff;position:relative;border:1px solid rgba(255,255,255,.05)}
@@ -1298,7 +1294,6 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
     <div id="form-task">
       <div class="frow"><label>任务名称 *</label>
         <input id="f-t-title" placeholder="描述这个任务..."/>
-        <button onclick="aiPolish('f-t-title','task-title')" class="ai-btn" id="ai-f-t-title">AI 整理标题</button>
       </div>
       <div class="frow2">
         <div class="frow" style="margin:0"><label>分类</label>
@@ -1314,14 +1309,12 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
       <div class="frow"><label>截止日期（可选）</label><button type="button" class="date-input-btn" id="f-t-due" onclick="openDatePicker('f-t-due','任务截止日期',false)"><span id="f-t-due-text">点击选择日期</span><span class="cal-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span></button></div>
       <div class="frow"><label>备注</label>
         <textarea id="f-t-note" placeholder="补充说明..."></textarea>
-        <button onclick="aiPolish('f-t-note','task-note')" class="ai-btn" id="ai-f-t-note">AI 整理备注</button>
       </div>
     </div>
 
     <div id="form-product" style="display:none">
       <div class="frow"><label>商品标题 *（建议含关键词）</label>
         <input id="f-p-name" placeholder="如：羽毛球手胶 防滑吸汗 3条装"/>
-        <button onclick="aiPolish('f-p-name','product-title')" class="ai-btn" id="ai-f-p-name">AI 优化标题</button>
       </div>
       <div class="frow2">
         <div class="frow" style="margin:0"><label>平台</label>
@@ -1366,14 +1359,12 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
       <div class="frow"><label>商品链接</label><input id="f-p-url" placeholder="https://..."/></div>
       <div class="frow"><label>选品理由 / 竞品分析</label>
         <textarea id="f-p-note" placeholder="为什么选这个品？差异化优势、竞品对比..."></textarea>
-        <button onclick="aiPolish('f-p-note','product-note')" class="ai-btn" id="ai-f-p-note">AI 整理分析</button>
       </div>
     </div>
 
     <div id="form-meeting" style="display:none">
       <div class="frow"><label>会议主题 *</label>
         <input id="f-m-title" placeholder="会议主题..."/>
-        <button onclick="aiPolish('f-m-title','meeting-title')" class="ai-btn" id="ai-f-m-title">AI 整理主题</button>
       </div>
       <div class="frow2">
         <div class="frow" style="margin:0"><label>日期</label><button type="button" class="date-input-btn" id="f-m-date" onclick="openDatePicker('f-m-date','会议日期',true)"><span id="f-m-date-text">点击选择日期</span><span class="cal-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span></button></div>
@@ -1413,7 +1404,6 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
     <div id="form-insight" style="display:none">
       <div class="frow"><label>内容 *</label>
         <textarea id="f-i-content" placeholder="记录你的创业思考..." style="min-height:130px"></textarea>
-        <button onclick="aiPolish('f-i-content','insight-content')" class="ai-btn" id="ai-f-i-content">AI 智能整理内容</button>
       </div>
     </div>
 
@@ -1444,7 +1434,6 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
     <div class="frow">
       <label>动态内容 *</label>
       <textarea id="act-text" placeholder="随手记录，比如：今天完成了产品上架，发现竞品定价偏低..." style="min-height:80px"></textarea>
-      <button onclick="aiPolishAct()" style="margin-top:6px;background:linear-gradient(135deg,#7c3aed,#1677ff);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;width:100%" id="aiPolishBtn">AI 智能整理</button>
     </div>
     <div class="frow">
       <label>类型</label>
@@ -3113,18 +3102,6 @@ function closeImgLightbox() { document.getElementById('imgLightbox').classList.r
 // ── 通用 AI 整理核心函数 ──
 const GROQ_KEY = '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';
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const PROMPTS = {
-  'task-title':        '你是创业任务管理助手。将任务名称整理成简洁清晰的一句话，动词开头，保留核心目标。只返回整理后的文字，不要解释。',
-  'task-note':         '你是创业任务管理助手。将任务备注整理成简洁、结构化的补充说明，保留关键信息。只返回整理后的文字，不要解释。',
-  'meeting-title':     '你是会议记录助手。将会议主题整理成简洁专业的标题，保留核心议题。只返回整理后的文字，不要解释。',
-  'meeting-topics':    '你是会议记录助手。将会议议题整理成清晰的条目，每条一行，简洁专业。只返回整理后的文字，不要解释。',
-  'meeting-conclusion':'你是会议记录助手。将会议结论整理成清晰的行动项列表，每条一行，包含责任人和时间节点（若有）。只返回整理后的文字，不要解释。',
-  'insight-content':   '你是创业心得整理助手。将心得内容整理成结构清晰、逻辑连贯的正文，保留核心观点，适当分段。只返回整理后的文字，不要解释。',
-  'product-title':     '你是跨境电商选品专家。将商品标题优化成符合TEMU/亚马逊SEO规范的标题，包含核心关键词，简洁吸引人。只返回整理后的文字，不要解释。',
-  'product-note':      '你是跨境电商选品专家。将选品理由整理成结构化的竞品分析报告，包含：选品理由、差异化优势、竞品对比，逻辑清晰。只返回整理后的文字，不要解释。',
-  'activity':          '你是创业工作记录助手。将输入内容整理成简洁、清晰、专业的1-2句话动态，保留核心信息，去掉语气词。只返回整理后的文字，不要解释。',
-};
-
 async function callDeepSeek(systemPrompt, userContent, maxTokens) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 20000);
@@ -3155,47 +3132,6 @@ async function callDeepSeek(systemPrompt, userContent, maxTokens) {
   }
 }
 
-async function aiPolish(fieldId, promptKey) {
-  const el = document.getElementById(fieldId);
-  if (!el) return;
-  const raw = el.value.trim();
-  if (!raw) { toast('请先输入内容再整理'); return; }
-  const btn = document.getElementById('ai-' + fieldId);
-  const origText = btn ? btn.textContent : '';
-  if (btn) { btn.textContent = '整理中...'; btn.disabled = true; }
-  try {
-    const prompt = PROMPTS[promptKey] || PROMPTS['activity'];
-    const result = await callDeepSeek(prompt, raw, 400);
-    el.value = result;
-    toast('AI 整理完成');
-  } catch(e) {
-    if (e.name === 'AbortError') toast('AI 响应超时，请重试');
-    else toast('AI 服务暂时不可用，请稍后重试');
-    console.error('AI Polish error:', e);
-  } finally {
-    if (btn) { btn.textContent = origText; btn.disabled = false; }
-  }
-}
-
-async function aiPolishAct() {
-  const ta = document.getElementById('act-text');
-  const raw = ta.value.trim();
-  if (!raw) { toast('请先输入内容'); return; }
-  const btn = document.getElementById('aiPolishBtn');
-  btn.textContent = '整理中...';
-  btn.disabled = true;
-  try {
-    const result = await callDeepSeek(PROMPTS['activity'], raw, 200);
-    ta.value = result;
-    toast('AI 整理完成');
-  } catch(e) {
-    if (e.name === 'AbortError') toast('AI 响应超时，请重试');
-    else toast('AI 服务暂时不可用');
-  } finally {
-    btn.textContent = 'AI 智能整理';
-    btn.disabled = false;
-  }
-}
 function openAddAct() {
   document.getElementById('act-edit-id').value = '';
   document.getElementById('act-edit-idx').value = '';
