@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-053';
+  var VER = '20260314-054';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -168,7 +168,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','H
 .lcard-foot-dot{width:5px;height:5px;border-radius:50%;background:rgba(212,175,55,0.4);box-shadow:0 0 6px rgba(212,175,55,0.3)}
 
 /* ── APP ── */
-#app{display:none;min-height:100vh;padding-bottom:68px;padding-top:3px}
+#app{display:none;min-height:100vh;padding-bottom:68px;padding-top:3px;background:#0d0f14}
 .hdr{background:rgba(10,12,18,0.92);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);position:sticky;top:3px;z-index:50;border-bottom:1px solid rgba(255,255,255,0.06)}
 .hdr-in{display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
 .hdr-brand{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
@@ -4349,10 +4349,11 @@ function clearForms() {
 function goPage(p) {
   // 兼容旧的 accounts / gameacc 页跳转（均已整合到 profile）
   if (p === 'accounts' || p === 'gameacc') p = 'profile';
-  document.querySelectorAll('.pg').forEach(e => e.classList.remove('on'));
-  document.querySelectorAll('.btab').forEach(e => e.classList.remove('on'));
   const pg = document.getElementById('pg-' + p);
+  // 先把新页设为可见，再移除旧页——避免同帧双 display:none 导致白屏
   if (pg) pg.classList.add('on');
+  document.querySelectorAll('.pg').forEach(e => { if (e !== pg) e.classList.remove('on'); });
+  document.querySelectorAll('.btab').forEach(e => e.classList.remove('on'));
   const bt = document.getElementById('bt-' + p); if (bt) bt.classList.add('on');
   curPage = p;
   // FAB 按导航顺序精确绑定
