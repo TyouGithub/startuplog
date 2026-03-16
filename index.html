@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-054';
+  var VER = '20260314-055';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -99,7 +99,12 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   --shadow-md:0 2px 4px rgba(0,0,0,0.4),0 8px 20px rgba(0,0,0,0.35);
   --shadow-lg:0 4px 8px rgba(0,0,0,0.5),0 16px 40px rgba(0,0,0,0.4);
 }
-body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:radial-gradient(ellipse at 20% 10%,#1a2035 0%,#0d0f14 40%,#0a0c11 70%,#080b10 100%) fixed;background-attachment:fixed;color:var(--text);font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased}
+html{background:#060810;overscroll-behavior:none}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','SF Pro Text','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:radial-gradient(ellipse at 20% 10%,#1a2035 0%,#0d0f14 40%,#0a0c11 70%,#080b10 100%) fixed;background-attachment:fixed;color:var(--text);font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
+/* iOS 顶部 overscroll 深色背景 */
+body::before{content:'';position:fixed;top:-100px;left:0;right:0;height:120px;background:linear-gradient(to bottom,#030508,#060810);z-index:-1;pointer-events:none}
+/* iOS 底部 overscroll 深色背景 */
+body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;background:linear-gradient(to top,#030508,#060810);z-index:-1;pointer-events:none}
 
 /* ── 同步状态栏 ── */
 .sync-bar{position:fixed;top:0;left:0;right:0;height:3px;background:transparent;z-index:200;transition:background .3s}
