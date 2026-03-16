@@ -10,7 +10,7 @@
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
 (function(){
-  var VER = '20260314-055';
+  var VER = '20260314-056';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -2489,6 +2489,10 @@ function initApp() {
     : `${greeting}，${u.name}`;
   setEl('bnrTitle', titleText);
   setEl('bnrDate', `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`);
+  // Banner 右侧：周几 + 版本号
+  const _weekDay = ['周日','周一','周二','周三','周四','周五','周六'][now.getDay()];
+  const _bnrW = document.getElementById('bnrWeather');
+  if (_bnrW) _bnrW.innerHTML = `<div style="font-size:13px;font-weight:700;letter-spacing:1px">${_weekDay}</div><div style="font-size:10px;opacity:.55;margin-top:1px;letter-spacing:.5px">v${VER.split('-')[1]}</div>`;
   setEl('pfAv', init); document.getElementById('pfAv').style.background = _avBg;
   // 创始人专属黄金旋转光环（仅 jiashuo & yixin）
   const _pfAvWrap = document.getElementById('pfAvWrap');
