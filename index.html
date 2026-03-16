@@ -9,7 +9,7 @@
 <meta http-equiv="Expires" content="0"/>
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
-var VER = '20260314-057';
+var VER = '20260314-058';
 (function(){
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
@@ -2333,9 +2333,15 @@ async function syncNow() {
   isSyncing = true;
   setSyncBar('syncing');
   try {
-    // 先推本机数据到云端，再拉云端最新（双向同步）
+    // 先推本机数据到云端
     await forcePush();
-    await pullIfNewer(true);
+    // 强制拉取云端最新（忽略时间戳比对，直接覆盖渲染）
+    const result = await sbFetch();
+    if (result && result !== 'timeout') {
+      mergeAndSetLocal(result.value);
+      localStorage.setItem(LAST_SYNC_AT, normTs(result.updatedAt || ''));
+      renderAll();
+    }
     setSyncBar('ok');
     updateSyncTime();
     toast('同步完成');
