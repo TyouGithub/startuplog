@@ -9,7 +9,7 @@
 <meta http-equiv="Expires" content="0"/>
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
-var VER = '20260314-059';
+var VER = '20260314-060';
 (function(){
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
@@ -1936,16 +1936,13 @@ async function _onRealtimeChange() {
   try {
     const result = await sbFetch();
     if (!result || result === 'timeout') return;
-    const lastSeen = localStorage.getItem(LAST_SYNC_AT) || '';
-    const cloudAt  = normTs(result.updatedAt || '');
-    if (cloudAt !== lastSeen) {
-      mergeAndSetLocal(result.value);
-      localStorage.setItem(LAST_SYNC_AT, cloudAt);
-      renderAll();
-      setSyncBar('ok');
-      updateSyncTime();
-      toast('数据已更新');
-    }
+    // 直接更新，不做时间戳比较——对端有变更就一定渲染
+    mergeAndSetLocal(result.value);
+    localStorage.setItem(LAST_SYNC_AT, normTs(result.updatedAt || ''));
+    renderAll();
+    setSyncBar('ok');
+    updateSyncTime();
+    toast('数据已更新');
   } catch(e) { console.error('Realtime pull error:', e); }
 }
 
@@ -2348,10 +2345,23 @@ function startAutoSync() {
   startRealtime(); // 启动 WebSocket 实时推送
 }
 
-// 页面从后台切回前台时（手机最常见场景），立即触发一次拉取
+// 页面从后台切回前台时（手机最常见场景），立即触发一次强制拉取+重建WS
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && isOnline) {
-    autoSync();
+    // 重建 WS（iOS 后台会强制断开 WebSocket）
+    if (!_rtWs || _rtWs.readyState > 1) startRealtime();
+    // 强制拉取最新数据，不走时间戳比较
+    if (!isSyncing) {
+      isSyncing = true;
+      sbFetch().then(result => {
+        if (result && result !== 'timeout') {
+          mergeAndSetLocal(result.value);
+          localStorage.setItem(LAST_SYNC_AT, normTs(result.updatedAt || ''));
+          renderAll();
+          updateSyncTime();
+        }
+      }).catch(()=>{}).finally(() => { isSyncing = false; });
+    }
   }
 });
 
@@ -3048,8 +3058,13 @@ function renderHomeInsightsPublic() {
 
 // ── 每日鸡汤（AI 生成，按日期缓存） ──
 async function fetchDailySoup(forceRefresh) {
-  const bjDate = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Shanghai'}));
-  const todayKey = 'sl_soup_' + bjDate.toISOString().split('T')[0];
+  // 用手动计算北京时间，避免iOS Safari对toLocaleString解析不稳定导致Invalid Date
+  const now = new Date();
+  const bjMs = now.getTime() + (8 * 60 - now.getTimezoneOffset()) * 60000;
+  const bjDate = new Date(bjMs);
+  const todayKey = 'sl_soup_' + bjDate.getUTCFullYear() + '-'
+    + String(bjDate.getUTCMonth()+1).padStart(2,'0') + '-'
+    + String(bjDate.getUTCDate()).padStart(2,'0');
   const el  = document.getElementById('bnrSoupText');
   const btn = document.getElementById('bnrRefreshBtn');
   if (!el) return;
@@ -3063,7 +3078,7 @@ async function fetchDailySoup(forceRefresh) {
   if (btn) { btn.style.opacity = '.35'; btn.style.pointerEvents = 'none'; }
   el.textContent = '⏳ 生成中...';
   try {
-    const seed = bjDate.toDateString() + (forceRefresh ? '_' + Date.now() : '');
+    const seed = todayKey + (forceRefresh ? '_' + Date.now() : '');
     const text = await callDeepSeek(
       '你是一位专为跨境电商创业者写励志句子的文案大师。每天提供一句简洁有力、充满激情的原创励志句子，适合两个刚起步的年轻创业者。句子要接地气，不套路，不说废话，有画面感，1-2句话，中文。今日种子词（影响内容方向，不要写出来）：' + seed,
       '给我今天的一句话励志，不要带引号，不要有任何解释和前缀，直接给出句子本身。',
