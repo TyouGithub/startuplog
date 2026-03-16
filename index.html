@@ -9,8 +9,8 @@
 <meta http-equiv="Expires" content="0"/>
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
+var VER = '20260314-057';
 (function(){
-  var VER = '20260314-056';
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
     u.searchParams.set('v', VER);
@@ -5657,19 +5657,28 @@ window.addEventListener('DOMContentLoaded', async () => {
       _ptrTriggered = true;
       _ptrTip.textContent = '⏳ 同步中...';
       _ptrTip.classList.add('visible');
-      syncNow().then ? syncNow().then(() => {
-        _ptrTip.textContent = '✓ 已更新';
-        if (_ptrHideTimer) clearTimeout(_ptrHideTimer);
-        _ptrHideTimer = setTimeout(_ptrHide, 1500);
+      // 同时触发数据同步 + SW版本检测
+      const _doSync = syncNow().then ? syncNow() : Promise.resolve();
+      // 检测SW是否有新版本
+      const _checkSW = navigator.serviceWorker && navigator.serviceWorker.ready
+        ? navigator.serviceWorker.ready.then(reg => reg.update())
+        : Promise.resolve();
+      Promise.all([_doSync, _checkSW]).then(() => {
+        // 检查当前页面URL版本号是否匹配（若不一致说明有新版本，强制刷新）
+        const u = new URL(location.href);
+        if (u.searchParams.get('v') !== VER) {
+          _ptrTip.textContent = '🆕 发现新版本，更新中...';
+          setTimeout(() => location.reload(true), 600);
+        } else {
+          _ptrTip.textContent = '✓ 已是最新';
+          if (_ptrHideTimer) clearTimeout(_ptrHideTimer);
+          _ptrHideTimer = setTimeout(_ptrHide, 1500);
+        }
       }).catch(() => {
         _ptrTip.textContent = '同步失败，请检查网络';
         if (_ptrHideTimer) clearTimeout(_ptrHideTimer);
         _ptrHideTimer = setTimeout(_ptrHide, 2000);
-      }) : (() => {
-        syncNow();
-        if (_ptrHideTimer) clearTimeout(_ptrHideTimer);
-        _ptrHideTimer = setTimeout(() => { _ptrTip.textContent = '✓ 已更新'; setTimeout(_ptrHide, 1200); }, 1500);
-      })();
+      });
     } else {
       _ptrHide();
     }
