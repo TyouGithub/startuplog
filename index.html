@@ -9,7 +9,7 @@
 <meta http-equiv="Expires" content="0"/>
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
-var VER = '20260314-061';
+var VER = '20260314-062';
 (function(){
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
@@ -1892,20 +1892,25 @@ function startRealtime() {
   } catch(e) { _scheduleReconnect(); return; }
 
   _rtWs.onopen = () => {
-    // 1. 加入 phoenix channel
-    _rtSend({ topic: 'phoenix', event: 'phx_join', payload: {}, ref: String(++_rtRef) });
-    // 2. 订阅 store 表的 UPDATE/INSERT 事件
-    _rtSend({
+    // 订阅 store 表的所有变更（Supabase Realtime v2 协议）
+    const joinMsg = {
       topic: 'realtime:public:store',
       event: 'phx_join',
       payload: {
-        config: { broadcast: { self: false }, presence: { key: '' },
-          postgres_changes: [{ event: '*', schema: 'public', table: 'store', filter: 'key=eq.' + DB_KEY }]
-        }
+        config: {
+          broadcast: { self: false },
+          presence: { key: '' },
+          postgres_changes: [
+            { event: 'INSERT', schema: 'public', table: 'store', filter: 'key=eq.' + DB_KEY },
+            { event: 'UPDATE', schema: 'public', table: 'store', filter: 'key=eq.' + DB_KEY }
+          ]
+        },
+        access_token: SB_KEY
       },
       ref: String(++_rtRef)
-    });
-    // 3. 心跳，每 25s 发一次防止断连
+    };
+    _rtSend(joinMsg);
+    // 心跳，每 25s 发一次防止断连
     if (_rtHb) clearInterval(_rtHb);
     _rtHb = setInterval(() => {
       _rtSend({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: String(++_rtRef) });
@@ -1916,9 +1921,17 @@ function startRealtime() {
   _rtWs.onmessage = (e) => {
     try {
       const msg = JSON.parse(e.data);
-      // 收到数据库变更推送
-      if (msg.event === 'postgres_changes' || (msg.payload && msg.payload.data && msg.payload.data.type)) {
-        // 有变更，立即拉取最新数据
+      // Supabase Realtime v2 变更消息结构：
+      // msg.event = 'postgres_changes'，且 msg.payload.data.type = 'INSERT'|'UPDATE'|'DELETE'
+      // 也兼容旧版本结构
+      const payload = msg.payload || {};
+      const data = payload.data || {};
+      const isChange =
+        msg.event === 'postgres_changes' ||
+        data.type === 'INSERT' || data.type === 'UPDATE' || data.type === 'DELETE' ||
+        payload.type === 'INSERT' || payload.type === 'UPDATE' || payload.type === 'DELETE';
+      if (isChange) {
+        console.log('[RT] db change:', msg.event, data.type || '');
         _onRealtimeChange();
       }
     } catch(err) {}
@@ -2272,27 +2285,23 @@ async function forcePushAndPull() {
   if (!isOnline) { pendingSync = true; return; }
   if (isSyncing) return;
   isSyncing = true;
-  _rtIgnoreEcho = true; // 屏蔽自己推送触发的 Realtime 回声
   setSyncBar('syncing');
   try {
     // 推送本地数据到云端
+    _rtIgnoreEcho = true; // 屏蔽自己推送触发的 Realtime 回声（仅在推送期间）
     const ret = await sbPush(getLocal());
+    // 推送完成立即关闭屏蔽，不再用长定时器
+    _rtIgnoreEcho = false;
     if (!ret) { setSyncBar('error'); return; }
-    // 推送后立即拉取云端时间戳，确保本机 LAST_SYNC_AT 与云端严格一致
-    // 这样其他设备的 pullIfNewer 才能正确感知到"有新数据"
-    const result = await sbFetch();
-    if (result && result !== 'timeout') {
-      localStorage.setItem(LAST_SYNC_AT, normTs(result.updatedAt || ''));
-    }
     setSyncBar('ok');
     updateSyncTime();
     pendingSync = false;
   } catch(e) {
+    _rtIgnoreEcho = false;
     setSyncBar('error');
     console.error('Sync error:', e);
   } finally {
     isSyncing = false;
-    setTimeout(() => { _rtIgnoreEcho = false; }, 3000); // 3s后恢复监听
   }
 }
 
@@ -2300,8 +2309,18 @@ async function autoSync() {
   if (!isOnline || isSyncing) return;
   isSyncing = true;
   try {
-    await pullIfNewer(true);
-    updateSyncTime();
+    // 强制拉取，不做时间戳比较，确保轮询路径也能感知到对端的变更
+    const result = await sbFetch();
+    if (result && result !== 'timeout') {
+      const cloudAt = normTs(result.updatedAt || '');
+      const lastSeen = localStorage.getItem(LAST_SYNC_AT) || '';
+      if (cloudAt !== lastSeen) {
+        mergeAndSetLocal(result.value);
+        localStorage.setItem(LAST_SYNC_AT, cloudAt);
+        renderAll();
+        updateSyncTime();
+      }
+    }
   } catch(e) { console.error(e); }
   finally { isSyncing = false; }
 }
