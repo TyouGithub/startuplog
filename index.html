@@ -9,7 +9,7 @@
 <meta http-equiv="Expires" content="0"/>
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
-var VER = '20260314-065';
+var VER = '20260314-066';
 (function(){
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
@@ -445,10 +445,25 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
 .sms-template-box::before{content:'短信预览';position:absolute;top:-9px;left:12px;background:var(--card);padding:0 6px;font-size:10px;color:rgba(212,175,55,0.6);letter-spacing:1px}
 
 /* ── FAB ── */
-.fab{position:fixed;bottom:76px;right:18px;width:52px;height:52px;background:linear-gradient(145deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:50%;font-size:26px;cursor:pointer;box-shadow:0 6px 24px rgba(37,99,235,.55),0 0 0 1px rgba(255,255,255,0.12),0 2px 4px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;z-index:49;transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s;-webkit-tap-highlight-color:transparent}
+.fab{position:fixed;bottom:76px;right:18px;width:52px;height:52px;background:linear-gradient(145deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:50%;font-size:26px;cursor:pointer;box-shadow:0 6px 24px rgba(37,99,235,.55),0 0 0 1px rgba(255,255,255,0.12),0 2px 4px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;z-index:52;transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .18s,rotate .22s cubic-bezier(.34,1.56,.64,1);-webkit-tap-highlight-color:transparent}
 .fab:active{transform:scale(.88);box-shadow:0 3px 10px rgba(37,99,235,.35)}
+.fab.open{rotate:45deg;background:linear-gradient(145deg,#374151,#1f2937)}
 .fab::after{content:'';position:absolute;inset:-4px;border-radius:50%;background:rgba(37,99,235,0.2);animation:fabPulse 2.5s ease-in-out infinite;z-index:-1}
 @keyframes fabPulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.2);opacity:0}}
+/* FAB 菜单 */
+.fab-menu{position:fixed;bottom:138px;right:18px;display:flex;flex-direction:column;gap:10px;z-index:51;pointer-events:none;opacity:0;transition:opacity .18s}
+.fab-menu.open{pointer-events:auto;opacity:1}
+.fab-item{display:flex;align-items:center;justify-content:flex-end;gap:10px;transform:translateY(12px);opacity:0;transition:transform .22s cubic-bezier(.34,1.56,.64,1),opacity .18s}
+.fab-menu.open .fab-item{transform:translateY(0);opacity:1}
+.fab-menu.open .fab-item:nth-child(1){transition-delay:.06s}
+.fab-menu.open .fab-item:nth-child(2){transition-delay:.03s}
+.fab-menu.open .fab-item:nth-child(3){transition-delay:0s}
+.fab-item-label{background:rgba(10,14,24,0.92);color:#fff;padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(12px);box-shadow:0 4px 16px rgba(0,0,0,.4);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.fab-item-label:active{opacity:.8}
+.fab-item-btn{width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 4px 14px rgba(0,0,0,.35);-webkit-tap-highlight-color:transparent}
+.fab-item-btn:active{transform:scale(.9)}
+.fab-overlay{position:fixed;inset:0;z-index:50;display:none}
+.fab-overlay.open{display:block}
 
 /* ── 统一页头 ── */
 .page-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-top:2px}
@@ -1007,58 +1022,44 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
 
   <!-- GAME ACCOUNTS -->
   <div class="pg" id="pg-gameacc">
-    <!-- 游戏账号管理 大折叠卡片 -->
-    <div class="coll-card ga-master-card">
-      <div class="coll-hdr ga-master-hdr" onclick="toggleColl('gameMasterCard')">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="ga-master-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(148,163,184,0.8)" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="5"/><line x1="8" y1="12" x2="12" y2="12"/><line x1="10" y1="10" x2="10" y2="14"/><circle cx="16" cy="12" r="1" fill="rgba(148,163,184,0.8)"/><circle cx="14" cy="10" r="1" fill="rgba(148,163,184,0.8)"/></svg></div>
-          <div>
-            <div class="ga-master-title">游戏账号管理</div>
-            <div class="ga-master-sub" id="gaMasterSub1">加载中...</div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <button class="action-btn-ghost" onclick="event.stopPropagation();openPhoneBindDetail()" style="padding:4px 10px;font-size:11px">绑定</button>
-          <span class="coll-arrow" id="gameMasterCard-arrow">▼</span>
+    <!-- 页头 -->
+    <div class="page-hdr">
+      <div class="page-hdr-title">游戏账号</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="action-btn-ghost" onclick="openPhoneBindDetail()" style="padding:6px 14px;font-size:12px">📱 绑定详情</button>
+        <button class="page-hdr-action" onclick="openAddGameAcc()">＋ 新增账号</button>
+      </div>
+    </div>
+    <!-- 概述副标题 -->
+    <div id="gaMasterSub1" style="font-size:12px;color:var(--hint);margin:-8px 0 12px;letter-spacing:.1px">加载中...</div>
+    <!-- KPI 看板 -->
+    <div class="ga-kpi-grid" id="gameaccDashboard" style="margin-bottom:12px"></div>
+    <!-- 状态筛选 -->
+    <div class="fbar" style="margin-bottom:10px">
+      <button class="fbtn on" id="gaf-all"      onclick="filterGameAcc('all')">全部</button>
+      <button class="fbtn"    id="gaf-normal"   onclick="filterGameAcc('normal')">正常</button>
+      <button class="fbtn"    id="gaf-frozen"   onclick="filterGameAcc('frozen')">冻结</button>
+      <button class="fbtn"    id="gaf-sold"     onclick="filterGameAcc('sold')">已出售</button>
+      <button class="fbtn"    id="gaf-returned" onclick="filterGameAcc('returned')">被找回</button>
+    </div>
+    <!-- 账号列表 -->
+    <div class="card" style="padding:10px 14px;margin-bottom:10px">
+      <div class="ch" style="margin-bottom:8px">
+        <span class="ct">账号列表</span>
+      </div>
+      <div id="gameaccList"></div>
+    </div>
+    <!-- 收入记录 -->
+    <div class="coll-card">
+      <div class="coll-hdr" onclick="toggleColl('incomeCard')">
+        <div class="coll-title">💰 收入记录</div>
+        <div class="coll-actions">
+          <button class="action-btn-ghost" onclick="event.stopPropagation();openAddIncome()">＋ 记录收入</button>
+          <span class="coll-arrow" id="incomeCard-arrow">▼</span>
         </div>
       </div>
-      <div class="coll-body" id="gameMasterCard-body">
-        <!-- KPI看板 -->
-        <div class="ga-kpi-grid" id="gameaccDashboard" style="margin-bottom:10px"></div>
-        <!-- 状态筛选 -->
-        <div class="fbar" style="margin-bottom:10px">
-          <button class="fbtn on" id="gaf-all"      onclick="filterGameAcc('all')">全部</button>
-          <button class="fbtn"    id="gaf-normal"   onclick="filterGameAcc('normal')">正常</button>
-          <button class="fbtn"    id="gaf-frozen"   onclick="filterGameAcc('frozen')">冻结</button>
-          <button class="fbtn"    id="gaf-sold"     onclick="filterGameAcc('sold')">已出售</button>
-          <button class="fbtn"    id="gaf-returned" onclick="filterGameAcc('returned')">被找回</button>
-        </div>
-        <!-- 账号列表（第三层折叠） -->
-        <div class="coll-card" style="margin-bottom:8px;background:rgba(255,255,255,0.02)">
-          <div class="coll-hdr" onclick="toggleColl('gameaccListCard')">
-            <div class="coll-title" style="font-size:13px">账号列表</div>
-            <div class="coll-actions">
-              <button class="action-btn-ghost" onclick="event.stopPropagation();openAddGameAcc()">＋ 新增</button>
-              <span class="coll-arrow" id="gameaccListCard-arrow">▼</span>
-            </div>
-          </div>
-          <div class="coll-body" id="gameaccListCard-body">
-            <div id="gameaccList"></div>
-          </div>
-        </div>
-        <!-- 收入记录（第三层折叠） -->
-        <div class="coll-card" style="background:rgba(255,255,255,0.02)">
-          <div class="coll-hdr" onclick="toggleColl('incomeCard')">
-            <div class="coll-title" style="font-size:13px">收入记录</div>
-            <div class="coll-actions">
-              <button class="action-btn-ghost" onclick="event.stopPropagation();openAddIncome()">＋ 记录收入</button>
-              <span class="coll-arrow" id="incomeCard-arrow">▼</span>
-            </div>
-          </div>
-          <div class="coll-body" id="incomeCard-body">
-            <div id="incomeList"></div>
-          </div>
-        </div>
+      <div class="coll-body" id="incomeCard-body">
+        <div id="incomeList"></div>
       </div>
     </div>
   </div>
@@ -1124,60 +1125,6 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
       </div>
       <div class="coll-body" id="profileMeetingCard-body">
         <div id="profileMeetingList"></div>
-      </div>
-    </div>
-    <!-- 游戏账号（并入我的） -->
-    <div class="coll-card ga-master-card">
-      <div class="coll-hdr ga-master-hdr" onclick="toggleColl('gameMasterCard2')">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="ga-master-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(148,163,184,0.8)" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="5"/><line x1="8" y1="12" x2="12" y2="12"/><line x1="10" y1="10" x2="10" y2="14"/><circle cx="16" cy="12" r="1" fill="rgba(148,163,184,0.8)"/><circle cx="14" cy="10" r="1" fill="rgba(148,163,184,0.8)"/></svg></div>
-          <div>
-            <div class="ga-master-title">游戏账号管理</div>
-            <div class="ga-master-sub" id="gaMasterSub2">加载中...</div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <button class="action-btn-ghost" onclick="event.stopPropagation();openPhoneBindDetail()" style="padding:4px 10px;font-size:11px">绑定</button>
-          <span class="coll-arrow" id="gameMasterCard2-arrow">▼</span>
-        </div>
-      </div>
-      <div class="coll-body" id="gameMasterCard2-body">
-        <!-- KPI看板 -->
-        <div class="ga-kpi-grid" id="gameaccDashboard2" style="margin-bottom:10px"></div>
-        <!-- 状态筛选 -->
-        <div class="fbar" style="margin-bottom:10px">
-          <button class="fbtn on" id="gaf2-all"      onclick="filterGameAcc2('all')">全部</button>
-          <button class="fbtn"    id="gaf2-normal"   onclick="filterGameAcc2('normal')">正常</button>
-          <button class="fbtn"    id="gaf2-frozen"   onclick="filterGameAcc2('frozen')">冻结</button>
-          <button class="fbtn"    id="gaf2-sold"     onclick="filterGameAcc2('sold')">已出售</button>
-          <button class="fbtn"    id="gaf2-returned" onclick="filterGameAcc2('returned')">被找回</button>
-        </div>
-        <!-- 账号列表 -->
-        <div class="coll-card" style="margin-bottom:8px;background:rgba(255,255,255,0.02)">
-          <div class="coll-hdr" onclick="toggleColl('gameaccListCard2')">
-            <div class="coll-title" style="font-size:13px">账号列表</div>
-            <div class="coll-actions">
-              <button class="action-btn-ghost" onclick="event.stopPropagation();openAddGameAcc()">＋ 新增</button>
-              <span class="coll-arrow" id="gameaccListCard2-arrow">▼</span>
-            </div>
-          </div>
-          <div class="coll-body" id="gameaccListCard2-body">
-            <div id="gameaccList2"></div>
-          </div>
-        </div>
-        <!-- 收入记录 -->
-        <div class="coll-card" style="background:rgba(255,255,255,0.02)">
-          <div class="coll-hdr" onclick="toggleColl('incomeCard2')">
-            <div class="coll-title" style="font-size:13px">收入记录</div>
-            <div class="coll-actions">
-              <button class="action-btn-ghost" onclick="event.stopPropagation();openAddIncome()">＋ 记录收入</button>
-              <span class="coll-arrow" id="incomeCard2-arrow">▼</span>
-            </div>
-          </div>
-          <div class="coll-body" id="incomeCard2-body">
-            <div id="incomeList2"></div>
-          </div>
-        </div>
       </div>
     </div>
     <div class="coll-card">
@@ -1290,7 +1237,12 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
       <span class="bl">我的</span>
     </div>
   </div>
-  <button class="fab" id="fab">＋</button>
+  <!-- FAB 多选菜单 -->
+  <div class="fab-overlay" id="fabOverlay" onclick="closeFabMenu()"></div>
+  <div class="fab-menu" id="fabMenu">
+    <!-- 菜单项由 JS 动态写入 -->
+  </div>
+  <button class="fab" id="fab" onclick="toggleFabMenu()">＋</button>
 </div>
 
 <!-- MODAL -->
@@ -2606,8 +2558,6 @@ function initApp() {
   setDateVal('f-m-date', now.toISOString().split('T')[0]);
   renderAll();
   goPage('home');
-  // 确保 FAB 初始绑定（首页 → 添加动态）
-  document.getElementById('fab').onclick = openAddAct;
   fetchDailySoup();
   // 调度会议通知（每次登录/刷新后重新注册）
   scheduleMeetingNotifs();
@@ -3381,8 +3331,8 @@ function isAdmin() { return ADMINS.includes(CU); }
 // 只读模式：隐藏所有写操作按钮
 function applyReadOnly() {
   const ro = !isAdmin();
-  // FAB（添加按钮）
-  document.getElementById('fab').style.display = ro ? 'none' : (curPage==='profile'?'none':'flex');
+  // FAB（添加按钮）：非管理员隐藏；管理员由 goPage 控制显示状态
+  if (ro) document.getElementById('fab').style.display = 'none';
   // 所有 .cm 按钮（各页面右上角操作）
   document.querySelectorAll('.cm').forEach(el => {
     if (el.id === 'syncStatus') return; // 同步状态不隐藏
@@ -4420,9 +4370,61 @@ function clearForms() {
   if (preview) preview.innerHTML = '';
 }
 
+// 每页 FAB 菜单配置：{ label, icon(emoji/svg), color, action }
+const FAB_PAGES = {
+  home: [
+    { label:'添加动态', icon:'📝', color:'#10b981', action: openAddAct },
+    { label:'新增会议', icon:'📅', color:'#6366f1', action: () => { openModal(); switchForm('meeting'); } },
+  ],
+  tasks:    [{ label:'新增任务',    icon:'✅', color:'#f59e0b', action: () => { openModal(); switchForm('task'); } }],
+  products: [{ label:'新增商品',    icon:'📦', color:'#06b6d4', action: () => { openModal(); switchForm('product'); } }],
+  meetings: [{ label:'新增会议',    icon:'📅', color:'#6366f1', action: () => { openModal(); switchForm('meeting'); } }],
+  gameacc:  [{ label:'新增账号',    icon:'🎮', color:'#818cf8', action: openAddGameAcc }],
+  profile:  null,
+};
+
+function buildFabMenu(items) {
+  const menu = document.getElementById('fabMenu');
+  if (!items || !items.length) { menu.innerHTML = ''; return; }
+  menu.innerHTML = items.map((it, i) => `
+    <div class="fab-item" id="fabItem${i}">
+      <span class="fab-item-label" onclick="fabAction(${i})">${it.label}</span>
+      <button class="fab-item-btn" style="background:${it.color}" onclick="fabAction(${i})">${it.icon}</button>
+    </div>`).join('');
+}
+window._fabActions = [];
+
+function fabAction(i) {
+  closeFabMenu();
+  setTimeout(() => { if (window._fabActions[i]) window._fabActions[i](); }, 160);
+}
+
+function toggleFabMenu() {
+  const menu = document.getElementById('fabMenu');
+  const fab  = document.getElementById('fab');
+  const ov   = document.getElementById('fabOverlay');
+  if (!window._fabActions || !window._fabActions.length) {
+    // 单项直接执行
+    return;
+  }
+  const isOpen = menu.classList.contains('open');
+  if (isOpen) { closeFabMenu(); } else {
+    menu.classList.add('open');
+    fab.classList.add('open');
+    ov.classList.add('open');
+  }
+}
+
+function closeFabMenu() {
+  document.getElementById('fabMenu').classList.remove('open');
+  document.getElementById('fab').classList.remove('open');
+  document.getElementById('fabOverlay').classList.remove('open');
+}
+
 function goPage(p) {
   // 兼容旧的 accounts 跳转
   if (p === 'accounts') p = 'profile';
+  closeFabMenu();
   const pg = document.getElementById('pg-' + p);
   // 先把新页设为可见，再移除旧页——避免同帧双 display:none 导致白屏
   if (pg) pg.classList.add('on');
@@ -4430,20 +4432,23 @@ function goPage(p) {
   document.querySelectorAll('.btab').forEach(e => e.classList.remove('on'));
   const bt = document.getElementById('bt-' + p); if (bt) bt.classList.add('on');
   curPage = p;
-  // FAB 按导航顺序精确绑定
+  // FAB 菜单设置
   const fab = document.getElementById('fab');
-  if (!isAdmin()) {
+  const items = FAB_PAGES[p];
+  if (!isAdmin() || items === null || items === undefined) {
     fab.style.display = 'none';
+    window._fabActions = [];
   } else {
-    const fabMap = {
-      home:     () => { fab.style.display='flex'; fab.onclick = openAddAct; },
-      meetings: () => { fab.style.display='flex'; fab.onclick = () => { openModal(); switchForm('meeting'); }; },
-      tasks:    () => { fab.style.display='flex'; fab.onclick = () => { openModal(); switchForm('task'); }; },
-      products: () => { fab.style.display='flex'; fab.onclick = () => { openModal(); switchForm('product'); }; },
-      gameacc:  () => { fab.style.display='flex'; fab.onclick = openAddGameAcc; },
-      profile:  () => { fab.style.display='none'; },
-    };
-    (fabMap[p] || (() => { fab.style.display='none'; }))();
+    fab.style.display = 'flex';
+    window._fabActions = items.map(it => it.action);
+    buildFabMenu(items);
+    // 单项时 FAB 直接执行，不展开菜单
+    if (items.length === 1) {
+      document.getElementById('fabMenu').innerHTML = '';
+      fab.onclick = () => { items[0].action(); };
+    } else {
+      fab.onclick = toggleFabMenu;
+    }
   }
   applyReadOnly();
 }
@@ -4697,13 +4702,8 @@ function renderGameAccPage() {
   renderIncomeList();
 }
 
-// 新版：渲染到 profile 页内嵌的游戏账号区（id 带 2 后缀）
-function renderGameAccInProfile() {
-  _updateGaMasterSub('gaMasterSub2');
-  renderGameAccDashboard2();
-  renderGameAccList2();
-  renderIncomeList2();
-}
+// 新版：渲染到 profile 页内嵌的游戏账号区（已移除，保留空函数兼容调用）
+function renderGameAccInProfile() {}
 
 function renderGameAccDashboard() {
   const s = getLocal();
