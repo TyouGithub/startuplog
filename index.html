@@ -9,7 +9,7 @@
 <meta http-equiv="Expires" content="0"/>
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
-var VER = '20260314-066';
+var VER = '20260314-067';
 (function(){
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
@@ -1042,14 +1042,20 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
       <button class="fbtn"    id="gaf-sold"     onclick="filterGameAcc('sold')">已出售</button>
       <button class="fbtn"    id="gaf-returned" onclick="filterGameAcc('returned')">被找回</button>
     </div>
-    <!-- 账号列表 -->
-    <div class="card" style="padding:10px 14px;margin-bottom:10px">
-      <div class="ch" style="margin-bottom:8px">
-        <span class="ct">账号列表</span>
+    <!-- 账号列表（默认折叠） -->
+    <div class="coll-card">
+      <div class="coll-hdr" onclick="toggleColl('gameaccListCard')">
+        <div class="coll-title">🎮 账号列表</div>
+        <div class="coll-actions">
+          <button class="action-btn-ghost" onclick="event.stopPropagation();openAddGameAcc()">＋ 新增</button>
+          <span class="coll-arrow" id="gameaccListCard-arrow">▼</span>
+        </div>
       </div>
-      <div id="gameaccList"></div>
+      <div class="coll-body" id="gameaccListCard-body">
+        <div id="gameaccList"></div>
+      </div>
     </div>
-    <!-- 收入记录 -->
+    <!-- 收入记录（默认折叠） -->
     <div class="coll-card">
       <div class="coll-hdr" onclick="toggleColl('incomeCard')">
         <div class="coll-title">💰 收入记录</div>
@@ -1106,7 +1112,7 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
         <span class="shortcut-icon shortcut-icon--amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
         <div><div class="shortcut-title">创业路线</div><div class="shortcut-sub">编辑规划</div></div>
       </div>
-      <div class="shortcut-item" onclick="openModal();switchForm('insight')">
+      <div class="shortcut-item" onclick="openAddInsightDirect()">
         <span class="shortcut-icon shortcut-icon--teal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
         <div><div class="shortcut-title">心得</div><div class="shortcut-sub">记录思考</div></div>
       </div>
@@ -1155,7 +1161,7 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
       <div class="coll-hdr" onclick="toggleColl('insightCard')">
         <div class="coll-title">心得</div>
         <div class="coll-actions">
-          <button class="action-btn-ghost" onclick="event.stopPropagation();openModal();switchForm('insight')">＋ 添加</button>
+          <button class="action-btn-ghost" onclick="event.stopPropagation();openAddInsightDirect()">＋ 添加</button>
           <span class="coll-arrow" id="insightCard-arrow">▼</span>
         </div>
       </div>
@@ -4305,6 +4311,13 @@ function openAddAcc() {
   document.getElementById('modal').classList.add('show');
 }
 
+// 专用：我的页面直接添加心得（不显示 tab 切换）
+function openAddInsightDirect() {
+  document.getElementById('tsw').style.display = 'none';
+  switchForm('insight');
+  document.getElementById('modal').classList.add('show');
+}
+
 function closeModal() {
   const m = document.getElementById('modal');
   delete m.dataset.editAccId;
@@ -4373,13 +4386,13 @@ function clearForms() {
 // 每页 FAB 菜单配置：{ label, icon(emoji/svg), color, action }
 const FAB_PAGES = {
   home: [
-    { label:'添加动态', icon:'📝', color:'#10b981', action: openAddAct },
     { label:'新增会议', icon:'📅', color:'#6366f1', action: () => { openModal(); switchForm('meeting'); } },
+    { label:'添加动态', icon:'📝', color:'#10b981', action: openAddAct },
   ],
-  tasks:    [{ label:'新增任务',    icon:'✅', color:'#f59e0b', action: () => { openModal(); switchForm('task'); } }],
-  products: [{ label:'新增商品',    icon:'📦', color:'#06b6d4', action: () => { openModal(); switchForm('product'); } }],
-  meetings: [{ label:'新增会议',    icon:'📅', color:'#6366f1', action: () => { openModal(); switchForm('meeting'); } }],
-  gameacc:  [{ label:'新增账号',    icon:'🎮', color:'#818cf8', action: openAddGameAcc }],
+  tasks:    [{ label:'新增任务',  icon:'✅', color:'#f59e0b', action: () => { openModal(); switchForm('task'); } }],
+  products: [{ label:'新增商品',  icon:'📦', color:'#06b6d4', action: () => { openModal(); switchForm('product'); } }],
+  meetings: [{ label:'新增会议',  icon:'📅', color:'#6366f1', action: () => { openModal(); switchForm('meeting'); } }],
+  gameacc:  [{ label:'新增账号',  icon:'🎮', color:'#818cf8', action: openAddGameAcc }],
   profile:  null,
 };
 
