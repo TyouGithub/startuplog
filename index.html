@@ -9,7 +9,7 @@
 <meta http-equiv="Expires" content="0"/>
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
-var VER = '20260314-063';
+var VER = '20260314-064';
 (function(){
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
@@ -516,9 +516,9 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
 .coll-body-notop{display:none;padding:0 16px 14px}
 .coll-body-notop.open{display:block}
 
-/* ── 商品状态快切按钮 ── */
-.prod-status-btn{border:none;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;letter-spacing:.1px}
-.prod-status-btn:active{filter:brightness(.92);transform:scale(.96)}
+/* ── 商品状态下拉选择 ── */
+.prod-status-sel{border:none;border-radius:20px;padding:3px 8px 3px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;letter-spacing:.1px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center;padding-right:18px}
+.prod-status-sel:focus{outline:none;box-shadow:0 0 0 2px rgba(99,102,241,0.4)}
 
 /* ── LOADING ── */
 .loading-screen{position:fixed;inset:0;background:#060810;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;color:#fff;background-image:radial-gradient(ellipse at 20% 80%,rgba(212,175,55,0.07) 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(37,99,235,0.09) 0%,transparent 55%)}
@@ -618,8 +618,8 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
 .ga-btn-edit:active{background:rgba(37,99,235,0.2)}
 .ga-btn-del{background:var(--red-lt);color:var(--red);border:none;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
 .ga-btn-del:active{background:rgba(220,38,38,0.2)}
-.ga-btn-status{border:none;border-radius:8px;padding:5px 9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;letter-spacing:.1px}
-.ga-btn-status:active{filter:brightness(.92);transform:scale(.96)}
+.ga-status-sel{border:none;border-radius:8px;padding:5px 18px 5px 9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;letter-spacing:.1px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center}
+.ga-status-sel:focus{outline:none;box-shadow:0 0 0 2px rgba(99,102,241,0.4)}
 .ga-pwd-row{display:flex;align-items:center;gap:4px}
 .ga-pwd-text{font-family:monospace;font-size:12px;letter-spacing:1px;color:var(--text)}
 .ga-eye-btn{background:none;border:none;color:var(--blue);font-size:12px;cursor:pointer;padding:0;line-height:1;opacity:.7;transition:opacity .15s}
@@ -729,9 +729,9 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
 .coll-body-notop{display:none;padding:0 18px 16px}
 .coll-body-notop.open{display:block}
 
-/* ── 商品状态快切按钮 ── */
-.prod-status-btn{border:none;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;letter-spacing:.1px}
-.prod-status-btn:active{filter:brightness(.92);transform:scale(.96)}
+/* ── 商品状态下拉选择 ── */
+.prod-status-sel{border:none;border-radius:20px;padding:3px 8px 3px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;letter-spacing:.1px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center;padding-right:18px}
+.prod-status-sel:focus{outline:none;box-shadow:0 0 0 2px rgba(99,102,241,0.4)}
 </style>
 </head>
 <body>
@@ -4016,7 +4016,9 @@ function prodHTML(p) {
         <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px">${p.name}</span>
       </div>
       <div class="coll-actions" style="gap:6px">
-        <button class="prod-status-btn" style="background:${ss.bg};color:${ss.color}" onclick="event.stopPropagation();cycleProdStatus('${p.id}')" title="点击切换状态">${p.status}</button>
+        <select class="prod-status-sel" style="background-color:${ss.bg};color:${ss.color}" onclick="event.stopPropagation()" onchange="event.stopPropagation();selectProdStatus('${p.id}',this.value)">
+          ${['选品中','备货中','在售','下架'].map(v=>`<option value="${v}" ${p.status===v?'selected':''}>${v}</option>`).join('')}
+        </select>
         <span class="coll-arrow" id="${cardId}-arrow">▼</span>
       </div>
     </div>
@@ -4139,18 +4141,15 @@ function delProd(id) {
   });
 }
 
-// 商品状态快切（选品中 → 备货中 → 在售 → 下架 → 选品中）
-function cycleProdStatus(id) {
-  const CYCLE = ['选品中', '备货中', '在售', '下架'];
-  const LABEL_MAP = { '选品中':'选品中', '备货中':'备货中', '在售':'在售', '下架':'下架' };
+// 商品状态下拉选择
+function selectProdStatus(id, val) {
   const s = getLocal();
   const idx = (s.products||[]).findIndex(x => x.id === id);
   if (idx === -1) return;
-  const cur = s.products[idx].status || '选品中';
-  const next = CYCLE[(CYCLE.indexOf(cur) + 1) % CYCLE.length];
-  s.products[idx] = stampNow({ ...s.products[idx], status: next });
+  if (s.products[idx].status === val) return;
+  s.products[idx] = stampNow({ ...s.products[idx], status: val });
   setLocal(s); renderProdList(); forcePushAndPull();
-  toast(`状态已更新：${LABEL_MAP[next] || next} ✓`);
+  toast(`状态已更新：${val} ✓`);
 }
 
 // ══════════════════════════════════════════════
@@ -4778,7 +4777,9 @@ function _renderGameAccToEl(elId, filter) {
           <div class="ga-meta">${a.os} &nbsp;·&nbsp; ${a.region || 'QQ区'}${a.note ? ' &nbsp;·&nbsp; ' + a.note.slice(0,16) : ''}</div>
         </div>
         <div class="ga-actions">
-          <button class="ga-btn-status" style="background:${ss.bg};color:${ss.color}" onclick="cycleGameAccStatus('${a.id}')" title="点击切换状态">${statusLabel}</button>
+          <select class="ga-status-sel" style="background-color:${ss.bg};color:${ss.color}" onchange="selectGameAccStatus('${a.id}',this.value)">
+            ${['正常','冻结','已出售','被找回'].map(v=>`<option value="${v}" ${a.status===v?'selected':''}>${v}</option>`).join('')}
+          </select>
           <button class="ga-btn-edit" onclick="editGameAcc('${a.id}')">编辑</button>
           <button class="ga-btn-del" onclick="delGameAcc('${a.id}')">删除</button>
         </div>
@@ -4977,18 +4978,15 @@ async function delGameAcc(id) {
   toast('已删除 ✓');
 }
 
-// 快速切换账号状态（正常 → 冻结 → 已出售 → 被找回 → 正常）
-function cycleGameAccStatus(id) {
-  const CYCLE = ['正常', '冻结', '已出售', '被找回'];
+// 游戏账号状态下拉选择
+function selectGameAccStatus(id, val) {
   const s = getLocal();
   const idx = (s.gameAccounts||[]).findIndex(x => x.id === id);
   if (idx === -1) return;
-  const cur = s.gameAccounts[idx].status || '正常';
-  const next = CYCLE[(CYCLE.indexOf(cur) + 1) % CYCLE.length];
-  s.gameAccounts[idx] = stampNow({ ...s.gameAccounts[idx], status: next });
+  if (s.gameAccounts[idx].status === val) return;
+  s.gameAccounts[idx] = stampNow({ ...s.gameAccounts[idx], status: val });
   setLocal(s); renderGameAccPage(); renderGameAccInProfile(); forcePushAndPull();
-  const LABEL = { '正常':'正常', '冻结':'冻结', '已出售':'已出售', '被找回':'被找回' };
-  toast(`状态已更新：${LABEL[next]}`);
+  toast(`状态已更新：${val}`);
 }
 
 // 收入相关
