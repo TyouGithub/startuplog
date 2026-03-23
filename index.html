@@ -9,7 +9,7 @@
 <meta http-equiv="Expires" content="0"/>
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
-var VER = '20260314-067';
+var VER = '20260314-068';
 (function(){
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
@@ -1026,7 +1026,7 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
     <div class="page-hdr">
       <div class="page-hdr-title">游戏账号</div>
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="action-btn-ghost" onclick="openPhoneBindDetail()" style="padding:6px 14px;font-size:12px">📱 绑定详情</button>
+        <button class="action-btn-ghost" onclick="openPhoneBindDetail()" style="padding:6px 14px;font-size:12px">绑定详情</button>
         <button class="page-hdr-action" onclick="openAddGameAcc()">＋ 新增账号</button>
       </div>
     </div>
@@ -1034,31 +1034,31 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
     <div id="gaMasterSub1" style="font-size:12px;color:var(--hint);margin:-8px 0 12px;letter-spacing:.1px">加载中...</div>
     <!-- KPI 看板 -->
     <div class="ga-kpi-grid" id="gameaccDashboard" style="margin-bottom:12px"></div>
-    <!-- 状态筛选 -->
-    <div class="fbar" style="margin-bottom:10px">
-      <button class="fbtn on" id="gaf-all"      onclick="filterGameAcc('all')">全部</button>
-      <button class="fbtn"    id="gaf-normal"   onclick="filterGameAcc('normal')">正常</button>
-      <button class="fbtn"    id="gaf-frozen"   onclick="filterGameAcc('frozen')">冻结</button>
-      <button class="fbtn"    id="gaf-sold"     onclick="filterGameAcc('sold')">已出售</button>
-      <button class="fbtn"    id="gaf-returned" onclick="filterGameAcc('returned')">被找回</button>
-    </div>
-    <!-- 账号列表（默认折叠） -->
+    <!-- 账号列表（默认折叠，筛选在内部） -->
     <div class="coll-card">
       <div class="coll-hdr" onclick="toggleColl('gameaccListCard')">
-        <div class="coll-title">🎮 账号列表</div>
+        <div class="coll-title">账号列表</div>
         <div class="coll-actions">
           <button class="action-btn-ghost" onclick="event.stopPropagation();openAddGameAcc()">＋ 新增</button>
           <span class="coll-arrow" id="gameaccListCard-arrow">▼</span>
         </div>
       </div>
       <div class="coll-body" id="gameaccListCard-body">
+        <!-- 状态筛选 -->
+        <div class="fbar" style="margin:0 0 10px">
+          <button class="fbtn on" id="gaf-all"      onclick="filterGameAcc('all')">全部</button>
+          <button class="fbtn"    id="gaf-normal"   onclick="filterGameAcc('normal')">正常</button>
+          <button class="fbtn"    id="gaf-frozen"   onclick="filterGameAcc('frozen')">冻结</button>
+          <button class="fbtn"    id="gaf-sold"     onclick="filterGameAcc('sold')">已出售</button>
+          <button class="fbtn"    id="gaf-returned" onclick="filterGameAcc('returned')">被找回</button>
+        </div>
         <div id="gameaccList"></div>
       </div>
     </div>
     <!-- 收入记录（默认折叠） -->
     <div class="coll-card">
       <div class="coll-hdr" onclick="toggleColl('incomeCard')">
-        <div class="coll-title">💰 收入记录</div>
+        <div class="coll-title">收入记录</div>
         <div class="coll-actions">
           <button class="action-btn-ghost" onclick="event.stopPropagation();openAddIncome()">＋ 记录收入</button>
           <span class="coll-arrow" id="incomeCard-arrow">▼</span>
@@ -1416,7 +1416,7 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
       <label>时间（留空 = 当前时间）</label>
       <div style="display:flex;gap:8px;align-items:center">
         <button type="button" class="date-input-btn" id="act-date-btn" onclick="openDatePicker('act-date-btn','动态日期',false)" style="flex:1"><span id="act-date-btn-text" style="color:var(--hint)">点击选择日期</span><span class="cal-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span></button>
-        <button type="button" class="date-input-btn" id="act-time-btn" onclick="openTimePicker()" style="width:100px;flex-shrink:0"><span id="act-time-btn-text" style="color:var(--hint)">时 : 分</span><span class="cal-icon" style="font-size:13px">🕐</span></button>
+        <button type="button" class="date-input-btn" id="act-time-btn" onclick="openTimePicker()" style="width:100px;flex-shrink:0"><span id="act-time-btn-text" style="color:var(--hint)">时 : 分</span><span class="cal-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg></span></button>
       </div>
     </div>
     <div class="mact">
@@ -1737,7 +1737,7 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
     <div class="igtool-grid">
 
       <div class="igtool-card" onclick="openToolUrl('https://www.designkit.cn/')">
-        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#ff6b9d,#ff4d6d)">🎨</div>
+        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#ff6b9d,#ff4d6d)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12a3 3 0 1 0 6 0 3 3 0 0 0-6 0"/><path d="M12 3c1.5 2 3 3.5 3 6s-1.5 4-3 6-3-4-3-6 1.5-4 3-6z" opacity=".5"/></svg></div>
         <div class="igtool-card-body">
           <div class="igtool-card-name">美图设计室</div>
           <div class="igtool-card-desc">免费 · AI商品图海报 · 智能抠图换背景 · 海量电商模板 · 跨境主图</div>
@@ -1746,7 +1746,7 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
       </div>
 
       <div class="igtool-card" onclick="openToolUrl('https://www.remove.bg/')">
-        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">✂️</div>
+        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></div>
         <div class="igtool-card-body">
           <div class="igtool-card-name">Remove.bg</div>
           <div class="igtool-card-desc">行业标杆背景去除 · 精度极高 · 复杂背景也能完美抠图 · 支持批量</div>
@@ -1755,7 +1755,7 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
       </div>
 
       <div class="igtool-card" onclick="openToolUrl('https://www.photoroom.com/')">
-        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#11998e,#38ef7d)">📸</div>
+        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#11998e,#38ef7d)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
         <div class="igtool-card-body">
           <div class="igtool-card-name">PhotoRoom</div>
           <div class="igtool-card-desc">AI商品图编辑 · 背景去除+替换 · 阴影生成 · 快速出专业级商拍图</div>
@@ -1773,7 +1773,7 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
       </div>
 
       <div class="igtool-card" onclick="openToolUrl('https://mokker.ai/')">
-        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">🎭</div>
+        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#1a1a2e,#16213e)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
         <div class="igtool-card-body">
           <div class="igtool-card-name">Mokker</div>
           <div class="igtool-card-desc">上传商品图自动生成场景背景 · 亚马逊卖家常用 · 多风格场景</div>
@@ -1782,7 +1782,7 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
       </div>
 
       <div class="igtool-card" onclick="openToolUrl('https://www.canva.com/zh_cn/')">
-        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#00b4db,#0083b0)">🖌️</div>
+        <div class="igtool-card-icon" style="background:linear-gradient(135deg,#00b4db,#0083b0)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
         <div class="igtool-card-body">
           <div class="igtool-card-name">Canva</div>
           <div class="igtool-card-desc">全功能设计平台 · 海量电商模板 · 多语言文案设计 · 一键调整平台尺寸</div>
@@ -2708,7 +2708,7 @@ function renderActs() {
     const realIdx = s.activities.findIndex(x => x === a || (x.id && x.id === a.id));
     const canEdit = isAdmin() || a.author === CU;
     const editBtn = canEdit ? `<button class="edit-btn" style="flex-shrink:0;padding:2px 8px" onclick="openEditActByIdx(${realIdx})">编辑</button>` : '';
-    const delBtn  = canEdit ? `<button class="del-btn" style="font-size:13px;opacity:.4;flex-shrink:0" onclick="delAct(${realIdx})">🗑</button>` : '';
+    const delBtn  = canEdit ? `<button class="del-btn" style="font-size:13px;opacity:.4;flex-shrink:0;display:flex;align-items:center" onclick="delAct(${realIdx})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>` : '';
     return `<div class="tli"><div class="tldot ${map[a.type]||''}"></div>
     <div class="tlt">${fmtTime(a.time)}</div>
     <div style="display:flex;align-items:flex-start;gap:6px">
@@ -2858,7 +2858,7 @@ function renderProfileActs() {
         <div class="tlc" style="flex:1">${a.text}${authorTag}</div>
         <div style="display:flex;gap:4px;flex-shrink:0">
           ${canEdit ? `<button class="edit-btn" style="padding:2px 8px" onclick="openEditActByIdx(${realIdx})">编辑</button>` : ''}
-          <button class="del-btn" style="font-size:13px;opacity:.4" onclick="delAct(${realIdx})">🗑</button>
+          <button class="del-btn" style="font-size:13px;opacity:.4;display:flex;align-items:center" onclick="delAct(${realIdx})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </div>
       </div>
     </div>`;
@@ -3535,7 +3535,7 @@ function renderHomeTasks() {
   const s = getLocal();
   const list = alive(s.tasks).filter(t => t.status !== 'done').slice(0,4);
   const el = document.getElementById('homeTasks');
-  if (!list.length) { el.innerHTML = '<div class="empty"><div class="ei">🎉</div>所有任务已完成！</div>'; return; }
+  if (!list.length) { el.innerHTML = '<div class="empty"><div class="ei" style="font-size:28px;letter-spacing:2px;opacity:.5">✓</div>所有任务已完成！</div>'; return; }
   el.innerHTML = list.map(t => taskHTML(t, true)).join('');
 }
 
@@ -3725,7 +3725,7 @@ function taskHTML(t, compact) {
     </div>
     ${!compact ? `<div style="display:flex;gap:4px;flex-shrink:0">
       <button class="edit-btn" onclick="editTask('${t.id}')">编辑</button>
-      <button class="del-btn" onclick="delTask('${t.id}')">🗑</button>
+      <button class="del-btn" onclick="delTask('${t.id}')" style="display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
     </div>` : ''}
   </div>`;
 }
@@ -3794,7 +3794,7 @@ function cycleTask(id) {
     addAct(`「${t.title}」${lb[nextStatus]}`, t.status === 'done' ? 'g' : 'o');
     setLocal(s); renderAll();
     forcePushAndPull();
-    toast(t.status === 'done' ? '任务完成 🎉' : t.status === 'doing' ? '进行中' : '已重置');
+    toast(t.status === 'done' ? '任务完成' : t.status === 'doing' ? '进行中' : '已重置');
   });
 }
 
@@ -4038,10 +4038,10 @@ function prodHTML(p) {
       </div>` : ''}
       ${keywordsHtml}${skuHtml}
       ${p.note ? `<div class="pfull"><div class="pflab">选品备注</div><div style="font-size:13px;color:var(--text);margin-top:3px;line-height:1.6">${p.note}</div></div>` : ''}
-      ${p.url ? `<div style="margin-top:6px"><a href="${p.url}" target="_blank" style="font-size:12px;color:var(--blue)">🔗 商品链接</a></div>` : ''}
+      ${p.url ? `<div style="margin-top:6px"><a href="${p.url}" target="_blank" style="font-size:12px;color:var(--blue)">商品链接 →</a></div>` : ''}
       <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
         <button class="edit-btn" onclick="editProd('${p.id}')">编辑</button>
-        <button class="del-btn" onclick="delProd('${p.id}')">🗑 删除</button>
+        <button class="del-btn" onclick="delProd('${p.id}')" style="display:flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> 删除</button>
       </div>
     </div>
   </div>`;
@@ -4231,7 +4231,7 @@ function renderAccList() {
   const accs = alive(s.accounts);
   if (!accs.length) {
     el.innerHTML = `<div style="padding:16px 0;text-align:center">
-      <div style="font-size:32px;margin-bottom:8px">🔑</div>
+      <div style="margin-bottom:8px;opacity:.3"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></div>
       <div style="font-size:13px;color:var(--hint);margin-bottom:12px">暂无账号，点右上角「+ 添加」</div>
     </div>`;
     return;
@@ -4248,7 +4248,7 @@ function renderAccList() {
           ${a.url ? `<div class="acurl"><a href="${a.url}" target="_blank" style="color:var(--blue)">${a.url}</a></div>` : ''}
         </div>
         <button class="edit-btn" style="margin-right:6px" onclick="editAcc('${a.id}')">编辑</button>
-        <button class="del-btn" onclick="delAcc('${a.id}')">🗑</button>
+        <button class="del-btn" onclick="delAcc('${a.id}')" style="display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
       </div>
       <!-- 账号和密码同行显示 -->
       <div class="ac2row">
@@ -4383,16 +4383,21 @@ function clearForms() {
   if (preview) preview.innerHTML = '';
 }
 
-// 每页 FAB 菜单配置：{ label, icon(emoji/svg), color, action }
+// 每页 FAB 菜单配置：{ label, icon(svg html), color, action }
+const _svgCalendar = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+const _svgPen     = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
+const _svgCheck   = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+const _svgBox     = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`;
+const _svgGame    = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="5"/><line x1="8" y1="12" x2="12" y2="12"/><line x1="10" y1="10" x2="10" y2="14"/><circle cx="16" cy="12" r="1.2" fill="rgba(255,255,255,0.9)"/><circle cx="14" cy="10" r="1.2" fill="rgba(255,255,255,0.9)"/></svg>`;
 const FAB_PAGES = {
   home: [
-    { label:'新增会议', icon:'📅', color:'#6366f1', action: () => { openModal(); switchForm('meeting'); } },
-    { label:'添加动态', icon:'📝', color:'#10b981', action: openAddAct },
+    { label:'新增会议', icon:_svgCalendar, color:'#6366f1', action: () => { openModal(); switchForm('meeting'); } },
+    { label:'添加动态', icon:_svgPen,      color:'#10b981', action: openAddAct },
   ],
-  tasks:    [{ label:'新增任务',  icon:'✅', color:'#f59e0b', action: () => { openModal(); switchForm('task'); } }],
-  products: [{ label:'新增商品',  icon:'📦', color:'#06b6d4', action: () => { openModal(); switchForm('product'); } }],
-  meetings: [{ label:'新增会议',  icon:'📅', color:'#6366f1', action: () => { openModal(); switchForm('meeting'); } }],
-  gameacc:  [{ label:'新增账号',  icon:'🎮', color:'#818cf8', action: openAddGameAcc }],
+  tasks:    [{ label:'新增任务',  icon:_svgCheck,    color:'#f59e0b', action: () => { openModal(); switchForm('task'); } }],
+  products: [{ label:'新增商品',  icon:_svgBox,      color:'#06b6d4', action: () => { openModal(); switchForm('product'); } }],
+  meetings: [{ label:'新增会议',  icon:_svgCalendar, color:'#6366f1', action: () => { openModal(); switchForm('meeting'); } }],
+  gameacc:  [{ label:'新增账号',  icon:_svgGame,     color:'#818cf8', action: openAddGameAcc }],
   profile:  null,
 };
 
@@ -4848,7 +4853,7 @@ function _renderGameAccToEl(elId, filter) {
           <span class="ga-card-bottom-label">密码</span>
           <span class="ga-pwd-row">
             <span id="pwd-${a.id}" class="ga-pwd-text">••••••••</span>
-            <button class="ga-eye-btn" onclick="togglePwd('${a.id}','${(a.pwd||'').replace(/'/g,"\\'")}')">👁</button>
+            <button class="ga-eye-btn" onclick="togglePwd('${a.id}','${(a.pwd||'').replace(/'/g,"\\'")}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           </span>
         </div>
         <div class="ga-card-bottom-item">
@@ -5785,7 +5790,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         // 检查当前页面URL版本号是否匹配（若不一致说明有新版本，强制刷新）
         const u = new URL(location.href);
         if (u.searchParams.get('v') !== VER) {
-          _ptrTip.textContent = '🆕 发现新版本，更新中...';
+          _ptrTip.textContent = '发现新版本，更新中...';
           setTimeout(() => location.reload(true), 600);
         } else {
           _ptrTip.textContent = '✓ 已是最新';
