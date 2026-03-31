@@ -9,7 +9,7 @@
 <meta http-equiv="Expires" content="0"/>
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
-var VER = '20260314-068';
+var VER = '20260314-069';
 (function(){
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
@@ -4366,7 +4366,7 @@ function switchForm(type) {
 
 function clearForms() {
   document.querySelectorAll('.sheet input,.sheet textarea').forEach(e => { if(e.type!=='file') e.value=''; });
-  setDateVal('f-m-date', new Date().toISOString().split('T')[0]);
+  setDateVal('f-m-date', new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Shanghai' })).toISOString().split('T')[0]);
   const _mstatus = document.getElementById('f-m-status');
   if (_mstatus) _mstatus.value = 'pending';
   const _mlink = document.getElementById('f-m-link');
@@ -4480,7 +4480,7 @@ function addAct(text, type) {
 
 function saveRecord() {
   const s = getLocal();
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Shanghai' })).toISOString().split('T')[0];
   const modal = document.getElementById('modal');
 
   if (curForm === 'task') {
@@ -5022,7 +5022,7 @@ function saveGameAcc() {
     toast('账号已更新 ✓');
   } else {
     obj.id = 'ga' + Date.now();
-    obj.date = new Date().toISOString().split('T')[0];
+    obj.date = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Shanghai' })).toISOString().split('T')[0];
     s.gameAccounts.unshift(stampNow(obj));
     toast('账号已添加 ✓');
   }
@@ -5059,7 +5059,7 @@ function calcIncomeFee() {
 }
 
 function openAddIncome() {
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Shanghai' })).toISOString().split('T')[0];
   setDateVal('inc-date', today);
   document.getElementById('inc-amount').value = '';
   document.getElementById('inc-fee').value    = '';
