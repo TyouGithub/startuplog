@@ -9,7 +9,7 @@
 <meta http-equiv="Expires" content="0"/>
 <script>
 // ── 版本号强刷：每次发布更新此版本号，手机会自动绕过缓存重新加载 ──
-var VER = '20260314-069';
+var VER = '20260314-070';
 (function(){
   var u = new URL(location.href);
   if (u.searchParams.get('v') !== VER) {
@@ -1583,7 +1583,12 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
     <div class="form-grid-2">
       <div class="form-group">
         <label class="form-label">游戏名称 *</label>
-        <input class="form-input" id="ga-game" placeholder="王者荣耀"/>
+        <select class="form-select" id="ga-game">
+          <option value="">请选择游戏</option>
+          <option value="王者荣耀">王者荣耀</option>
+          <option value="和平精英">和平精英</option>
+          <option value="CF手游">CF手游</option>
+        </select>
       </div>
       <div class="form-group">
         <label class="form-label">系统</label>
@@ -1596,7 +1601,7 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
     <div class="form-grid-2">
       <div class="form-group">
         <label class="form-label">账号名称 *</label>
-        <input class="form-input" id="ga-name" placeholder="如：神1150"/>
+        <input class="form-input" id="ga-name" placeholder="账号名称"/>
       </div>
       <div class="form-group">
         <label class="form-label">区服</label>
@@ -1615,7 +1620,8 @@ body::after{content:'';position:fixed;bottom:-100px;left:0;right:0;height:120px;
     </div>
     <div class="form-group">
       <label class="form-label">密保手机</label>
-      <input class="form-input" id="ga-phone" placeholder="手机号" type="tel"/>
+      <input class="form-input" id="ga-phone" placeholder="手机号" type="tel" list="gaPhoneList"/>
+      <datalist id="gaPhoneList"></datalist>
     </div>
 
     <div class="modal-section-label">价格 & 状态</div>
@@ -4959,6 +4965,14 @@ function _renderIncomeToEl(elId) {
     </div>`;
 }
 
+// 填充手机号建议（从已有账号提取）
+function populatePhoneSuggestions() {
+  const s = getLocal();
+  const phones = [...new Set((s.gameAccounts||[]).map(a => a.phone).filter(Boolean))].sort();
+  const dl = document.getElementById('gaPhoneList');
+  if (dl) dl.innerHTML = phones.map(p => `<option value="${p}">`).join('');
+}
+
 // 打开新增账号弹窗
 function openAddGameAcc() {
   document.getElementById('gameaccModalTitle').textContent = '新增账号';
@@ -4969,6 +4983,7 @@ function openAddGameAcc() {
   document.getElementById('ga-status').value = '正常';
   document.getElementById('ga-region').value = 'QQ区';
   delete document.getElementById('gameaccModal').dataset.editId;
+  populatePhoneSuggestions();
   document.getElementById('gameaccModal').classList.add('show');
 }
 
@@ -4992,6 +5007,7 @@ function editGameAcc(id) {
   document.getElementById('ga-status').value    = a.status || '正常';
   document.getElementById('ga-note').value      = a.note || '';
   document.getElementById('gameaccModal').dataset.editId = id;
+  populatePhoneSuggestions();
   document.getElementById('gameaccModal').classList.add('show');
 }
 
